@@ -41,75 +41,89 @@ const Navbar = () => {
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
         className={cn(
-          'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
-          isScrolled ? 'py-2 sm:py-3' : 'py-4 sm:py-5'
+          'fixed top-0 left-0 right-0 z-50 transition-all duration-500 flex justify-center',
+          isScrolled ? 'pt-4' : 'pt-6'
         )}
       >
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <nav
-            className={cn(
-              'flex items-center justify-between rounded-2xl transition-all duration-300',
-              isScrolled
-                ? 'bg-[#0a0a0f]/80 backdrop-blur-xl border border-white/[0.08] px-4 sm:px-6 py-3 shadow-2xl shadow-black/20'
-                : 'px-2'
-            )}
+        <nav
+          className={cn(
+            'relative flex items-center justify-between rounded-full transition-all duration-500 border border-white/10 backdrop-blur-xl shadow-lg shadow-purple-500/5',
+            isScrolled 
+              ? 'bg-[#0a0a0f]/80 w-[90%] md:w-[70%] max-w-5xl py-3 pl-5 pr-3' 
+              : 'bg-[#0a0a0f]/60 w-[95%] md:w-[85%] max-w-7xl py-4 pl-6 pr-4'
+          )}
+        >
+          {/* Logo */}
+          <motion.a
+            href="#home"
+            className="flex items-center gap-3 group z-10"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
           >
-            {/* Logo */}
-            <motion.a
-              href="#home"
-              className="flex items-center gap-2 sm:gap-3 group z-10"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              <div className="relative">
-                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-lg shadow-purple-500/30">
-                  <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-                </div>
-                <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 blur-xl opacity-40 group-hover:opacity-60 transition-opacity" />
-              </div>
-              <div className="font-display text-lg sm:text-xl font-bold tracking-wide">
-                <span className="text-white">THIRAN</span>
-                <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">'26</span>
-              </div>
-            </motion.a>
-
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center">
-              <div className="flex items-center gap-1 bg-white/[0.03] backdrop-blur-sm rounded-full p-1.5 border border-white/[0.06]">
-                {navLinks.map((link) => (
-                  <a
-                    key={link.name}
-                    href={link.href}
-                    onClick={() => setActiveLink(link.name)}
-                    className={cn(
-                      'relative px-4 lg:px-5 py-2 text-sm font-medium transition-all duration-200 rounded-full',
-                      activeLink === link.name
-                        ? 'text-white'
-                        : 'text-gray-400 hover:text-white'
-                    )}
-                  >
-                    {activeLink === link.name && (
-                      <motion.div
-                        layoutId="activeNav"
-                        className="absolute inset-0 bg-white/[0.08] rounded-full"
-                        transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-                      />
-                    )}
-                    <span className="relative z-10">{link.name}</span>
-                  </a>
-                ))}
+            <div className="relative">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-gradient-to-tr from-purple-500/20 to-pink-500/20 border border-white/10 flex items-center justify-center shadow-lg shadow-purple-500/20 group-hover:shadow-purple-500/40 transition-all duration-300">
+                <Sparkles className="w-5 h-5 text-purple-400 group-hover:text-pink-400 transition-colors" />
               </div>
             </div>
+            <div className="flex flex-col">
+              <span className="font-display font-bold text-lg tracking-wide text-white group-hover:text-purple-300 transition-colors">
+                THIRAN
+              </span>
+            </div>
+          </motion.a>
 
-            {/* CTA Button - Desktop */}
-            <div className="hidden md:block">
-              <Button variant="primary" size="md" className="group">
-                <span>Register Now</span>
-                <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+          {/* Desktop Navigation - Centered */}
+          <div className="hidden md:flex items-center gap-8 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+            {navLinks.map((link) => (
+              <a
+                key={link.name}
+                href={link.href}
+                onClick={() => setActiveLink(link.name)}
+                className={cn(
+                  'relative text-sm font-medium transition-colors hover:text-purple-400',
+                  activeLink === link.name ? 'text-white' : 'text-gray-400'
+                )}
+              >
+                {link.name}
+                {activeLink === link.name && (
+                  <motion.div
+                    layoutId="activeNavDot"
+                    className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-purple-500"
+                  />
+                )}
+              </a>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-4">
+             {/* CTA Button - Desktop */}
+             <div className="hidden md:block">
+              <Button 
+                variant="primary" 
+                size="sm"
+                className="rounded-full px-6 h-9 bg-white text-black hover:bg-white/90 border-0"
+                onClick={() => document.getElementById('events').scrollIntoView({ behavior: 'smooth' })}
+              >
+                <span className="font-semibold">Register</span>
               </Button>
             </div>
 
             {/* Mobile Menu Button */}
+            <motion.button
+              className="md:hidden relative z-10 w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-white/10"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              whileTap={{ scale: 0.9 }}
+              aria-label="Toggle menu"
+            >
+              <AnimatePresence mode="wait">
+                {isMobileMenuOpen ? (
+                  <motion.div
+                    key="close"
+                    initial={{ rotate: -90, opacity: 0 }}
+                    animate={{ rotate: 0, opacity: 1 }}
+                    exit={{ rotate: 90, opacity: 0 }}
+                    transition={{ duration: 0.15 }}
+                  >
             <motion.button
               className="md:hidden relative z-10 w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -164,7 +178,7 @@ const Navbar = () => {
               className="fixed top-20 left-4 right-4 z-50 md:hidden"
             >
               <div className="bg-[#0f0f18]/95 backdrop-blur-xl rounded-2xl border border-white/10 p-4 shadow-2xl shadow-black/40">
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-2">
                   {navLinks.map((link, index) => (
                     <motion.a
                       key={link.name}
@@ -174,18 +188,21 @@ const Navbar = () => {
                         setIsMobileMenuOpen(false);
                       }}
                       className={cn(
-                        'flex items-center justify-between px-4 py-3.5 rounded-xl font-medium transition-all',
+                        'flex items-center justify-between px-4 py-4 rounded-xl font-medium transition-all border border-transparent',
                         activeLink === link.name
-                          ? 'bg-purple-500/10 text-white'
+                          ? 'bg-purple-500/10 text-white border-purple-500/20 shadow-[inset_0_0_10px_rgba(168,85,247,0.1)]'
                           : 'text-gray-400 hover:text-white hover:bg-white/5'
                       )}
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.05 }}
                     >
-                      <span>{link.name}</span>
+                      <span className="text-base tracking-wide">{link.name}</span>
                       {activeLink === link.name && (
-                        <div className="w-1.5 h-1.5 rounded-full bg-purple-500" />
+                        <motion.div 
+                          layoutId="activeMobile"
+                          className="w-2 h-2 rounded-full bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.8)]" 
+                        />
                       )}
                     </motion.a>
                   ))}
@@ -195,7 +212,10 @@ const Navbar = () => {
                     variant="primary"
                     size="lg"
                     className="w-full justify-center"
-                    onClick={() => setIsMobileMenuOpen(false)}
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      document.getElementById('events').scrollIntoView({ behavior: 'smooth' });
+                    }}
                   >
                     <span>Register Now</span>
                     <ChevronRight className="w-4 h-4" />

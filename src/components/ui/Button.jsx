@@ -3,18 +3,19 @@ import { motion } from 'framer-motion';
 import { cn } from '../../lib/utils';
 
 const buttonVariants = {
-  primary: 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 hover:from-purple-500 hover:to-pink-500',
-  secondary: 'bg-white/5 text-white border border-white/10 hover:bg-white/10 hover:border-white/20',
-  outline: 'border-2 border-transparent bg-clip-padding [background:linear-gradient(#050508,#050508)_padding-box,linear-gradient(135deg,#a855f7,#ec4899)_border-box] hover:bg-purple-500/10',
-  ghost: 'text-gray-300 hover:text-white hover:bg-white/5',
+  primary: 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 hover:from-purple-500 hover:to-pink-500 border border-white/10',
+  secondary: 'bg-white/5 text-white border border-white/10 hover:bg-white/10 hover:border-white/20 backdrop-blur-sm',
+  outline: 'border border-white/20 hover:border-purple-500/50 hover:bg-purple-500/10 text-white transition-colors',
+  ghost: 'text-gray-400 hover:text-white hover:bg-white/5',
+  glass: 'bg-white/5 backdrop-blur-lg border border-white/10 text-white hover:bg-white/10 hover:border-white/20 shadow-xl',
 };
 
 const buttonSizes = {
-  sm: 'h-9 px-4 text-sm rounded-lg',
-  md: 'h-11 px-6 text-sm rounded-xl',
+  sm: 'h-8 px-3 text-xs rounded-lg',
+  md: 'h-10 px-5 text-sm rounded-lg',
   lg: 'h-12 px-8 text-base rounded-xl',
-  xl: 'h-14 px-10 text-base rounded-2xl',
-  icon: 'h-10 w-10 rounded-xl',
+  xl: 'h-14 px-10 text-lg rounded-2xl',
+  icon: 'h-10 w-10 p-0 rounded-lg',
 };
 
 const Button = forwardRef(({ 

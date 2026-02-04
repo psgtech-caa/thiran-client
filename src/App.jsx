@@ -6,9 +6,10 @@ import Hero from './components/Hero';
 import WhyThiran from './components/WhyThiran';
 import Events from './components/Events';
 import EventModal from './components/EventModal';
-import ParticleField from './components/ParticleField';
+import StarField from './components/StarField';
 import Footer from './components/Footer';
 import { GoogleOAuthProvider } from '@react-oauth/google';
+import { AnimatePresence } from 'framer-motion';
 import './index.css';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -47,22 +48,22 @@ function App() {
 
   return (
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-      <div ref={appRef} className="cyber-bg min-h-screen relative noise">
-        <div className="grid-pattern fixed inset-0 pointer-events-none z-0" />
-        <ParticleField />
-        <Navbar />
+      <div ref={appRef} className="relative min-h-screen bg-[#050508] text-white selection:bg-purple-500/30">
+        <StarField />
         
-        <main className="relative z-10 space-y-12 sm:space-y-16 lg:space-y-24">
+        <div className="relative z-10">
+          <Navbar />
           <Hero mousePosition={mousePosition} />
           <WhyThiran />
           <Events onEventClick={handleEventClick} mousePosition={mousePosition} />
-        </main>
+          <Footer />
+        </div>
 
-        <Footer />
-
-        {selectedEvent && (
-          <EventModal event={selectedEvent} onClose={handleCloseModal} />
-        )}
+        <AnimatePresence>
+          {selectedEvent && (
+            <EventModal event={selectedEvent} onClose={handleCloseModal} />
+          )}
+        </AnimatePresence>
       </div>
     </GoogleOAuthProvider>
   );
