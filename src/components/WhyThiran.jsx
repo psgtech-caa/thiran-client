@@ -1,8 +1,7 @@
-import { useRef } from 'react';
-import { motion, useInView } from 'framer-motion';
+import { useRef, useState } from 'react';
+import { motion, useInView, AnimatePresence } from 'framer-motion';
 import { Rocket, Trophy, Users, Lightbulb, Zap, Target } from 'lucide-react';
 import { Badge } from './ui/Badge';
-import { cn } from '../lib/utils';
 
 const features = [
   {
@@ -45,21 +44,26 @@ const stats = [
 const WhyThiran = () => {
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, margin: '-100px' });
+  const [selected, setSelected] = useState(null);
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
+  // Animation variants for cards (premium, smooth)
+  const gridCardVariants = {
+    initial: { opacity: 0, scale: 0.96 },
+    animate: {
       opacity: 1,
-      transition: { staggerChildren: 0.15 },
+      scale: 1,
+      transition: {
+        duration: 0.6,
+        ease: [0.22, 1, 0.36, 1], // softer cubic-bezier
+      },
     },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 40 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] },
+    exit: {
+      opacity: 0,
+      scale: 0.96,
+      transition: {
+        duration: 0.45,
+        ease: [0.22, 1, 0.36, 1],
+      },
     },
   };
 
@@ -81,7 +85,7 @@ const WhyThiran = () => {
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         >
           <motion.div
-            className="flex justify-center mb-4 sm:mb-6"
+            className="flex justify-center mb-6 sm:mb-8 lg:mb-10"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={isInView ? { opacity: 1, scale: 1 } : {}}
             transition={{ delay: 0.2 }}
@@ -92,63 +96,105 @@ const WhyThiran = () => {
             </Badge>
           </motion.div>
 
-          <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6">
+          <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-6 sm:mb-8 lg:mb-10">
             <span className="text-white">Why </span>
             <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent">THIRAN</span>
             <span className="text-white">?</span>
           </h2>
 
-          <p className="text-base sm:text-lg lg:text-xl text-gray-400 max-w-3xl mx-auto leading-relaxed px-4">
-            Thiran, meaning{' '}
-            <span className="text-purple-400 font-medium">"ability"</span> or{' '}
-            <span className="text-pink-400 font-medium">"skill"</span> in Tamil,
-            is PSG Tech's premier intra-college technical festival. Where passion
-            meets opportunity.
-          </p>
+          <div className="flex flex-col items-center w-full mt-8 sm:mt-10 lg:mt-12">
+            <span className="text-base sm:text-lg lg:text-xl text-gray-400 font-normal max-w-3xl w-full text-center leading-relaxed px-4">
+              Thiran, meaning{' '}
+              <span className="text-purple-400 font-medium">"ability"</span> or{' '}
+              <span className="text-pink-400 font-medium">"skill"</span> in Tamil,
+            </span>
+            <span className="text-base sm:text-lg lg:text-xl text-gray-400 font-normal max-w-3xl w-full text-center leading-relaxed px-4">
+              is PSG Tech's premier intra-college technical festival.
+            </span>
+            <span className="text-base sm:text-lg lg:text-xl text-gray-400 font-normal max-w-3xl w-full text-center leading-relaxed px-4">
+              Where passion meets opportunity.
+            </span>
+          </div>
         </motion.div>
 
-        {/* Feature cards */}
-        <motion.div
-          className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-12 sm:mb-16 lg:mb-20"
-          variants={containerVariants}
-          initial="hidden"
-          animate={isInView ? 'visible' : 'hidden'}
-        >
-          {features.map((feature, index) => (
-            <motion.div
-              key={index}
-              variants={itemVariants}
-              className="group relative"
-            >
-              <div className="bg-gradient-to-br from-purple-500/5 to-pink-500/5 border border-white/[0.08] backdrop-blur-xl rounded-2xl sm:rounded-3xl p-5 sm:p-6 lg:p-8 h-full relative overflow-hidden transition-all duration-300 hover:border-white/20 hover:shadow-lg hover:shadow-purple-500/5">
-                {/* Gradient overlay on hover */}
-                <div
-                  className={cn('absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-5 transition-opacity duration-500', feature.gradient)}
-                />
-
-                {/* Icon */}
-                <div
-                  className={cn('w-11 h-11 sm:w-12 sm:h-12 lg:w-14 lg:h-14 rounded-xl sm:rounded-2xl bg-gradient-to-br flex items-center justify-center mb-4 sm:mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg', feature.gradient)}
+        {/* Feature cards - Grid & Expand on Click (no hover logic) */}
+        <div className="relative mb-12 sm:mb-16 lg:mb-20 min-h-[340px]">
+          <AnimatePresence initial={false}>
+            {selected === null ? (
+              <motion.div
+                key="grid"
+                className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 place-items-center"
+                layout
+                variants={gridCardVariants}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+              >
+                {features.map((feature, idx) => {
+                  const Icon = feature.icon;
+                  return (
+                    <motion.div
+                      key={feature.title}
+                      className="group relative cursor-pointer w-full max-w-[280px]"
+                      layoutId={`feature-card-${idx}`}
+                      layout
+                      whileTap={{ scale: 0.97 }}
+                      onClick={() => setSelected(idx)}
+                      variants={gridCardVariants}
+                    >
+                      <div className="bg-black/30 backdrop-blur-lg relative border-2 border-transparent group-hover:border-pink-400 group-hover:border-purple-400 group-hover:shadow-pink-400/30 group-hover:shadow-lg rounded-2xl sm:rounded-3xl p-4 sm:p-5 h-full overflow-hidden transition-all duration-300">
+                        <div className="absolute top-0 left-0 w-full h-1/3 bg-gradient-to-br from-white/20 to-transparent rounded-t-2xl pointer-events-none" />
+                        <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-4 shadow-lg`}>
+                          <Icon className="w-5 h-5 text-white" />
+                        </div>
+                        <h3 className="font-heading text-base sm:text-lg font-bold text-white mb-2 text-center">
+                          {feature.title}
+                        </h3>
+                        <p className="text-white/80 text-xs sm:text-sm leading-relaxed text-center">
+                          {feature.description}
+                        </p>
+                        <div className="absolute inset-0 pointer-events-none rounded-2xl sm:rounded-3xl border border-gradient-to-br from-pink-400 to-purple-400 opacity-40" />
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </motion.div>
+            ) : (
+              <motion.div
+                key="expanded"
+                className="flex justify-center items-center min-h-[340px]"
+                layout
+                initial={{ opacity: 0, scale: 0.96 }}
+                animate={{ opacity: 1, scale: 1.08, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } }}
+                exit={{ opacity: 0, scale: 0.96, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } }}
+              >
+                <motion.div
+                  className="bg-black/30 backdrop-blur-xl relative border-2 border-transparent rounded-3xl p-10 sm:p-12 h-full overflow-hidden transition-all duration-300"
+                  layoutId={`feature-card-${selected}`}
+                  layout
+                  onClick={() => setSelected(null)}
+                  initial={{ opacity: 0, scale: 0.96 }}
+                  animate={{ opacity: 1, scale: 1.08, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } }}
+                  exit={{ opacity: 0, scale: 0.96, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } }}
                 >
-                  <feature.icon size={20} className="text-white sm:w-6 sm:h-6" />
-                </div>
-
-                {/* Content */}
-                <h3 className="font-heading text-lg sm:text-xl lg:text-2xl font-bold text-white mb-2 sm:mb-3">
-                  {feature.title}
-                </h3>
-                <p className="text-sm sm:text-base text-gray-400 leading-relaxed">
-                  {feature.description}
-                </p>
-
-                {/* Decorative corner */}
-                <div
-                  className={cn('absolute top-0 right-0 w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-bl opacity-10 rounded-bl-3xl', feature.gradient)}
-                />
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
+                  <div className="absolute top-0 left-0 w-full h-1/3 bg-gradient-to-br from-white/20 to-transparent rounded-t-3xl pointer-events-none" />
+                  {(() => { const Icon = features[selected].icon; return (
+                    <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${features[selected].gradient} flex items-center justify-center mb-8 shadow-lg mx-auto`}>
+                      <Icon className="w-8 h-8 text-white" />
+                    </div>
+                  ); })()}
+                  <h3 className="font-heading text-2xl sm:text-3xl font-bold text-white mb-4 text-center">
+                    {features[selected].title}
+                  </h3>
+                  <p className="text-white/80 text-base sm:text-lg leading-relaxed text-center">
+                    {features[selected].description}
+                  </p>
+                  <div className="absolute inset-0 pointer-events-none rounded-3xl border border-gradient-to-br from-pink-400 to-purple-400 opacity-50" />
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
 
         {/* Stats section */}
         <motion.div
