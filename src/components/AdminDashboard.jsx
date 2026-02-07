@@ -8,7 +8,7 @@ import { Users, Download, Loader2, Search, Filter, ArrowLeft } from 'lucide-reac
 import { Button } from './ui/Button';
 
 const AdminDashboard = () => {
-  const { user, isAdmin, loading: authLoading } = useAuth();
+  const { isAdmin, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [participants, setParticipants] = useState([]);
