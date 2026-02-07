@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Phone, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Phone, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 import { Button } from './ui/Button';
 import { useAuth } from '../lib/authContext';
 
