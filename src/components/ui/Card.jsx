@@ -6,6 +6,7 @@ const Card = forwardRef(({ className, variant = 'default', ...props }, ref) => {
     default: 'bg-white/[0.02] border-white/[0.08]',
     glass: 'bg-gradient-to-br from-purple-500/10 via-transparent to-pink-500/5 border-white/10',
     solid: 'bg-[#0f0f15] border-white/5',
+    neon: 'bg-[#0f0f18]/90 border-purple-500/20 shadow-[0_0_15px_rgba(168,85,247,0.1)] hover:shadow-[0_0_25px_rgba(168,85,247,0.2)] hover:border-purple-500/40',
   };
 
   return (

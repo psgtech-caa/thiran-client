@@ -42,93 +42,54 @@ const Footer = () => {
   ];
 
   return (
-    <footer id="contact" className="section relative pb-6 sm:pb-8 overflow-hidden">
+    <footer id="contact" className="relative pt-20 sm:pt-32 pb-8 sm:pb-12 overflow-hidden border-t border-white/5 bg-[#050508]">
       {/* Background decorations */}
-      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-500/30 to-transparent" />
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[400px] sm:w-[600px] lg:w-[800px] h-[200px] sm:h-[300px] lg:h-[400px] bg-purple-500/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-px bg-gradient-to-r from-transparent via-purple-500/50 to-transparent" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-purple-500/5 rounded-full blur-[100px] pointer-events-none" />
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        {/* Top section with CTA */}
-        <motion.div
-          className="bg-gradient-to-br from-purple-500/10 via-pink-500/5 to-transparent border border-white/[0.08] backdrop-blur-xl rounded-2xl sm:rounded-3xl p-6 sm:p-8 lg:p-12 mb-10 sm:mb-12 lg:mb-16 text-center relative overflow-hidden"
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-        >
-          <div className="relative z-10">
-            <motion.div
-              className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-xl sm:rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg shadow-purple-500/30"
-              animate={{ rotate: [0, 10, -10, 0] }}
-              transition={{ duration: 4, repeat: Infinity }}
-            >
-              <Sparkles size={24} className="text-white sm:w-7 sm:h-7" />
-            </motion.div>
-            <h3 className="font-heading text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-3 sm:mb-4">
-              Ready to Make Your Mark?
-            </h3>
-            <p className="text-sm sm:text-base text-gray-400 max-w-2xl mx-auto mb-6 sm:mb-8 px-2">
-              Join hundreds of students competing for glory at Thiran 2026. Don't miss your chance to showcase your skills!
-            </p>
-            <Button variant="primary" size="lg" className="group">
-              <span>Register Now</span>
-              <ArrowUpRight size={16} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-            </Button>
-          </div>
-        </motion.div>
-
-        {/* Main footer content */}
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-6 sm:gap-8 lg:gap-12 mb-8 sm:mb-12">
-          {/* Brand section */}
-          <div className="col-span-2 sm:col-span-2 lg:col-span-2">
-            <motion.a
-              href="#home"
-              className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6 group"
-              whileHover={{ scale: 1.02 }}
-            >
-              <div className="relative">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-lg shadow-purple-500/30">
-                  <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                </div>
-                <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 blur-lg opacity-40 group-hover:opacity-60 transition-opacity" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8 mb-16">
+          {/* Brand Column */}
+          <div className="md:col-span-2 lg:col-span-1">
+            <a href="#home" className="flex items-center gap-3 mb-6 group">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-lg shadow-purple-500/20">
+                <Sparkles className="w-5 h-5 text-white" />
               </div>
-              <div className="font-display text-xl sm:text-2xl font-bold">
+              <div className="font-display text-2xl font-bold tracking-wide">
                 <span className="text-white">THIRAN</span>
                 <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">'26</span>
               </div>
-            </motion.a>
-            <p className="text-sm sm:text-base text-gray-400 leading-relaxed mb-4 sm:mb-6 max-w-sm">
-              PSG College of Technology's premier intra-college technical festival. Where innovation meets competition.
+            </a>
+            <p className="text-gray-400 mb-8 leading-relaxed">
+              Empowering the next generation of innovators and creators. Join us at PSG Tech for an unforgettable tech fest experience.
             </p>
-            <div className="flex gap-2 sm:gap-3">
+            <div className="flex gap-4">
               {socialLinks.map((social, index) => (
-                <motion.a
+                <a
                   key={index}
                   href={social.href}
-                  className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-white/[0.03] border border-white/[0.08] flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 hover:border-white/20 transition-all"
-                  whileHover={{ scale: 1.1, y: -2 }}
-                  whileTap={{ scale: 0.95 }}
+                  className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:text-white hover:bg-purple-500/20 transition-all duration-300 border border-white/5 hover:border-purple-500/30"
                   aria-label={social.label}
                 >
-                  <social.icon size={16} className="sm:w-[18px] sm:h-[18px]" />
-                </motion.a>
+                  <social.icon size={18} />
+                </a>
               ))}
             </div>
           </div>
 
-          {/* Links sections */}
-          {footerLinks.map((section, index) => (
-            <div key={index} className="col-span-1">
-              <h4 className="font-heading font-semibold text-white text-sm sm:text-base mb-3 sm:mb-4">{section.title}</h4>
-              <ul className="space-y-2 sm:space-y-3">
-                {section.links.map((link, linkIndex) => (
-                  <li key={linkIndex}>
-                    <a
-                      href={link.href}
-                      className="text-xs sm:text-sm text-gray-400 hover:text-white transition-colors flex items-center gap-1.5 sm:gap-2 group"
+          {/* Links Columns */}
+          {footerLinks.map((column, idx) => (
+            <div key={idx} className="flex flex-col gap-6">
+              <h3 className="font-display text-lg font-semibold text-white">{column.title}</h3>
+              <ul className="flex flex-col gap-4">
+                {column.links.map((link, linkIdx) => (
+                  <li key={linkIdx}>
+                    <a 
+                      href={link.href} 
+                      className="group flex items-center gap-3 text-gray-400 hover:text-purple-400 transition-colors"
                     >
-                      {link.icon && <link.icon size={12} className="text-purple-400 sm:w-[14px] sm:h-[14px]" />}
-                      <span className="group-hover:translate-x-0.5 transition-transform">{link.name}</span>
+                      {link.icon && <link.icon size={16} className="text-gray-500 group-hover:text-purple-400 transition-colors" />}
+                      <span className="text-sm">{link.name}</span>
                     </a>
                   </li>
                 ))}
@@ -137,15 +98,12 @@ const Footer = () => {
           ))}
         </div>
 
-        {/* Bottom bar */}
-        <div className="pt-6 sm:pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
-          <p className="text-gray-500 text-xs sm:text-sm text-center sm:text-left">
-            © {currentYear} Thiran 2026. PSG College of Technology. All rights reserved.
-          </p>
-          <div className="flex items-center gap-4 sm:gap-6 text-xs sm:text-sm">
-            <a href="#" className="text-gray-500 hover:text-white transition-colors">Privacy</a>
-            <a href="#" className="text-gray-500 hover:text-white transition-colors">Terms</a>
-            <a href="#" className="text-gray-500 hover:text-white transition-colors">Code of Conduct</a>
+        {/* Bottom Bar */}
+        <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-gray-500">
+          <p>© {currentYear} Thiran. All rights reserved.</p>
+          <div className="flex gap-8">
+            <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
+            <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
           </div>
         </div>
       </div>

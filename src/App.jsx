@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, lazy, Suspense } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Navbar from './components/Navbar';
@@ -6,20 +7,45 @@ import Hero from './components/Hero';
 import WhyThiran from './components/WhyThiran';
 import Events from './components/Events';
 import EventModal from './components/EventModal';
-import ParticleField from './components/ParticleField';
+import StarField from './components/StarField';
 import Footer from './components/Footer';
-import { GoogleOAuthProvider } from '@react-oauth/google';
+import MobileInputModal from './components/MobileInputModal';
+import { AnimatePresence } from 'framer-motion';
+import { AuthProvider, useAuth } from './lib/authContext';
 import './index.css';
+
+// Lazy load Admin Dashboard
+const AdminDashboard = lazy(() => import('./components/AdminDashboard'));
 
 gsap.registerPlugin(ScrollTrigger);
 
-// Replace with your Google OAuth Client ID
-const GOOGLE_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com';
+// Protected route component for admin
+function ProtectedAdminRoute({ children }) {
+  const { user, isAdmin, loading } = useAuth();
+  
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#050508] flex items-center justify-center">
+        <div className="text-purple-500 text-center">
+          <div className="w-16 h-16 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-sm text-gray-400">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+  
+  if (!user || !isAdmin) {
+    return <Navigate to="/" replace />;
+  }
+  
+  return children;
+}
 
-function App() {
+function AppContent() {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [mousePosition, setMousePosition] = useState({ x: 50, y: 50 });
   const appRef = useRef(null);
+  const { showMobileInput } = useAuth();
 
   useEffect(() => {
     const handleMouseMove = (e) => {
@@ -46,25 +72,55 @@ function App() {
   };
 
   return (
-    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-      <div ref={appRef} className="cyber-bg min-h-screen relative noise">
-        <div className="grid-pattern fixed inset-0 pointer-events-none z-0" />
-        <ParticleField />
-        <Navbar />
+    <div ref={appRef} className="relative min-h-screen bg-[#050508] text-white selection:bg-purple-500/30">
+      <Routes>
+        {/* Main Landing Page */}
+        <Route path="/" element={
+          <>
+            <StarField />
+            <div className="relative z-10">
+              <Navbar />
+              <Hero mousePosition={mousePosition} />
+              <WhyThiran />
+              <Events onEventClick={handleEventClick} mousePosition={mousePosition} />
+              <Footer />
+            </div>
+            <AnimatePresence>
+              {selectedEvent && (
+                <EventModal event={selectedEvent} onClose={handleCloseModal} />
+              )}
+              {showMobileInput && <MobileInputModal />}
+            </AnimatePresence>
+          </>
+        } />
         
-        <main className="relative z-10 space-y-12 sm:space-y-16 lg:space-y-24">
-          <Hero mousePosition={mousePosition} />
-          <WhyThiran />
-          <Events onEventClick={handleEventClick} mousePosition={mousePosition} />
-        </main>
+        {/* Admin Dashboard - Protected Route */}
+        <Route path="/admin" element={
+          <ProtectedAdminRoute>
+            <Suspense fallback={
+              <div className="min-h-screen bg-[#050508] flex items-center justify-center">
+                <div className="text-purple-500 text-center">
+                  <div className="w-16 h-16 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin mx-auto mb-4"></div>
+                  <p className="text-sm text-gray-400">Loading Dashboard...</p>
+                </div>
+              </div>
+            }>
+              <AdminDashboard />
+            </Suspense>
+          </ProtectedAdminRoute>
+        } />
+      </Routes>
+    </div>
+  );
+}
 
-        <Footer />
-
-        {selectedEvent && (
-          <EventModal event={selectedEvent} onClose={handleCloseModal} />
-        )}
-      </div>
-    </GoogleOAuthProvider>
+function App() {
+  return (
+    <Router>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </Router>
   );
 }
 
