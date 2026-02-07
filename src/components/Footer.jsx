@@ -1,156 +1,375 @@
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Sparkles, Mail, MapPin, Phone, Instagram, Twitter, Linkedin, Youtube, ArrowUpRight } from 'lucide-react';
-import { Button } from './ui/Button';
+import {
+  FaInstagram,
+  FaTwitter,
+  FaLinkedin,
+  FaYoutube,
+  FaEnvelope,
+  FaPhone,
+  FaMapMarkerAlt,
+  FaHeart,
+  FaStar,
+} from 'react-icons/fa';
+import { FiArrowUpRight } from 'react-icons/fi';
 
-const Footer = () => {
-  const currentYear = new Date().getFullYear();
+function Footer() {
+  const footerRef = useRef(null);
+  const [hoveredCard, setHoveredCard] = useState(null);
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.12, delayChildren: 0.2 },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] },
+    },
+  };
 
   const footerLinks = [
     {
       title: 'Quick Links',
       links: [
-        { name: 'Home', href: '#home' },
-        { name: 'About', href: '#about' },
-        { name: 'Events', href: '#events' },
-        { name: 'Register', href: '#events' },
+        { name: 'Home', href: '/' },
+        { name: 'About', href: '/about' },
+        { name: 'Events', href: '/events' },
+        { name: 'Register', href: '/register' },
       ],
     },
     {
       title: 'Events',
       links: [
-        { name: 'Code Sprint', href: '#events' },
-        { name: 'RoboWars', href: '#events' },
-        { name: 'Hackathon', href: '#events' },
-        { name: 'Tech Quiz', href: '#events' },
+        { name: 'Code Sprint', href: '/events/code-sprint' },
+        { name: 'RoboWars', href: '/events/robowars' },
+        { name: 'Hackathon', href: '/events/hackathon' },
+        { name: 'Tech Quiz', href: '/events/tech-quiz' },
       ],
     },
     {
       title: 'Contact',
       links: [
-        { name: 'thiran@psgtech.ac.in', href: 'mailto:thiran@psgtech.ac.in', icon: Mail },
-        { name: 'PSG Tech, Coimbatore', href: '#', icon: MapPin },
-        { name: '+91 98765 43210', href: 'tel:+919876543210', icon: Phone },
+        { name: 'thiran@psgtech.ac.in', href: 'mailto:thiran@psgtech.ac.in', icon: FaEnvelope },
+        { name: 'PSG Tech, Coimbatore', href: '#', icon: FaMapMarkerAlt },
+        { name: 'thirancaa', href: '#', icon: FaInstagram },
       ],
     },
   ];
 
   const socialLinks = [
-    { icon: Instagram, href: '#', label: 'Instagram' },
-    { icon: Twitter, href: '#', label: 'Twitter' },
-    { icon: Linkedin, href: '#', label: 'LinkedIn' },
-    { icon: Youtube, href: '#', label: 'YouTube' },
+    { icon: FaInstagram, href: 'https://instagram.com/psgtech', label: 'Instagram' },
+    { icon: FaTwitter, href: 'https://twitter.com/psgtech', label: 'Twitter' },
+    { icon: FaLinkedin, href: 'https://linkedin.com/school/psg-college-of-technology', label: 'LinkedIn' },
+    { icon: FaYoutube, href: 'https://youtube.com/@psgtech', label: 'YouTube' },
   ];
 
   return (
-    <footer id="contact" className="section relative pb-6 sm:pb-8 overflow-hidden">
-      {/* Background decorations */}
-      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-500/30 to-transparent" />
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[400px] sm:w-[600px] lg:w-[800px] h-[200px] sm:h-[300px] lg:h-[400px] bg-purple-500/5 rounded-full blur-3xl pointer-events-none" />
-
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        {/* Top section with CTA */}
+    <footer
+      ref={footerRef}
+      style={{
+        padding: '40px 15px 30px', // much smaller vertical space
+        position: 'relative',
+        overflow: 'hidden',
+        fontFamily: "'Inter', sans-serif",
+      }}
+    >
+      <div className="container mx-auto px-4 lg:px-6 relative z-10">
+        {/* Hero / CTA - smaller */}
         <motion.div
-          className="bg-gradient-to-br from-purple-500/10 via-pink-500/5 to-transparent border border-white/[0.08] backdrop-blur-xl rounded-2xl sm:rounded-3xl p-6 sm:p-8 lg:p-12 mb-10 sm:mb-12 lg:mb-16 text-center relative overflow-hidden"
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: false, amount: 0.3 }}
+          style={{
+            textAlign: 'center',
+            marginBottom: '40px',
+            padding: '30px 20px',
+            background: 'rgba(10,10,15,0.45)',
+            borderRadius: '12px',
+            backdropFilter: 'blur(10px)',
+            border: '1px solid rgba(168,85,247,0.22)',
+          }}
         >
-          <div className="relative z-10">
-            <motion.div
-              className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-xl sm:rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg shadow-purple-500/30"
-              animate={{ rotate: [0, 10, -10, 0] }}
-              transition={{ duration: 4, repeat: Infinity }}
-            >
-              <Sparkles size={24} className="text-white sm:w-7 sm:h-7" />
-            </motion.div>
-            <h3 className="font-heading text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-3 sm:mb-4">
-              Ready to Make Your Mark?
-            </h3>
-            <p className="text-sm sm:text-base text-gray-400 max-w-2xl mx-auto mb-6 sm:mb-8 px-2">
-              Join hundreds of students competing for glory at Thiran 2026. Don't miss your chance to showcase your skills!
-            </p>
-            <Button variant="primary" size="lg" className="group">
-              <span>Register Now</span>
-              <ArrowUpRight size={16} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-            </Button>
-          </div>
+          <motion.div
+            animate={{
+              rotate: [0, 12, -12, 0],
+              scale: [1, 1.05, 1],
+            }}
+            transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+            style={{
+              width: '60px',
+              height: '60px',
+              background: 'linear-gradient(135deg, #a855f7, #ec4899)',
+              borderRadius: '50%',
+              margin: '0 auto 1rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              border: '2px solid rgba(255,255,255,0.25)',
+              boxShadow: '0 0 20px rgba(168,85,247,0.5)',
+            }}
+          >
+            <FaStar color="#fff" size={24} />
+          </motion.div>
+
+          <h2 style={{
+            fontFamily: "'Orbitron', monospace",
+            fontSize: 'clamp(1.8rem, 5vw, 3rem)', // much smaller
+            fontWeight: 900,
+            background: 'linear-gradient(90deg, #ff69b4, #ff1493, #c71585, #a855f7)',
+            WebkitBackgroundClip: 'text',
+            backgroundClip: 'text',
+            color: 'transparent',
+            marginBottom: '0.8rem',
+            textShadow: '0 0 25px rgba(255,105,180,0.6)',
+            letterSpacing: '-0.8px',
+          }}>
+            Ready to Make Your Mark?
+          </h2>
+
+          <p style={{
+            fontSize: '0.95rem', // smaller
+            color: 'rgba(255,255,255,0.78)',
+            maxWidth: '580px',
+            margin: '0 auto 1.5rem',
+            lineHeight: '1.4',
+          }}>
+            Join hundreds of students competing for glory at Thiran 2026. Don't miss your chance to showcase your skills!
+          </p>
+
+          <motion.a
+            href="/register"
+            whileHover={{ scale: 1.05, boxShadow: '0 0 30px rgba(168,85,247,0.65)' }}
+            whileTap={{ scale: 0.96 }}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '10px 28px', // smaller button
+              background: 'linear-gradient(135deg, #7c3aed, #db2777)',
+              color: 'white',
+              fontWeight: 600,
+              borderRadius: '10px',
+              textDecoration: 'none',
+              boxShadow: '0 8px 25px rgba(168,85,247,0.45)',
+              fontSize: '0.9rem', // smaller text
+            }}
+          >
+            Register Now
+            <FiArrowUpRight size={14} />
+          </motion.a>
         </motion.div>
 
-        {/* Main footer content */}
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-6 sm:gap-8 lg:gap-12 mb-8 sm:mb-12">
-          {/* Brand section */}
-          <div className="col-span-2 sm:col-span-2 lg:col-span-2">
-            <motion.a
-              href="#home"
-              className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6 group"
-              whileHover={{ scale: 1.02 }}
+        {/* Links Cards - smaller */}
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: false, amount: 0.18 }}
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+            gap: '20px',
+            margin: '0 0 50px 0',
+          }}
+        >
+          {footerLinks.map((section, i) => (
+            <motion.div
+              key={i}
+              variants={itemVariants}
+              onMouseEnter={() => setHoveredCard(i)}
+              onMouseLeave={() => setHoveredCard(null)}
+              whileHover={{ y: -6, scale: 1.03 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+              style={{
+                padding: '18px', // smaller
+                background: hoveredCard === i
+                  ? 'linear-gradient(135deg, rgba(168,85,247,0.12), rgba(236,72,153,0.08))'
+                  : 'rgba(10,10,15,0.48)',
+                border: '1px solid rgba(168,85,247,0.28)',
+                borderRadius: '10px',
+                backdropFilter: 'blur(10px)',
+                boxShadow: hoveredCard === i
+                  ? '0 15px 30px -8px rgba(168, 85, 247, 0.35)'
+                  : '0 4px 15px rgba(0,0,0,0.25)',
+                transition: 'all 0.35s ease',
+              }}
             >
-              <div className="relative">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-lg shadow-purple-500/30">
-                  <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                </div>
-                <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 blur-lg opacity-40 group-hover:opacity-60 transition-opacity" />
-              </div>
-              <div className="font-display text-xl sm:text-2xl font-bold">
-                <span className="text-white">THIRAN</span>
-                <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">'26</span>
-              </div>
-            </motion.a>
-            <p className="text-sm sm:text-base text-gray-400 leading-relaxed mb-4 sm:mb-6 max-w-sm">
-              PSG College of Technology's premier intra-college technical festival. Where innovation meets competition.
-            </p>
-            <div className="flex gap-2 sm:gap-3">
-              {socialLinks.map((social, index) => (
-                <motion.a
-                  key={index}
-                  href={social.href}
-                  className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-white/[0.03] border border-white/[0.08] flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 hover:border-white/20 transition-all"
-                  whileHover={{ scale: 1.1, y: -2 }}
-                  whileTap={{ scale: 0.95 }}
-                  aria-label={social.label}
-                >
-                  <social.icon size={16} className="sm:w-[18px] sm:h-[18px]" />
-                </motion.a>
-              ))}
-            </div>
-          </div>
+              <h4 style={{
+                fontFamily: "'Orbitron', monospace",
+                fontSize: '1.2rem', // smaller
+                fontWeight: 900,
+                background: 'linear-gradient(90deg, #ff69b4, #ff1493, #c71585, #a855f7)',
+                WebkitBackgroundClip: 'text',
+                backgroundClip: 'text',
+                color: 'transparent',
+                marginBottom: '0.9rem',
+                letterSpacing: '0.6px',
+                textShadow: '0 0 15px rgba(255,105,180,0.5)',
+              }}>
+                {section.title}
+              </h4>
 
-          {/* Links sections */}
-          {footerLinks.map((section, index) => (
-            <div key={index} className="col-span-1">
-              <h4 className="font-heading font-semibold text-white text-sm sm:text-base mb-3 sm:mb-4">{section.title}</h4>
-              <ul className="space-y-2 sm:space-y-3">
-                {section.links.map((link, linkIndex) => (
-                  <li key={linkIndex}>
-                    <a
-                      href={link.href}
-                      className="text-xs sm:text-sm text-gray-400 hover:text-white transition-colors flex items-center gap-1.5 sm:gap-2 group"
-                    >
-                      {link.icon && <link.icon size={12} className="text-purple-400 sm:w-[14px] sm:h-[14px]" />}
-                      <span className="group-hover:translate-x-0.5 transition-transform">{link.name}</span>
-                    </a>
-                  </li>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {section.links.map((link, j) => (
+                  <motion.a
+                    key={j}
+                    href={link.href}
+                    whileHover={{
+                      x: 5,
+                      color: '#ffffff',
+                      textShadow: '0 0 10px rgba(236,72,153,0.7)',
+                    }}
+                    style={{
+                      color: 'rgba(255,255,255,0.84)',
+                      textDecoration: 'none',
+                      fontSize: '0.85rem', // smaller
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8,
+                    }}
+                  >
+                    {link.icon && <link.icon size={13} />}
+                    {link.name}
+                  </motion.a>
                 ))}
-              </ul>
-            </div>
+              </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
 
-        {/* Bottom bar */}
-        <div className="pt-6 sm:pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
-          <p className="text-gray-500 text-xs sm:text-sm text-center sm:text-left">
-            © {currentYear} Thiran 2026. PSG College of Technology. All rights reserved.
+        {/* Brand & Social + Bottom - smaller */}
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: false, amount: 0.3 }}
+          style={{
+            textAlign: 'center',
+            padding: '30px 20px', // smaller
+            background: 'rgba(10,10,15,0.42)',
+            borderRadius: '12px',
+            border: '1px solid rgba(168,85,247,0.25)',
+            backdropFilter: 'blur(12px)',
+          }}
+        >
+          <motion.div
+            animate={{
+              rotate: [0, 12, -12, 0],
+              scale: [1, 1.05, 1],
+            }}
+            transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+            style={{
+              width: '60px',
+              height: '60px',
+              background: 'linear-gradient(135deg, #a855f7, #ec4899)',
+              borderRadius: '50%',
+              margin: '0 auto 1rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              border: '2px solid rgba(255,255,255,0.25)',
+              boxShadow: '0 0 20px rgba(168,85,247,0.5)',
+            }}
+          >
+            <FaStar color="#fff" size={24} />
+          </motion.div>
+
+          <h3 style={{
+            fontFamily: "'Orbitron', monospace",
+            fontSize: '2.2rem', // smaller
+            fontWeight: 900,
+            background: 'linear-gradient(90deg, #ff69b4, #ff1493, #c71585, #a855f7)',
+            WebkitBackgroundClip: 'text',
+            backgroundClip: 'text',
+            color: 'transparent',
+            marginBottom: '0.8rem',
+            textShadow: '0 0 25px rgba(255,105,180,0.7)',
+            letterSpacing: '-0.8px',
+          }}>
+            THIRAN'26
+          </h3>
+
+          <p style={{
+            fontSize: '0.9rem', // smaller
+            color: 'rgba(255,255,255,0.78)',
+            marginBottom: '2rem',
+            maxWidth: '520px',
+            marginLeft: 'auto',
+            marginRight: 'auto',
+          }}>
+            PSG College of Technology's premier intra-college technical festival. Where innovation meets competition.
           </p>
-          <div className="flex items-center gap-4 sm:gap-6 text-xs sm:text-sm">
-            <a href="#" className="text-gray-500 hover:text-white transition-colors">Privacy</a>
-            <a href="#" className="text-gray-500 hover:text-white transition-colors">Terms</a>
-            <a href="#" className="text-gray-500 hover:text-white transition-colors">Code of Conduct</a>
+
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            gap: '16px',
+            flexWrap: 'wrap',
+            marginBottom: '2rem',
+          }}>
+            {socialLinks.map((s, i) => (
+              <motion.a
+                key={i}
+                href={s.href}
+                target="_blank"
+                rel="noreferrer"
+                whileHover={{
+                  y: -6,
+                  scale: 1.2,
+                  rotate: 8,
+                  boxShadow: '0 0 20px rgba(168,85,247,0.7)',
+                }}
+                transition={{ type: 'spring', stiffness: 320, damping: 14 }}
+                style={{
+                  width: '44px',
+                  height: '44px',
+                  background: 'rgba(168,85,247,0.15)',
+                  color: '#ffffff',
+                  borderRadius: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  border: '1px solid rgba(168,85,247,0.4)',
+                  fontSize: '1.2rem',
+                  boxShadow: '0 0 10px rgba(168,85,247,0.35)',
+                }}
+              >
+                <s.icon />
+              </motion.a>
+            ))}
           </div>
-        </div>
+
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '0.8rem',
+            fontSize: '0.75rem', // smaller
+            color: 'rgba(255,255,255,0.75)',
+            paddingTop: '1.5rem',
+          }}>
+            <div>© Thiran 2026. PSG College of Technology. All rights reserved.</div>
+
+            <motion.div
+              animate={{ scale: [1, 1.1, 1], opacity: [0.85, 1, 0.85] }}
+              transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
+              style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#ec4899' }}
+            >
+              Made with <FaHeart size={12} />
+            </motion.div>
+          </div>
+        </motion.div>
       </div>
     </footer>
   );
-};
+}
 
 export default Footer;
