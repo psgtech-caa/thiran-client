@@ -19,7 +19,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 // Initialize analytics only if online to avoid errors
-let analytics;
+export let analytics;
 try {
   analytics = getAnalytics(app);
 } catch (error) {
