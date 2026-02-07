@@ -4,7 +4,7 @@ import { useAuth } from '../lib/authContext';
 import { useNavigate } from 'react-router-dom';
 import { getEventParticipants } from '../lib/eventService';
 import { eventsData } from './Events';
-import { Users, Download, Loader2, Search, Filter, ArrowLeft } from 'lucide-react';
+import { Users, Download, Loader2, Search, ArrowLeft } from 'lucide-react';
 import { Button } from './ui/Button';
 
 const AdminDashboard = () => {
