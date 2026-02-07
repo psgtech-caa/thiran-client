@@ -52,7 +52,7 @@ export const AuthProvider = ({ children }) => {
 
   // Validate email is from @psgtech.ac.in
   const validateEmail = (email) => {
-    return email.endsWith('@psgtech.ac.in');
+    return typeof email === 'string' && email.endsWith('@psgtech.ac.in');
   };
 
   // Sign in with Google
