@@ -5,7 +5,7 @@ import { Button } from './ui/Button';
 import { useAuth } from '../lib/authContext';
 
 const MobileInputModal = () => {
-  const { completeProfile, setShowMobileInput } = useAuth();
+  const { completeProfile } = useAuth();
   const [mobileNumber, setMobileNumber] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
