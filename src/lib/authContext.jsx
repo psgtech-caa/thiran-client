@@ -24,6 +24,7 @@ export const AuthProvider = ({ children }) => {
 
   // Extract roll number from email (e.g., 25mx114@psgtech.ac.in -> 25MX114)
   const extractRollNumber = (email) => {
+    if (!email) return null;
     const match = email.match(/^([0-9]{2}[a-zA-Z]{2}[0-9]{3})@psgtech\.ac\.in$/i);
     return match ? match[1].toUpperCase() : null;
   };
