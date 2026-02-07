@@ -30,10 +30,10 @@ try {
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 
-// Configure Google Auth Provider to only allow @psgtech.ac.in domain
+// Configure Google Auth Provider with a preferred @psgtech.ac.in hosted domain (UI hint only)
 export const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({
-  hd: 'psgtech.ac.in', // Hosted domain - restricts to PSG Tech emails
+  hd: 'psgtech.ac.in', // Hosted domain hint; actual domain restriction is enforced via email checks in authContext
   prompt: 'select_account'
 });
 
