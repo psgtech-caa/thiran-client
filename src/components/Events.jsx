@@ -1,9 +1,9 @@
-import { useRef, Suspense } from 'react';
-import { Canvas } from '@react-three/fiber';
-import { motion, useInView } from 'framer-motion';
-import { ArrowUpRight, Users, Clock, Trophy } from 'lucide-react';
-import Scene3D from './Scene3D';
+import { useRef, useState, useEffect } from 'react';
+import { motion, useInView, AnimatePresence } from 'framer-motion';
+import { ArrowUpRight, Users, Clock, Trophy, ChevronRight, Filter } from 'lucide-react';
 import { Badge } from './ui/Badge';
+import { Button } from './ui/Button';
+import { Card, CardContent, CardFooter, CardHeader } from './ui/Card';
 import { cn } from '../lib/utils';
 
 // Event data
@@ -54,21 +54,21 @@ export const eventsData = [
     id: 3,
     name: 'Hackathon',
     category: 'Technical',
-    icon: '🔧',
-    color: '#06b6d4',
-    gradient: 'from-cyan-500 to-teal-600',
-    position: 'right-top',
-    participants: '3-4 per team',
+    icon: '⚡',
+    color: '#3b82f6',
+    gradient: 'from-blue-500 to-cyan-600',
+    position: 'right-bottom',
+    participants: '4-6 per team',
     duration: '24 hours',
     rules: [
-      'Duration: 24 hours',
-      'Theme will be revealed at the start',
-      'Use of open-source libraries allowed',
-      'Must present a working prototype',
-      'Judging based on innovation, feasibility, and presentation',
+      '24-hour non-stop development',
+      'Open innovation theme',
+      'Prototype must be working',
+      'Presentation time: 5 mins',
+      'Evaluation on novelty and implementation',
     ],
     description:
-      'Innovate, create, and disrupt! 24 hours to build a solution that could change the world. Are you ready?',
+      'Sleep is for the weak! Prototype innovative solutions to real-world problems in this intense 24-hour hackathon.',
     prize: '₹30,000',
   },
   {
@@ -116,236 +116,153 @@ export const eventsData = [
 ];
 
 const EventCard = ({ event, onClick, index }) => {
-  const cardRef = useRef(null);
-  const isInView = useInView(cardRef, { once: true, margin: '-50px' });
-
   return (
     <motion.div
-      ref={cardRef}
-      initial={{ opacity: 0, y: 50, scale: 0.95 }}
-      animate={isInView ? { opacity: 1, y: 0, scale: 1 } : {}}
-      transition={{ duration: 0.6, delay: index * 0.1, ease: [0.16, 1, 0.3, 1] }}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.1 }}
+      className="group"
       onClick={() => onClick(event)}
-      className="group cursor-pointer relative"
     >
-      <div className="bg-gradient-to-br from-purple-500/5 to-pink-500/5 border border-white/[0.08] backdrop-blur-xl rounded-2xl sm:rounded-3xl p-4 sm:p-5 lg:p-6 h-full relative overflow-hidden transition-all duration-300 hover:border-white/20 hover:shadow-lg hover:shadow-purple-500/5">
-        {/* Gradient overlay on hover */}
-        <div
-          className={cn('absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-10 transition-all duration-500', event.gradient)}
-        />
-
-        {/* Top row - Icon and Arrow */}
-        <div className="flex items-start justify-between mb-3 sm:mb-4 relative z-10">
-          <motion.div
-            className={cn('w-11 h-11 sm:w-12 sm:h-12 lg:w-14 lg:h-14 rounded-xl sm:rounded-2xl bg-gradient-to-br flex items-center justify-center text-xl sm:text-2xl shadow-lg', event.gradient)}
-            whileHover={{ scale: 1.1, rotate: 5 }}
-            transition={{ type: 'spring', stiffness: 400 }}
-          >
-            {event.icon}
-          </motion.div>
-          <motion.div
-            className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-white/[0.03] border border-white/[0.08] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300"
-            whileHover={{ scale: 1.1 }}
-          >
-            <ArrowUpRight size={16} className="text-white sm:w-[18px] sm:h-[18px]" />
-          </motion.div>
+      <Card variant="solid" className="h-full overflow-hidden cursor-pointer group-hover:border-purple-500/30 transition-all duration-300 relative">
+        <div className={cn("absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-10 transition-opacity duration-300", event.gradient)} />
+        
+        {/* Top badge */}
+        <div className="absolute top-4 right-4 z-10">
+          <span className="px-2 py-1 rounded-md bg-white/10 backdrop-blur-md text-[10px] font-bold uppercase tracking-wider text-white border border-white/10">
+            {event.category}
+          </span>
         </div>
 
-        {/* Content */}
-        <div className="relative z-10">
-          <div className="flex items-center gap-2 mb-2">
-            <span
-              className="px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full text-[10px] sm:text-xs font-semibold"
-              style={{
-                background: `linear-gradient(135deg, ${event.color}20, ${event.color}10)`,
-                color: event.color,
-              }}
-            >
-              {event.category}
-            </span>
+        <CardContent className="p-6 pt-8">
+          <div className={cn(
+            "w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-br mb-4 shadow-lg", 
+            event.gradient
+          )}>
+            <span className="text-2xl">{event.icon}</span>
           </div>
 
-          <h3 className="font-heading text-base sm:text-lg lg:text-xl font-bold text-white mb-1.5 sm:mb-2">
+          <h3 className="font-heading text-xl font-bold text-white mb-2 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-gray-400 transition-all">
             {event.name}
           </h3>
 
-          <p className="text-gray-400 text-xs sm:text-sm leading-relaxed line-clamp-2 mb-3 sm:mb-4">
+          <p className="text-sm text-gray-400 line-clamp-2 mb-4">
             {event.description}
           </p>
 
-          {/* Meta info */}
-          <div className="flex flex-wrap items-center gap-2 sm:gap-4 pt-3 sm:pt-4 border-t border-white/5">
-            <div className="flex items-center gap-1 sm:gap-1.5 text-[10px] sm:text-xs text-gray-500">
-              <Users size={10} className="sm:w-3 sm:h-3" />
+          <div className="grid grid-cols-2 gap-2 text-xs text-gray-400 border-t border-white/5 pt-4">
+            <div className="flex items-center gap-1.5">
+              <Users size={12} className="text-purple-400" />
               <span>{event.participants}</span>
             </div>
-            <div className="flex items-center gap-1 sm:gap-1.5 text-[10px] sm:text-xs text-gray-500">
-              <Clock size={10} className="sm:w-3 sm:h-3" />
+            <div className="flex items-center gap-1.5">
+              <Clock size={12} className="text-pink-400" />
               <span>{event.duration}</span>
             </div>
-            <div className="flex items-center gap-1 sm:gap-1.5 text-[10px] sm:text-xs ml-auto">
-              <Trophy size={10} className="text-amber-500 sm:w-3 sm:h-3" />
-              <span className="font-semibold text-amber-400">{event.prize}</span>
+            <div className="flex items-center gap-1.5 col-span-2 mt-1">
+              <Trophy size={12} className="text-amber-400" />
+              <span className="font-semibold text-white">Prize: {event.prize}</span>
             </div>
           </div>
-        </div>
+        </CardContent>
 
-        {/* Decorative corner gradient */}
-        <div
-          className={cn('absolute -top-16 -right-16 sm:-top-20 sm:-right-20 w-32 h-32 sm:w-40 sm:h-40 rounded-full bg-gradient-to-br opacity-5 blur-2xl group-hover:opacity-20 transition-opacity duration-500', event.gradient)}
-        />
-      </div>
+        <CardFooter className="px-6 pb-6 pt-0 mt-auto">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="w-full text-xs justify-between bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white"
+          >
+            <span>View Details</span>
+            <ArrowUpRight size={14} />
+          </Button>
+        </CardFooter>
+      </Card>
     </motion.div>
   );
 };
 
-const Events = ({ onEventClick, mousePosition }) => {
+const Events = ({ onEventClick }) => {
+  const [filter, setFilter] = useState('All');
   const sectionRef = useRef(null);
   const isInView = useInView(sectionRef, { once: true, margin: '-100px' });
-
-  const leftEvents = eventsData.filter(
-    (e) => e.position === 'left-top' || e.position === 'left-bottom'
-  );
-  const rightEvents = eventsData.filter(
-    (e) => e.position === 'right-top' || e.position === 'right-bottom'
-  );
-  const bottomEvent = eventsData.find((e) => e.position === 'bottom');
+  
+  const categories = ['All', 'Technical', 'Non-Technical'];
+  
+  const filteredEvents = filter === 'All' 
+    ? eventsData 
+    : eventsData.filter(event => event.category === filter);
 
   return (
     <section
       ref={sectionRef}
       id="events"
-      className="section relative overflow-hidden"
+      className="section relative"
     >
-      {/* Background effects */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] sm:w-[800px] lg:w-[1000px] h-[600px] sm:h-[800px] lg:h-[1000px] bg-purple-500/5 rounded-full blur-3xl pointer-events-none" />
-
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        {/* Section header */}
-        <motion.div
-          className="text-center mb-10 sm:mb-12 lg:mb-16"
-          initial={{ opacity: 0, y: 40 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8 }}
-        >
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 sm:mb-16">
           <motion.div
-            className="flex justify-center mb-4 sm:mb-6"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={isInView ? { opacity: 1, scale: 1 } : {}}
-            transition={{ delay: 0.2 }}
+            initial={{ opacity: 0, x: -20 }}
+            animate={isInView ? { opacity: 1, x: 0 } : {}}
+            transition={{ duration: 0.8 }}
           >
-            <Badge variant="gradient">
-              <span className="w-1.5 h-1.5 rounded-full bg-pink-500 animate-pulse" />
+            <Badge variant="gradient" className="mb-4">
+              <span className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse" />
               Explore Events
             </Badge>
+            <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
+              <span className="text-white">Featured </span>
+              <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Events</span>
+            </h2>
+            <p className="text-gray-400 max-w-lg">
+              Participation is the first step to glory. Check out our wide range of technical and non-technical events.
+            </p>
           </motion.div>
 
-          <h2 className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6">
-            <span className="text-white">Choose Your </span>
-            <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent">Arena</span>
-          </h2>
-
-          <p className="text-base sm:text-lg lg:text-xl text-gray-400 max-w-2xl mx-auto px-4">
-            Showcase your skills, compete with the best, and win exciting prizes!
-          </p>
-        </motion.div>
-
-        {/* Events layout with 3D object in center */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 items-start">
-          {/* Left column - 2 events */}
-          <div className="space-y-4 sm:space-y-6">
-            {leftEvents.map((event, idx) => (
-              <EventCard
-                key={event.id}
-                event={event}
-                onClick={onEventClick}
-                index={idx}
-              />
-            ))}
-          </div>
-
-          {/* Center - 3D VR Object */}
-          <motion.div
-            className="h-[300px] sm:h-[350px] lg:h-[500px] relative order-first md:order-first lg:order-none col-span-1 md:col-span-2 lg:col-span-1"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={isInView ? { opacity: 1, scale: 1 } : {}}
-            transition={{ duration: 1, delay: 0.3 }}
+          {/* Filter tabs */}
+          <motion.div 
+            className="flex flex-wrap gap-2 p-1 bg-white/5 rounded-xl border border-white/10 backdrop-blur-sm"
+            initial={{ opacity: 0, x: 20 }}
+            animate={isInView ? { opacity: 1, x: 0 } : {}}
+            transition={{ duration: 0.8, delay: 0.2 }}
           >
-            {/* Glow effect */}
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <motion.div
-                className="absolute w-48 h-48 sm:w-64 sm:h-64 lg:w-72 lg:h-72 rounded-full"
-                style={{
-                  background:
-                    'radial-gradient(circle, rgba(168,85,247,0.3) 0%, rgba(236,72,153,0.2) 50%, transparent 70%)',
-                  filter: 'blur(40px)',
-                }}
-                animate={{
-                  scale: [1, 1.2, 1],
-                  opacity: [0.5, 0.8, 0.5],
-                }}
-                transition={{ duration: 4, repeat: Infinity }}
-              />
-            </div>
-
-            <Suspense
-              fallback={
-                <div className="h-full flex items-center justify-center">
-                  <div className="relative">
-                    <div className="w-16 h-16 sm:w-20 sm:h-20 border-4 border-purple-500/20 rounded-full" />
-                    <div className="absolute inset-0 w-16 h-16 sm:w-20 sm:h-20 border-4 border-purple-500 border-t-transparent rounded-full animate-spin" />
-                  </div>
-                </div>
-              }
-            >
-              <Canvas camera={{ position: [0, 0, 5], fov: 50 }}>
-                <Scene3D mousePosition={mousePosition} />
-              </Canvas>
-            </Suspense>
-
-            {/* Interaction hint */}
-            <motion.div
-              className="absolute bottom-2 sm:bottom-4 left-1/2 -translate-x-1/2 text-center"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1 }}
-            >
-              <p className="text-[10px] sm:text-xs text-gray-500 flex items-center gap-1.5 sm:gap-2">
-                <span className="w-3 h-3 sm:w-4 sm:h-4 rounded-full border border-gray-600 flex items-center justify-center">
-                  <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-gray-500 animate-ping" />
-                </span>
-                Move cursor to interact
-              </p>
-            </motion.div>
-          </motion.div>
-
-          {/* Right column - 2 events */}
-          <div className="space-y-4 sm:space-y-6">
-            {rightEvents.map((event, idx) => (
-              <EventCard
-                key={event.id}
-                event={event}
-                onClick={onEventClick}
-                index={idx + 2}
-              />
+            {categories.map(category => (
+              <button
+                key={category}
+                onClick={() => setFilter(category)}
+                className={cn(
+                  "px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300",
+                  filter === category 
+                    ? "bg-white/10 text-white shadow-sm" 
+                    : "text-gray-400 hover:text-white hover:bg-white/5"
+                )}
+              >
+                {category}
+              </button>
             ))}
-          </div>
+          </motion.div>
         </div>
 
-        {/* Bottom event - Full width featured */}
-        {bottomEvent && (
-          <motion.div
-            className="mt-8 sm:mt-10 lg:mt-12 max-w-xl lg:max-w-2xl mx-auto"
-            initial={{ opacity: 0, y: 40 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ delay: 0.5 }}
-          >
-            <div className="text-center mb-3 sm:mb-4">
-              <span className="text-[10px] sm:text-xs text-gray-500 uppercase tracking-wider">Featured Event</span>
-            </div>
-            <EventCard event={bottomEvent} onClick={onEventClick} index={4} />
-          </motion.div>
-        )}
+        {/* Events Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <AnimatePresence mode="popLayout">
+            {filteredEvents.map((event, index) => (
+              <EventCard 
+                key={event.id} 
+                event={event} 
+                index={index} 
+                onClick={onEventClick} 
+              />
+            ))}
+          </AnimatePresence>
+        </div>
+
+        {/* View all button */}
+        <div className="mt-12 text-center">
+          <Button variant="outline" size="lg" className="group border-white/10 hover:border-purple-500/50">
+            <span>View All Events</span>
+            <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+          </Button>
+        </div>
       </div>
     </section>
   );
