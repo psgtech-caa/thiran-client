@@ -45,8 +45,10 @@ service cloud.firestore {
       
       // Participants subcollection
       match /participants/{participantId} {
-        // Anyone can read participant lists
-        allow read: if isPSGEmail();
+        // Only the participant themselves or an admin can read this document
+        allow read: if isAuthenticated() &&
+                       (request.auth.uid == participantId ||
+                        request.auth.token.admin == true);
         
         // Users can only register/unregister themselves
         allow create: if isAuthenticated() && 
