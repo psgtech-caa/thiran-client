@@ -114,7 +114,7 @@ export default function EventCard({ event, index, onClick }: EventCardProps) {
               initial={{ opacity: 0.7 }}
               whileHover={{ opacity: 1 }}
             >
-              <span>View details & register</span>
+              <span>{event.isRegistrationOpen === false ? 'View details' : 'View details & register'}</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </motion.div>
           </div>

@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ArrowUp, Download, Users } from 'lucide-react';
+import { ArrowLeft, ArrowUp, Download, Users, CheckSquare, Square, CheckCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { getEventRegistrations, EventRegistration } from '@/lib/registrationService';
+import { getEventRegistrations, markAttendance, markBulkAttendance, EventRegistration } from '@/lib/registrationService';
 import { events } from '@/data/events';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { toast } from 'sonner';
 
 export default function AdminPanel() {
   const { user, isAdmin: userIsAdmin, loading: authLoading } = useAuth();
@@ -15,6 +16,7 @@ export default function AdminPanel() {
   const [registrations, setRegistrations] = useState<EventRegistration[]>([]);
   const [loading, setLoading] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [attendanceUpdating, setAttendanceUpdating] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (!authLoading && (!user || !userIsAdmin)) {
@@ -47,7 +49,7 @@ export default function AdminPanel() {
   const exportToCSV = () => {
     if (registrations.length === 0) return;
 
-    const headers = ['Roll Number', 'Name', 'Email', 'Mobile', 'Department', 'Year', 'Registered At'];
+    const headers = ['Roll Number', 'Name', 'Email', 'Mobile', 'Department', 'Year', 'Registered At', 'Attended'];
     const rows = registrations.map(reg => [
       reg.userRoll,
       reg.userName,
@@ -56,6 +58,7 @@ export default function AdminPanel() {
       reg.department,
       reg.year,
       new Date(reg.registeredAt.seconds * 1000).toLocaleString(),
+      reg.attended ? 'Yes' : 'No',
     ]);
 
     const csvContent = [
@@ -72,6 +75,47 @@ export default function AdminPanel() {
     a.click();
     window.URL.revokeObjectURL(url);
   };
+
+  const toggleAttendance = async (reg: EventRegistration) => {
+    const key = `${reg.userId}_${reg.eventId}`;
+    setAttendanceUpdating(prev => new Set(prev).add(key));
+
+    const newVal = !reg.attended;
+    const success = await markAttendance(reg.userId, reg.eventId, newVal);
+    if (success) {
+      setRegistrations(prev =>
+        prev.map(r => r.userId === reg.userId && r.eventId === reg.eventId ? { ...r, attended: newVal } : r)
+      );
+    } else {
+      toast.error('Failed to update attendance');
+    }
+
+    setAttendanceUpdating(prev => {
+      const next = new Set(prev);
+      next.delete(key);
+      return next;
+    });
+  };
+
+  const markAllPresent = async () => {
+    if (!selectedEventId) return;
+    const unattended = registrations.filter(r => !r.attended);
+    if (unattended.length === 0) {
+      toast.info('All participants are already marked present');
+      return;
+    }
+
+    const userIds = unattended.map(r => r.userId);
+    const success = await markBulkAttendance(selectedEventId, userIds, true);
+    if (success) {
+      setRegistrations(prev => prev.map(r => ({ ...r, attended: true })));
+      toast.success(`Marked ${unattended.length} participants as present`);
+    } else {
+      toast.error('Failed to mark all as present');
+    }
+  };
+
+  const attendedCount = registrations.filter(r => r.attended).length;
 
   if (authLoading) {
     return (
@@ -151,27 +195,44 @@ export default function AdminPanel() {
             animate={{ opacity: 1, y: 0 }}
             className="glass rounded-2xl p-6"
           >
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
+            <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
+              <div className="flex items-center gap-3 flex-wrap">
                 <Users className="w-6 h-6 text-cosmic-purple" />
                 <h2 className="text-2xl font-bold">
-                  {events.find(e => e.id === selectedEventId)?.name} Registrations
+                  {events.find(e => e.id === selectedEventId)?.name}
                 </h2>
                 <span className="glass rounded-full px-4 py-1 text-sm font-semibold">
-                  {registrations.length} participants
+                  {registrations.length} registered
+                </span>
+                <span className="glass rounded-full px-4 py-1 text-sm font-semibold text-green-400">
+                  <CheckCircle className="w-3 h-3 inline mr-1" />
+                  {attendedCount} attended
                 </span>
               </div>
-              {registrations.length > 0 && (
-                <motion.button
-                  onClick={exportToCSV}
-                  className="btn-cosmic text-white flex items-center gap-2"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Download className="w-4 h-4" />
-                  Export CSV
-                </motion.button>
-              )}
+              <div className="flex gap-2">
+                {registrations.length > 0 && (
+                  <>
+                    <motion.button
+                      onClick={markAllPresent}
+                      className="btn-cosmic-outline flex items-center gap-2 text-sm"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <CheckSquare className="w-4 h-4" />
+                      Mark All Present
+                    </motion.button>
+                    <motion.button
+                      onClick={exportToCSV}
+                      className="btn-cosmic text-white flex items-center gap-2 text-sm"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <Download className="w-4 h-4" />
+                      Export CSV
+                    </motion.button>
+                  </>
+                )}
+              </div>
             </div>
 
             {registrations.length === 0 ? (
@@ -183,35 +244,55 @@ export default function AdminPanel() {
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-white/10">
+                      <th className="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">Attended</th>
                       <th className="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">Roll Number</th>
                       <th className="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">Name</th>
-                      <th className="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">Email</th>
                       <th className="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">Mobile</th>
                       <th className="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">Department</th>
                       <th className="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">Year</th>
-                      <th className="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">Registered At</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {registrations.map((reg, index) => (
-                      <motion.tr
-                        key={`${reg.userId}_${reg.eventId}`}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: index * 0.05 }}
-                        className="border-b border-white/5 hover:bg-white/5 transition-colors"
-                      >
-                        <td className="py-3 px-4 text-sm">{reg.userRoll}</td>
-                        <td className="py-3 px-4 text-sm font-medium">{reg.userName}</td>
-                        <td className="py-3 px-4 text-sm">{reg.userEmail}</td>
-                        <td className="py-3 px-4 text-sm">{reg.userMobile}</td>
-                        <td className="py-3 px-4 text-sm">{reg.department}</td>
-                        <td className="py-3 px-4 text-sm">{reg.year}</td>
-                        <td className="py-3 px-4 text-sm text-muted-foreground">
-                          {new Date(reg.registeredAt.seconds * 1000).toLocaleString()}
-                        </td>
-                      </motion.tr>
-                    ))}
+                    {registrations.map((reg, index) => {
+                      const key = `${reg.userId}_${reg.eventId}`;
+                      const isUpdating = attendanceUpdating.has(key);
+                      return (
+                        <motion.tr
+                          key={key}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.05 }}
+                          className={`border-b border-white/5 transition-colors cursor-pointer ${
+                            reg.attended ? 'bg-green-500/5 hover:bg-green-500/10' : 'hover:bg-white/5'
+                          }`}
+                          onClick={() => toggleAttendance(reg)}
+                        >
+                          <td className="py-3 px-4">
+                            <button
+                              disabled={isUpdating}
+                              className="transition-all disabled:opacity-50"
+                            >
+                              {isUpdating ? (
+                                <motion.div
+                                  className="w-5 h-5 border-2 border-cosmic-purple border-t-transparent rounded-full"
+                                  animate={{ rotate: 360 }}
+                                  transition={{ duration: 0.6, repeat: Infinity, ease: 'linear' }}
+                                />
+                              ) : reg.attended ? (
+                                <CheckSquare className="w-5 h-5 text-green-400" />
+                              ) : (
+                                <Square className="w-5 h-5 text-gray-500" />
+                              )}
+                            </button>
+                          </td>
+                          <td className="py-3 px-4 text-sm">{reg.userRoll}</td>
+                          <td className="py-3 px-4 text-sm font-medium">{reg.userName}</td>
+                          <td className="py-3 px-4 text-sm">{reg.userMobile}</td>
+                          <td className="py-3 px-4 text-sm">{reg.department}</td>
+                          <td className="py-3 px-4 text-sm">{reg.year}</td>
+                        </motion.tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>

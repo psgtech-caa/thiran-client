@@ -90,15 +90,40 @@ export default function Navbar() {
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }
               }}
-              className="flex items-center gap-2 group perspective-container"
+              className="flex items-center gap-1 group perspective-container"
             >
-              <motion.img 
-                src="/thiran-logo.png" 
-                alt="Thiran 2026"
-                className="h-10 md:h-12 w-auto object-contain"
+              <motion.span 
+                className="text-xl md:text-2xl font-bold tracking-tight"
+                style={{
+                  background: 'linear-gradient(135deg, hsl(270 91% 72%), hsl(330 81% 68%), hsl(187 94% 55%))',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                }}
                 whileHover={{ scale: 1.05 }}
                 transition={{ duration: 0.3 }}
-              />
+              >
+                Thiran
+              </motion.span>
+              <motion.span
+                className="text-sm md:text-base font-bold px-2 py-0.5 rounded-md border border-cosmic-cyan/50 text-cosmic-cyan"
+                animate={{
+                  boxShadow: [
+                    '0 0 5px hsl(187 94% 55% / 0.3)',
+                    '0 0 15px hsl(187 94% 55% / 0.5)',
+                    '0 0 5px hsl(187 94% 55% / 0.3)',
+                  ],
+                  borderColor: [
+                    'hsl(187 94% 55% / 0.5)',
+                    'hsl(187 94% 55% / 0.8)',
+                    'hsl(187 94% 55% / 0.5)',
+                  ],
+                }}
+                transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                whileHover={{ scale: 1.1 }}
+              >
+                2k26
+              </motion.span>
             </a>
 
             {/* Desktop Navigation */}
@@ -152,7 +177,7 @@ export default function Navbar() {
                 <div className="relative" ref={userMenuRef}>
                   <motion.button
                     onClick={() => setShowUserMenu(!showUserMenu)}
-                    className="flex items-center gap-3 glass px-4 py-2 rounded-full hover:bg-white/20 transition-colors"
+                    className="flex items-center glass p-2 rounded-full hover:bg-white/20 transition-colors"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
@@ -167,7 +192,6 @@ export default function Navbar() {
                         <User className="w-4 h-4 text-white" />
                       </div>
                     )}
-                    <span className="text-sm font-medium">{userProfile?.name || 'User'}</span>
                   </motion.button>
 
                   <AnimatePresence>

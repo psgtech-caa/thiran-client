@@ -1,7 +1,8 @@
-import { collection, doc, setDoc, getDoc, getDocs, query, where, deleteDoc, Timestamp } from 'firebase/firestore';
+import { collection, doc, setDoc, getDoc, getDocs, query, where, deleteDoc, Timestamp, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Event } from '@/data/events';
 import { toast } from 'sonner';
+import { sendRegistrationEmail } from '@/lib/emailService';
 
 export interface EventRegistration {
   userId: string;
@@ -14,6 +15,7 @@ export interface EventRegistration {
   department: string;
   year: number;
   registeredAt: Timestamp;
+  attended?: boolean;
 }
 
 export async function registerForEvent(
@@ -50,6 +52,22 @@ export async function registerForEvent(
 
     await setDoc(registrationRef, registration);
     toast.success(`Successfully registered for ${event.name}!`);
+
+    // Send confirmation email (non-blocking)
+    sendRegistrationEmail({
+      userName: userProfile.name,
+      userEmail: userProfile.email,
+      eventName: event.name,
+      eventDate: event.date,
+      eventTime: event.time,
+      eventVenue: event.venue,
+      rollNumber: userProfile.rollNumber,
+    }).then(sent => {
+      if (sent) {
+        toast.success('Confirmation email sent!');
+      }
+    });
+
     return true;
   } catch (error: any) {
     console.error('Registration error:', error);
@@ -87,6 +105,31 @@ export async function checkIfRegistered(userId: string, eventId: number): Promis
     return registration.exists();
   } catch (error) {
     console.error('Error checking registration:', error);
+    return false;
+  }
+}
+
+export async function markAttendance(userId: string, eventId: number, attended: boolean): Promise<boolean> {
+  try {
+    const registrationRef = doc(db, 'registrations', `${userId}_${eventId}`);
+    await updateDoc(registrationRef, { attended });
+    return true;
+  } catch (error) {
+    console.error('Error marking attendance:', error);
+    return false;
+  }
+}
+
+export async function markBulkAttendance(eventId: number, userIds: string[], attended: boolean): Promise<boolean> {
+  try {
+    const promises = userIds.map(userId => {
+      const registrationRef = doc(db, 'registrations', `${userId}_${eventId}`);
+      return updateDoc(registrationRef, { attended });
+    });
+    await Promise.all(promises);
+    return true;
+  } catch (error) {
+    console.error('Error marking bulk attendance:', error);
     return false;
   }
 }

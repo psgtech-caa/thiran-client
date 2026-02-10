@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Calendar, Clock, MapPin, Users, Trophy, Phone, User, ArrowRight, CheckCircle, AlertCircle } from 'lucide-react';
+import { X, Calendar, Clock, MapPin, Users, Trophy, Phone, User, ArrowRight, CheckCircle, AlertCircle, Building2, GraduationCap } from 'lucide-react';
 import { Event } from '@/data/events';
 import { useAuth } from '@/contexts/AuthContext';
 import { registerForEvent, checkIfRegistered } from '@/lib/registrationService';
@@ -27,14 +27,33 @@ const coordinators = [
   { name: 'Priya Sharma', phone: '+91 87654 32109' },
 ];
 
+const DEPARTMENTS = [
+  'MCA',
+  'Computer Science',
+  'Information Technology',
+  'Electronics and Communication',
+  'Electrical Engineering',
+  'Mechanical Engineering',
+  'Civil Engineering',
+  'Chemical Engineering',
+  'Aerospace Engineering',
+  'Automobile Engineering',
+  'Biomedical Engineering',
+  'Industrial Engineering',
+  'Production Engineering',
+  'Textile Engineering',
+];
+
 export default function EventModal({ event, isOpen, showRegistration = false, onClose }: EventModalProps) {
   const [isRegistering, setIsRegistering] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
-  const [showMobileInput, setShowMobileInput] = useState(false);
+  const [showDetailsInput, setShowDetailsInput] = useState(false);
   const [mobileNumber, setMobileNumber] = useState('');
+  const [department, setDepartment] = useState('');
+  const [yearOfStudy, setYearOfStudy] = useState<number>(0);
   const [isAlreadyRegistered, setIsAlreadyRegistered] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
-  const { user, userProfile, signInWithGoogle, updateMobileNumber } = useAuth();
+  const { user, userProfile, signInWithGoogle, updateMobileNumber, completeProfile } = useAuth();
 
   useEffect(() => {
     if (isOpen && modalRef.current) {
@@ -52,12 +71,18 @@ export default function EventModal({ event, isOpen, showRegistration = false, on
     if (isOpen && userProfile?.mobile) {
       setMobileNumber(userProfile.mobile);
     }
+    if (isOpen && userProfile?.department) {
+      setDepartment(userProfile.department);
+    }
+    if (isOpen && userProfile?.year) {
+      setYearOfStudy(userProfile.year);
+    }
 
-    // Show mobile input only when showRegistration is true and user doesn't have mobile
-    if (isOpen && showRegistration && user && !userProfile?.mobile) {
-      setShowMobileInput(true);
+    // Show details input when showRegistration is true and user is missing mobile/dept/year
+    if (isOpen && showRegistration && user && (!userProfile?.mobile || !userProfile?.department || !userProfile?.year)) {
+      setShowDetailsInput(true);
     } else {
-      setShowMobileInput(false);
+      setShowDetailsInput(false);
     }
   }, [isOpen, user, event, userProfile, showRegistration]);
 
@@ -75,20 +100,40 @@ export default function EventModal({ event, isOpen, showRegistration = false, on
       return;
     }
 
-    // Check if user has mobile number
+    // Validate mobile
     if (!userProfile.mobile && !mobileNumber) {
-      setShowMobileInput(true);
+      setShowDetailsInput(true);
       toast.error('Please enter your mobile number');
       return;
     }
+    if (mobileNumber && !/^[6-9]\d{9}$/.test(mobileNumber)) {
+      toast.error('Please enter a valid 10-digit mobile number');
+      return;
+    }
 
-    // If mobile number was just entered, save it first
-    if (mobileNumber && !userProfile.mobile) {
-      if (mobileNumber.length !== 10) {
-        toast.error('Please enter a valid 10-digit mobile number');
+    // Validate department
+    const finalDept = department || userProfile.department;
+    if (!finalDept) {
+      setShowDetailsInput(true);
+      toast.error('Please select your department');
+      return;
+    }
+
+    // Validate year
+    const finalYear = yearOfStudy || userProfile.year;
+    if (!finalYear) {
+      setShowDetailsInput(true);
+      toast.error('Please select your year of study');
+      return;
+    }
+
+    // Save profile data if not already saved
+    if (mobileNumber && (!userProfile.mobile || !userProfile.department || !userProfile.year)) {
+      try {
+        await completeProfile({ mobile: mobileNumber, department: finalDept, year: finalYear });
+      } catch {
         return;
       }
-      await updateMobileNumber(mobileNumber);
     }
 
     setShowConfirmation(true);
@@ -100,7 +145,9 @@ export default function EventModal({ event, isOpen, showRegistration = false, on
     setIsRegistering(true);
     const success = await registerForEvent(user.uid, event, {
       ...userProfile,
-      mobile: mobileNumber,
+      mobile: mobileNumber || userProfile.mobile || '',
+      department: department || userProfile.department,
+      year: yearOfStudy || userProfile.year,
     });
 
     if (success) {
@@ -278,8 +325,21 @@ export default function EventModal({ event, isOpen, showRegistration = false, on
                 <div className="modal-item flex items-center gap-3 mb-8 glass rounded-xl p-4">
                   <Users className="w-5 h-5 text-muted-foreground" />
                   <span className="text-muted-foreground">Team Size:</span>
-                  <span className="font-semibold">{event.teamSize} members</span>
+                  <span className="font-semibold">{event.teamSize} {event.isRegistrationOpen !== false && 'members'}</span>
                 </div>
+
+                {/* Special Note for Flagship Events */}
+                {event.specialNote && (
+                  <div className="modal-item mb-8 glass rounded-xl p-4 border border-yellow-500/30 bg-yellow-500/5">
+                    <div className="flex items-start gap-3">
+                      <Trophy className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-semibold text-yellow-400 mb-1">Flagship Event</p>
+                        <p className="text-sm text-muted-foreground">{event.specialNote}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* CTA - Now removed from scroll area, will be sticky */}
               </div>
@@ -288,26 +348,81 @@ export default function EventModal({ event, isOpen, showRegistration = false, on
 
             {/* Sticky Footer with Actions */}
             <div className="absolute bottom-0 left-0 right-0 glass-strong border-t border-white/10 p-4 z-10">
-              {isAlreadyRegistered ? (
+              {event.isRegistrationOpen === false ? (
+                <div className="flex flex-col items-center gap-2 py-2">
+                  <div className="flex items-center gap-2 text-yellow-400">
+                    <Trophy className="w-5 h-5" />
+                    <span className="font-semibold">Winners Only Event</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground text-center">No direct registration - Win other events to qualify!</p>
+                </div>
+              ) : isAlreadyRegistered ? (
                 <div className="flex items-center justify-center gap-3 text-green-400 py-2">
                   <CheckCircle className="w-5 h-5" />
                   <span className="font-semibold">You are registered for this event!</span>
                 </div>
               ) : showRegistration ? (
                 <>
-                  {showMobileInput && (
-                    <div className="mb-3">
-                      <div className="flex items-center gap-3 glass rounded-xl p-3">
-                        <Phone className="w-4 h-4 text-muted-foreground" />
-                        <input
-                          type="tel"
-                          value={mobileNumber}
-                          onChange={(e) => setMobileNumber(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                          placeholder="Mobile number (10 digits)"
-                          className="flex-1 bg-transparent outline-none text-sm"
-                          maxLength={10}
-                        />
-                      </div>
+                  {showDetailsInput && (
+                    <div className="mb-3 space-y-2 max-h-48 overflow-y-auto">
+                      {/* Mobile */}
+                      {!userProfile?.mobile && (
+                        <div className="flex items-center gap-3 glass rounded-xl p-3">
+                          <Phone className="w-4 h-4 text-cosmic-purple flex-shrink-0" />
+                          <input
+                            type="tel"
+                            value={mobileNumber}
+                            onChange={(e) => setMobileNumber(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                            placeholder="Mobile number (10 digits)"
+                            className="flex-1 bg-transparent outline-none text-sm"
+                            maxLength={10}
+                          />
+                        </div>
+                      )}
+
+                      {/* Department */}
+                      {!userProfile?.department && (
+                        <div className="flex items-center gap-3 glass rounded-xl p-3">
+                          <Building2 className="w-4 h-4 text-cosmic-pink flex-shrink-0" />
+                          <select
+                            value={department}
+                            onChange={(e) => setDepartment(e.target.value)}
+                            className="flex-1 bg-transparent outline-none text-sm appearance-none cursor-pointer"
+                          >
+                            <option value="" disabled className="bg-background text-gray-500">
+                              Select department
+                            </option>
+                            {DEPARTMENTS.map((dept) => (
+                              <option key={dept} value={dept} className="bg-background text-white">
+                                {dept}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      )}
+
+                      {/* Year of Study */}
+                      {!userProfile?.year && (
+                        <div className="flex items-center gap-2">
+                          <GraduationCap className="w-4 h-4 text-cosmic-cyan flex-shrink-0 ml-1" />
+                          <div className="flex gap-1.5 flex-1">
+                            {[1, 2, 3, 4, 5].map((y) => (
+                              <button
+                                key={y}
+                                type="button"
+                                onClick={() => setYearOfStudy(y)}
+                                className={`flex-1 py-2 rounded-lg font-semibold text-xs transition-all border ${
+                                  yearOfStudy === y
+                                    ? 'bg-gradient-to-r from-cosmic-purple to-cosmic-pink text-white border-transparent'
+                                    : 'glass text-gray-400 border-white/10 hover:bg-white/10 hover:text-white'
+                                }`}
+                              >
+                                Y{y}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
 

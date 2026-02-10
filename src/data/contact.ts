@@ -18,7 +18,7 @@ export const contactInfo = [
   {
     icon: MapPin,
     label: 'Address',
-    value: 'Tech Campus, Chennai, India',
+    value: 'PSG College of Technology, Coimbatore',
     href: '#',
     color: 'cyan' as const,
   },

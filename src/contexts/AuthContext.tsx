@@ -10,9 +10,11 @@ interface AuthContextType {
   userProfile: UserProfile | null;
   isAdmin: boolean;
   loading: boolean;
+  needsProfileSetup: boolean;
   signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
   updateMobileNumber: (mobile: string) => Promise<void>;
+  completeProfile: (data: { mobile: string; department: string; year: number }) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -21,38 +23,56 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [needsProfileSetup, setNeedsProfileSetup] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      setUser(user);
-      
-      if (user) {
-        if (!user.email?.endsWith('@psgtech.ac.in')) {
-          toast.error('Only @psgtech.ac.in emails are allowed');
-          await firebaseSignOut(auth);
-          setUser(null);
-          setUserProfile(null);
-          setLoading(false);
-          return;
-        }
-
-        const profile = parseUserProfile(user.email, user.displayName);
-        if (profile) {
-          const userDoc = await getDoc(doc(db, 'users', user.uid));
-          if (userDoc.exists()) {
-            setUserProfile({ ...profile, photoURL: user.photoURL || undefined, ...userDoc.data() } as UserProfile);
-          } else {
-            setUserProfile({ ...profile, photoURL: user.photoURL || undefined });
+    try {
+      const unsubscribe = onAuthStateChanged(auth, async (user) => {
+        setUser(user);
+        
+        if (user) {
+          if (!user.email?.endsWith('@psgtech.ac.in')) {
+            toast.error('Only @psgtech.ac.in emails are allowed');
+            await firebaseSignOut(auth);
+            setUser(null);
+            setUserProfile(null);
+            setLoading(false);
+            return;
           }
-        }
-      } else {
-        setUserProfile(null);
-      }
-      
-      setLoading(false);
-    });
 
-    return () => unsubscribe();
+          const profile = parseUserProfile(user.email, user.displayName);
+          if (profile) {
+            try {
+              const userDoc = await getDoc(doc(db, 'users', user.uid));
+              if (userDoc.exists()) {
+                const data = userDoc.data();
+                const merged = { ...profile, photoURL: user.photoURL || undefined, ...data } as UserProfile;
+                setUserProfile(merged);
+                // Check if profile is complete (has mobile and department set by user)
+                setNeedsProfileSetup(!data.profileComplete);
+              } else {
+                setUserProfile({ ...profile, photoURL: user.photoURL || undefined });
+                setNeedsProfileSetup(true);
+              }
+            } catch (err: any) {
+              console.warn('Could not fetch user doc (possibly offline):', err.message);
+              // Use parsed profile so the app still works offline
+              setUserProfile({ ...profile, photoURL: user.photoURL || undefined });
+            }
+          }
+        } else {
+          setUserProfile(null);
+        }
+        
+        setLoading(false);
+      });
+
+      return () => unsubscribe();
+    } catch (error: any) {
+      console.error('Firebase Auth initialization error:', error);
+      setLoading(false);
+      // Continue rendering the app even if Firebase Auth fails to initialize
+    }
   }, []);
 
   const signInWithGoogle = async () => {
@@ -73,16 +93,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const userDoc = await getDoc(userDocRef);
         
         if (!userDoc.exists()) {
-          // First time sign in - create profile
-          await setDoc(userDocRef, {
-            ...profile,
-            photoURL: user.photoURL,
-          });
+          // First time sign in — don't save yet, let profile setup modal handle it
+          setNeedsProfileSetup(true);
         } else {
+          const data = userDoc.data();
           // Update photoURL if changed
-          await setDoc(userDocRef, {
-            photoURL: user.photoURL,
-          }, { merge: true });
+          await setDoc(userDocRef, { photoURL: user.photoURL }, { merge: true });
+          if (!data.profileComplete) {
+            setNeedsProfileSetup(true);
+          }
         }
       }
 
@@ -120,14 +139,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const completeProfile = async (data: { mobile: string; department: string; year: number }) => {
+    if (!user || !userProfile) {
+      toast.error('User not authenticated');
+      return;
+    }
+
+    try {
+      const updatedProfile = {
+        ...userProfile,
+        mobile: data.mobile,
+        department: data.department,
+        year: data.year,
+        photoURL: user.photoURL,
+        profileComplete: true,
+      };
+      await setDoc(doc(db, 'users', user.uid), updatedProfile, { merge: true });
+      setUserProfile(updatedProfile as UserProfile);
+      setNeedsProfileSetup(false);
+      toast.success('Profile completed!');
+    } catch (error: any) {
+      console.error('Complete profile error:', error);
+      toast.error(error.message || 'Failed to save profile');
+      throw error;
+    }
+  };
+
   const value = {
     user,
     userProfile,
     isAdmin: user?.email ? isAdmin(user.email) : false,
     loading,
+    needsProfileSetup,
     signInWithGoogle,
     signOut,
     updateMobileNumber,
+    completeProfile,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

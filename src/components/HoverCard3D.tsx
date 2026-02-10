@@ -74,7 +74,7 @@ export default function HoverCard3D({ children, className = '' }: HoverCard3DPro
       
       {/* Card content */}
       <div 
-        className="relative glass-strong rounded-2xl overflow-hidden"
+        className="relative glass rounded-2xl overflow-hidden"
         style={{ transform: 'translateZ(0px)' }}
       >
         {children}

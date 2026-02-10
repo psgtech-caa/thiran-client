@@ -176,18 +176,14 @@ export default function IntroLoader({ onComplete }: IntroLoaderProps) {
         />
         
         <div ref={logoRef} className="text-center" style={{ transformStyle: 'preserve-3d' }}>
-          <h1
-            className="text-7xl md:text-9xl lg:text-[12rem] font-black tracking-tighter leading-none"
+          <img 
+            src="/thiran-logo.png" 
+            alt="Thiran 2026"
+            className="h-32 md:h-48 lg:h-64 w-auto object-contain mx-auto"
             style={{
-              background: 'linear-gradient(135deg, hsl(270 91% 72%), hsl(330 81% 68%), hsl(187 94% 55%))',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
               filter: 'drop-shadow(0 0 60px hsl(270 91% 65% / 0.7)) drop-shadow(0 0 120px hsl(330 81% 60% / 0.4))',
             }}
-          >
-            THIRAN
-          </h1>
+          />
           <span
             ref={yearRef}
             className="block text-3xl md:text-5xl lg:text-6xl font-bold tracking-[0.3em] mt-2"

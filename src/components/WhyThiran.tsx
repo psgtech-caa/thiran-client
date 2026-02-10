@@ -2,9 +2,6 @@ import { motion } from 'framer-motion';
 import { 
   Lightbulb, 
   Users, 
-  Award, 
-  Rocket, 
-  GraduationCap,
   Trophy 
 } from 'lucide-react';
 import { useEffect, useState, useRef, lazy, Suspense } from 'react';
@@ -20,52 +17,31 @@ const features = [
   {
     icon: Lightbulb,
     title: 'Innovation Hub',
-    description: 'A platform to ideate, innovate, and transform your ideas into reality with cutting-edge technology.',
-    backContent: 'Work on real-world problem statements, get mentored by industry experts, and prototype your solutions live during the event.',
+    description: 'A platform to ideate, innovate, and transform your ideas into reality with cutting-edge challenges.',
+    backContent: 'Compete in technical and non-technical events, showcase your skills, and win exciting prizes worth ₹15,000+.',
     color: 'purple' as const,
-  },
-  {
-    icon: GraduationCap,
-    title: 'Expert Mentorship',
-    description: 'Learn from industry experts and renowned academicians who guide you throughout your journey.',
-    backContent: 'One-on-one mentoring sessions, panel discussions with tech leaders, and exclusive career guidance workshops.',
-    color: 'pink' as const,
   },
   {
     icon: Users,
     title: 'Networking',
-    description: 'Connect with like-minded individuals, build lasting relationships, and expand your professional network.',
-    backContent: 'Meet students from 20+ colleges, connect with recruiters, and join our alumni network of 1000+ professionals.',
-    color: 'cyan' as const,
-  },
-  {
-    icon: Rocket,
-    title: 'Career Opportunities',
-    description: 'Get noticed by top companies and startups looking for talented individuals like you.',
-    backContent: 'Partner companies actively recruit from our events. Past participants have landed internships at leading tech firms.',
-    color: 'purple' as const,
-  },
-  {
-    icon: Award,
-    title: 'Skill Development',
-    description: 'Enhance your technical and soft skills through workshops, competitions, and hands-on sessions.',
-    backContent: 'Hands-on workshops in cybersecurity, AI/ML, cloud computing, and competitive programming — all in one day.',
+    description: 'Connect with talented peers, build lasting relationships, and expand your professional network.',
+    backContent: 'Meet students from various departments, collaborate on challenges, and join our growing community.',
     color: 'pink' as const,
   },
   {
     icon: Trophy,
     title: 'Prizes & Recognition',
     description: 'Win exciting prizes, certificates, and get recognized for your exceptional talents.',
-    backContent: 'Cash prizes worth ₹27,500+, participation certificates for all, winner certificates, and social media shoutouts.',
+    backContent: 'Cash prizes worth ₹15,000+, participation certificates for all, winner certificates, and special recognition.',
     color: 'cyan' as const,
   },
 ];
 
 const stats = [
   { value: 200, suffix: '+', label: 'Participants' },
-  { value: 4, suffix: '', label: 'Events' },
-  { value: 27500, prefix: '₹', suffix: '+', label: 'Prize Pool' },
-  { value: 10, suffix: '+', label: 'Sponsors' },
+  { value: 5, suffix: '', label: 'Events' },
+  { value: 15000, prefix: '₹', suffix: '+', label: 'Prize Pool' },
+  { value: 1, suffix: '', label: 'Day' },
 ];
 
 function AnimatedCounter({ value, prefix = '', suffix = '' }: { value: number; prefix?: string; suffix?: string }) {
