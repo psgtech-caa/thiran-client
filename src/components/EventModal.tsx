@@ -1,12 +1,16 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Calendar, Clock, MapPin, Users, Trophy, Phone, User, ArrowRight, CheckCircle } from 'lucide-react';
-import { Event } from './EventCard';
+import { X, Calendar, Clock, MapPin, Users, Trophy, Phone, User, ArrowRight, CheckCircle, AlertCircle } from 'lucide-react';
+import { Event } from '@/data/events';
+import { useAuth } from '@/contexts/AuthContext';
+import { registerForEvent, checkIfRegistered } from '@/lib/registrationService';
 import gsap from 'gsap';
+import { toast } from 'sonner';
 
 interface EventModalProps {
   event: Event | null;
   isOpen: boolean;
+  showRegistration?: boolean;
   onClose: () => void;
 }
 
@@ -23,9 +27,14 @@ const coordinators = [
   { name: 'Priya Sharma', phone: '+91 87654 32109' },
 ];
 
-export default function EventModal({ event, isOpen, onClose }: EventModalProps) {
+export default function EventModal({ event, isOpen, showRegistration = false, onClose }: EventModalProps) {
   const [isRegistering, setIsRegistering] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [showMobileInput, setShowMobileInput] = useState(false);
+  const [mobileNumber, setMobileNumber] = useState('');
+  const [isAlreadyRegistered, setIsAlreadyRegistered] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
+  const { user, userProfile, signInWithGoogle, updateMobileNumber } = useAuth();
 
   useEffect(() => {
     if (isOpen && modalRef.current) {
@@ -35,16 +44,76 @@ export default function EventModal({ event, isOpen, onClose }: EventModalProps) 
         { opacity: 1, y: 0, duration: 0.5, stagger: 0.05, ease: 'power3.out', delay: 0.2 }
       );
     }
-  }, [isOpen]);
+
+    if (isOpen && user && event) {
+      checkIfRegistered(user.uid, event.id).then(setIsAlreadyRegistered);
+    }
+
+    if (isOpen && userProfile?.mobile) {
+      setMobileNumber(userProfile.mobile);
+    }
+
+    // Show mobile input only when showRegistration is true and user doesn't have mobile
+    if (isOpen && showRegistration && user && !userProfile?.mobile) {
+      setShowMobileInput(true);
+    } else {
+      setShowMobileInput(false);
+    }
+  }, [isOpen, user, event, userProfile, showRegistration]);
 
   if (!event) return null;
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
+    if (!user) {
+      toast.info('Please sign in to register');
+      await signInWithGoogle();
+      return;
+    }
+
+    if (!userProfile) {
+      toast.error('Profile not loaded. Please try again.');
+      return;
+    }
+
+    // Check if user has mobile number
+    if (!userProfile.mobile && !mobileNumber) {
+      setShowMobileInput(true);
+      toast.error('Please enter your mobile number');
+      return;
+    }
+
+    // If mobile number was just entered, save it first
+    if (mobileNumber && !userProfile.mobile) {
+      if (mobileNumber.length !== 10) {
+        toast.error('Please enter a valid 10-digit mobile number');
+        return;
+      }
+      await updateMobileNumber(mobileNumber);
+    }
+
+    setShowConfirmation(true);
+  };
+
+  const confirmRegistration = async () => {
+    if (!user || !userProfile || !event) return;
+
     setIsRegistering(true);
-    setTimeout(() => {
+    const success = await registerForEvent(user.uid, event, {
+      ...userProfile,
+      mobile: mobileNumber,
+    });
+
+    if (success) {
+      setIsAlreadyRegistered(true);
+      setTimeout(() => {
+        setIsRegistering(false);
+        setShowConfirmation(false);
+        onClose();
+      }, 1500);
+    } else {
       setIsRegistering(false);
-      onClose();
-    }, 2000);
+      setShowConfirmation(false);
+    }
   };
 
   return (
@@ -73,11 +142,13 @@ export default function EventModal({ event, isOpen, onClose }: EventModalProps) 
             exit={{ opacity: 0, scale: 0.9, y: 50 }}
             transition={{ type: 'spring', duration: 0.5 }}
             onClick={(e) => e.stopPropagation()}
-            className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl"
+            className="relative w-full max-w-2xl max-h-[90vh] rounded-3xl overflow-hidden"
             style={{ perspective: 1000 }}
           >
+            {/* Scrollable content */}
+            <div className="overflow-y-auto max-h-[90vh] scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent pb-24">
             {/* Subtle border */}
-            <div className="absolute -inset-[1px] rounded-3xl bg-white/10" />
+            <div className="absolute -inset-[1px] rounded-3xl bg-white/10 pointer-events-none" />
             
             <div className="relative glass-strong rounded-3xl overflow-hidden">
               {/* Close Button */}
@@ -210,40 +281,124 @@ export default function EventModal({ event, isOpen, onClose }: EventModalProps) 
                   <span className="font-semibold">{event.teamSize} members</span>
                 </div>
 
-                {/* CTA */}
-                <div className="modal-item flex gap-4">
-                  <motion.button 
-                    onClick={handleRegister}
-                    disabled={isRegistering}
-                    className="flex-1 btn-cosmic text-white py-4 text-lg flex items-center justify-center gap-2 group disabled:opacity-70"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    {isRegistering ? (
-                      <motion.div
-                        className="w-6 h-6 border-2 border-white border-t-transparent rounded-full"
-                        animate={{ rotate: 360 }}
-                        transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                      />
-                    ) : (
-                      <>
-                        Register Now
-                        <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                      </>
-                    )}
-                  </motion.button>
-                  <motion.button 
-                    onClick={onClose} 
-                    className="btn-cosmic-outline py-4 px-8"
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    Close
-                  </motion.button>
-                </div>
+                {/* CTA - Now removed from scroll area, will be sticky */}
               </div>
             </div>
+            </div>
+
+            {/* Sticky Footer with Actions */}
+            <div className="absolute bottom-0 left-0 right-0 glass-strong border-t border-white/10 p-4 z-10">
+              {isAlreadyRegistered ? (
+                <div className="flex items-center justify-center gap-3 text-green-400 py-2">
+                  <CheckCircle className="w-5 h-5" />
+                  <span className="font-semibold">You are registered for this event!</span>
+                </div>
+              ) : showRegistration ? (
+                <>
+                  {showMobileInput && (
+                    <div className="mb-3">
+                      <div className="flex items-center gap-3 glass rounded-xl p-3">
+                        <Phone className="w-4 h-4 text-muted-foreground" />
+                        <input
+                          type="tel"
+                          value={mobileNumber}
+                          onChange={(e) => setMobileNumber(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                          placeholder="Mobile number (10 digits)"
+                          className="flex-1 bg-transparent outline-none text-sm"
+                          maxLength={10}
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="flex gap-3">
+                    <motion.button 
+                      onClick={handleRegister}
+                      disabled={isRegistering}
+                      className="flex-1 btn-cosmic text-white py-3 text-base flex items-center justify-center gap-2 group disabled:opacity-70"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      {isRegistering ? (
+                        <motion.div
+                          className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                        />
+                      ) : (
+                        <>
+                          {user ? 'Register Now' : 'Sign In to Register'}
+                          <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                        </>
+                      )}
+                    </motion.button>
+                  </div>
+                </>
+              ) : (
+                <motion.button 
+                  onClick={onClose} 
+                  className="w-full btn-cosmic-outline py-3"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  Close
+                </motion.button>
+              )}
+            </div>
           </motion.div>
+
+          {/* Confirmation Dialog */}
+          <AnimatePresence>
+            {showConfirmation && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                className="absolute inset-0 flex items-center justify-center z-10"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="glass-strong rounded-3xl p-8 max-w-md mx-4">
+                  <div className="flex items-center gap-3 mb-4">
+                    <AlertCircle className="w-6 h-6 text-yellow-400" />
+                    <h3 className="text-xl font-bold">Confirm Registration</h3>
+                  </div>
+                  <p className="text-muted-foreground mb-2">
+                    You are about to register for <span className="font-semibold gradient-text">{event?.name}</span>.
+                  </p>
+                  <p className="text-sm text-red-400 mb-6">
+                    ⚠️ Once registered, you cannot undo this action.
+                  </p>
+                  <div className="flex gap-3">
+                    <motion.button
+                      onClick={confirmRegistration}
+                      disabled={isRegistering}
+                      className="flex-1 btn-cosmic text-white py-3 disabled:opacity-70"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      {isRegistering ? (
+                        <motion.div
+                          className="w-5 h-5 border-2 border-white border-t-transparent rounded-full mx-auto"
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                        />
+                      ) : (
+                        'Confirm'
+                      )}
+                    </motion.button>
+                    <motion.button
+                      onClick={() => setShowConfirmation(false)}
+                      className="flex-1 btn-cosmic-outline py-3"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      Cancel
+                    </motion.button>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
       )}
     </AnimatePresence>

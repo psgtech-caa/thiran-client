@@ -1,4 +1,6 @@
-import { Suspense, useState, lazy } from 'react';
+import { Suspense, useState, useEffect, lazy } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowUp } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
 import Events from '@/components/Events';
@@ -6,8 +8,9 @@ import WhyThiran from '@/components/WhyThiran';
 import Contact from '@/components/Contact';
 import Footer from '@/components/Footer';
 import IntroLoader from '@/components/IntroLoader';
-import CustomCursor from '@/components/CustomCursor';
 import ErrorBoundary from '@/components/ErrorBoundary';
+import LoadingScreen from '@/components/LoadingScreen';
+import { useAuth } from '@/contexts/AuthContext';
 
 // Lazy load heavy 3D component
 const StarField = lazy(() => import('@/components/StarField'));
@@ -24,12 +27,29 @@ function LoadingFallback() {
 
 export default function Index() {
   const [introComplete, setIntroComplete] = useState(false);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const { loading: authLoading } = useAuth();
+
+  // Show scroll to top button when scrolled down
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 500);
+    };
+    
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  if (authLoading) {
+    return <LoadingScreen />;
+  }
 
   return (
     <>
-      {/* Custom Cursor */}
-      <CustomCursor />
-
       {/* Intro Loader */}
       {!introComplete && (
         <IntroLoader onComplete={() => setIntroComplete(true)} />
@@ -56,6 +76,23 @@ export default function Index() {
 
         {/* Footer */}
         <Footer />
+
+        {/* Scroll to Top Button */}
+        <AnimatePresence>
+          {showScrollTop && (
+            <motion.button
+              initial={{ opacity: 0, scale: 0.5, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.5, y: 20 }}
+              onClick={scrollToTop}
+              className="fixed bottom-8 right-8 z-50 p-4 glass-strong rounded-full hover:bg-white/20 transition-colors group"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+            >
+              <ArrowUp className="w-5 h-5 group-hover:-translate-y-1 transition-transform" />
+            </motion.button>
+          )}
+        </AnimatePresence>
       </div>
     </>
   );

@@ -1,21 +1,44 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Glasses, ChevronRight } from 'lucide-react';
+import { Menu, X, ChevronRight, User, LogOut, ListChecks, Shield } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import gsap from 'gsap';
 import MagneticButton from './MagneticButton';
+import { useAuth } from '@/contexts/AuthContext';
 
 const navLinks = [
-  { name: 'Home', href: '#home' },
-  { name: 'Events', href: '#events' },
-  { name: 'Why Thiran', href: '#why-thiran' },
-  { name: 'Contact', href: '#contact' },
+  { name: 'Home', href: '/', isRoute: true },
+  { name: 'Events', href: '/#events', isRoute: false },
+  { name: 'Why Thiran', href: '/#why-thiran', isRoute: false },
+  { name: 'Contact', href: '/#contact', isRoute: false },
 ];
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeLink, setActiveLink] = useState('#home');
+  const [showUserMenu, setShowUserMenu] = useState(false);
   const logoRef = useRef<HTMLAnchorElement>(null);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+  const { user, userProfile, isAdmin, signInWithGoogle, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  // Close user menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setShowUserMenu(false);
+      }
+    };
+
+    if (showUserMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showUserMenu]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -58,7 +81,17 @@ export default function Navbar() {
         <div className="container mx-auto px-4 md:px-8">
           <div className="flex items-center justify-between">
             {/* Logo */}
-            <a ref={logoRef} href="#home" className="flex items-center gap-2 group perspective-container">
+            <a 
+              ref={logoRef} 
+              href="/" 
+              onClick={(e) => {
+                if (window.location.pathname === '/') {
+                  e.preventDefault();
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+              }}
+              className="flex items-center gap-2 group perspective-container"
+            >
               <motion.img 
                 src="/thiran-logo.png" 
                 alt="Thiran 2026"
@@ -74,6 +107,28 @@ export default function Navbar() {
                 <motion.a
                   key={link.name}
                   href={link.href}
+                  onClick={(e) => {
+                    if (link.isRoute) {
+                      // If it's the home route
+                      if (link.href === '/' && window.location.pathname !== '/') {
+                        navigate('/');
+                      }
+                    } else {
+                      // For hash links, navigate to home first if not already there
+                      if (window.location.pathname !== '/') {
+                        e.preventDefault();
+                        navigate('/');
+                        // Wait for navigation, then scroll
+                        setTimeout(() => {
+                          const hash = link.href.startsWith('#') ? link.href : link.href.substring(link.href.indexOf('#'));
+                          const element = document.querySelector(hash);
+                          if (element) {
+                            element.scrollIntoView({ behavior: 'smooth' });
+                          }
+                        }, 100);
+                      }
+                    }
+                  }}
                   className={`relative text-foreground/80 hover:text-foreground transition-colors duration-300 group ${
                     activeLink === link.href ? 'text-foreground' : ''
                   }`}
@@ -91,11 +146,111 @@ export default function Navbar() {
               ))}
             </div>
 
-            {/* CTA Button */}
+            {/* CTA Button / User Menu */}
             <div className="hidden md:block">
-              <MagneticButton className="btn-cosmic text-white">
-                Register Now
-              </MagneticButton>
+              {user ? (
+                <div className="relative" ref={userMenuRef}>
+                  <motion.button
+                    onClick={() => setShowUserMenu(!showUserMenu)}
+                    className="flex items-center gap-3 glass px-4 py-2 rounded-full hover:bg-white/20 transition-colors"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    {user.photoURL ? (
+                      <img 
+                        src={user.photoURL} 
+                        alt={userProfile?.name || 'User'}
+                        className="w-8 h-8 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-8 h-8 rounded-full bg-gradient-cosmic flex items-center justify-center">
+                        <User className="w-4 h-4 text-white" />
+                      </div>
+                    )}
+                    <span className="text-sm font-medium">{userProfile?.name || 'User'}</span>
+                  </motion.button>
+
+                  <AnimatePresence>
+                    {showUserMenu && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                        className="absolute right-0 mt-2 w-64 bg-background/95 backdrop-blur-xl border border-white/20 rounded-2xl overflow-hidden z-50 shadow-2xl"
+                      >
+                        <div className="p-4 border-b border-white/10">
+                          <div className="flex items-center gap-3 mb-2">
+                            {user.photoURL ? (
+                              <img 
+                                src={user.photoURL} 
+                                alt={userProfile?.name || 'User'}
+                                className="w-12 h-12 rounded-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-12 h-12 rounded-full bg-gradient-cosmic flex items-center justify-center">
+                                <User className="w-6 h-6 text-white" />
+                              </div>
+                            )}
+                            <div>
+                              <p className="font-semibold">{userProfile?.name}</p>
+                              <p className="text-xs text-muted-foreground">{userProfile?.rollNumber}</p>
+                            </div>
+                          </div>
+                          <p className="text-xs text-muted-foreground">{userProfile?.email}</p>
+                          {userProfile?.mobile && (
+                            <p className="text-xs text-muted-foreground mt-1">{userProfile.mobile}</p>
+                          )}
+                          <p className="text-xs text-muted-foreground">{userProfile?.department} • Year {userProfile?.year}</p>
+                        </div>
+                        <div className="p-2">
+                          <motion.button
+                            onClick={() => {
+                              navigate('/my-registrations');
+                              setShowUserMenu(false);
+                            }}
+                            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left"
+                            whileHover={{ x: 5 }}
+                          >
+                            <ListChecks className="w-4 h-4" />
+                            <span className="text-sm">My Registrations</span>
+                          </motion.button>
+                          {isAdmin && (
+                            <motion.button
+                              onClick={() => {
+                                navigate('/admin');
+                                setShowUserMenu(false);
+                              }}
+                              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-cosmic-purple/20 to-cosmic-pink/20 hover:from-cosmic-purple/30 hover:to-cosmic-pink/30 transition-all border border-cosmic-purple/30 text-left"
+                              whileHover={{ x: 5 }}
+                            >
+                              <Shield className="w-4 h-4 text-cosmic-purple" />
+                              <div>
+                                <span className="text-sm font-semibold">Admin Panel</span>
+                                <p className="text-xs text-muted-foreground">Coordinators only</p>
+                              </div>
+                            </motion.button>
+                          )}
+                          <motion.button
+                            onClick={async () => {
+                              await signOut();
+                              setShowUserMenu(false);
+                            }}
+                            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left text-red-400"
+                            whileHover={{ x: 5 }}
+                          >
+                            <LogOut className="w-4 h-4" />
+                            <span className="text-sm">Sign Out</span>
+                          </motion.button>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              ) : (
+                <MagneticButton onClick={signInWithGoogle} className="btn-cosmic text-white">
+                  Register Now
+                </MagneticButton>
+              )}
             </div>
 
             {/* Mobile Menu Button */}
@@ -164,7 +319,30 @@ export default function Navbar() {
                     initial={{ opacity: 0, x: 50 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.1 }}
-                    onClick={() => setIsMobileMenuOpen(false)}
+                    onClick={(e) => {
+                      setIsMobileMenuOpen(false);
+                      
+                      if (link.isRoute) {
+                        // If it's the home route
+                        if (link.href === '/' && window.location.pathname !== '/') {
+                          navigate('/');
+                        }
+                      } else {
+                        // For hash links, navigate to home first if not already there
+                        if (window.location.pathname !== '/') {
+                          e.preventDefault();
+                          navigate('/');
+                          // Wait for navigation, then scroll
+                          setTimeout(() => {
+                            const hash = link.href.startsWith('#') ? link.href : link.href.substring(link.href.indexOf('#'));
+                            const element = document.querySelector(hash);
+                            if (element) {
+                              element.scrollIntoView({ behavior: 'smooth' });
+                            }
+                          }, 100);
+                        }
+                      }
+                    }}
                     className="flex items-center justify-between text-2xl font-medium text-foreground/80 hover:text-foreground hover:gradient-text transition-all duration-300 group"
                   >
                     <span>{link.name}</span>
@@ -177,9 +355,74 @@ export default function Navbar() {
                   transition={{ delay: 0.4 }}
                   className="mt-4"
                 >
-                  <MagneticButton className="btn-cosmic text-white w-full">
-                    Register Now
-                  </MagneticButton>
+                  {user ? (
+                    <>
+                      <div className="glass rounded-xl p-4 mb-4">
+                        <div className="flex items-center gap-3 mb-2">
+                          {user.photoURL ? (
+                            <img 
+                              src={user.photoURL} 
+                              alt={userProfile?.name || 'User'}
+                              className="w-12 h-12 rounded-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-12 h-12 rounded-full bg-gradient-cosmic flex items-center justify-center">
+                              <User className="w-6 h-6 text-white" />
+                            </div>
+                          )}
+                          <div>
+                            <p className="font-semibold">{userProfile?.name}</p>
+                            <p className="text-xs text-muted-foreground">{userProfile?.rollNumber}</p>
+                          </div>
+                        </div>
+                        {userProfile?.mobile && (
+                          <p className="text-xs text-muted-foreground">{userProfile.mobile}</p>
+                        )}
+                        <p className="text-xs text-muted-foreground">{userProfile?.department} • Year {userProfile?.year}</p>
+                      </div>
+                      <MagneticButton
+                        onClick={() => {
+                          navigate('/my-registrations');
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className="btn-cosmic text-white w-full mb-3"
+                      >
+                        My Registrations
+                      </MagneticButton>
+                      {isAdmin && (
+                        <motion.button
+                          onClick={() => {
+                            navigate('/admin');
+                            setIsMobileMenuOpen(false);
+                          }}
+                          className="w-full mb-3 px-4 py-3 rounded-xl bg-gradient-to-r from-cosmic-purple/20 to-cosmic-pink/20 border border-cosmic-purple/30 text-left"
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          <div className="flex items-center gap-3">
+                            <Shield className="w-5 h-5 text-cosmic-purple" />
+                            <div>
+                              <p className="text-sm font-semibold">Admin Panel</p>
+                              <p className="text-xs text-muted-foreground">Coordinators only</p>
+                            </div>
+                          </div>
+                        </motion.button>
+                      )}
+                      <button
+                        onClick={async () => {
+                          await signOut();
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className="w-full btn-cosmic-outline text-sm py-3"
+                      >
+                        Sign Out
+                      </button>
+                    </>
+                  ) : (
+                    <MagneticButton onClick={signInWithGoogle} className="btn-cosmic text-white w-full">
+                      Register Now
+                    </MagneticButton>
+                  )}
                 </motion.div>
               </div>
             </motion.div>

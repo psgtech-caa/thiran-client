@@ -11,8 +11,17 @@ export default function CustomCursor() {
     const dot = cursorDotRef.current;
     if (!cursor || !dot) return;
 
-    // Hide default cursor
+    // Hide default cursor globally
     document.body.style.cursor = 'none';
+    
+    // Add CSS to hide cursor on all elements
+    const style = document.createElement('style');
+    style.textContent = `
+      *, *::before, *::after {
+        cursor: none !important;
+      }
+    `;
+    document.head.appendChild(style);
 
     const trails = trailsRef.current;
     let mouseX = 0;
@@ -92,6 +101,7 @@ export default function CustomCursor() {
 
     return () => {
       document.body.style.cursor = '';
+      style.remove();
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mousedown', handleMouseDown);
       window.removeEventListener('mouseup', handleMouseUp);
@@ -110,7 +120,7 @@ export default function CustomCursor() {
         <div
           key={i}
           ref={(el) => { if (el) trailsRef.current[i] = el; }}
-          className="fixed top-0 left-0 pointer-events-none z-[9999] -translate-x-1/2 -translate-y-1/2"
+          className="fixed top-0 left-0 pointer-events-none z-[100] -translate-x-1/2 -translate-y-1/2"
           style={{
             width: `${8 - i * 2}px`,
             height: `${8 - i * 2}px`,
@@ -128,7 +138,7 @@ export default function CustomCursor() {
       {/* Main cursor ring */}
       <div
         ref={cursorRef}
-        className="fixed top-0 left-0 pointer-events-none z-[9999] -translate-x-1/2 -translate-y-1/2 mix-blend-difference"
+        className="fixed top-0 left-0 pointer-events-none z-[100] -translate-x-1/2 -translate-y-1/2 mix-blend-difference"
         style={{
           width: '40px',
           height: '40px',
@@ -141,7 +151,7 @@ export default function CustomCursor() {
       {/* Center dot */}
       <div
         ref={cursorDotRef}
-        className="fixed top-0 left-0 pointer-events-none z-[9999] -translate-x-1/2 -translate-y-1/2"
+        className="fixed top-0 left-0 pointer-events-none z-[100] -translate-x-1/2 -translate-y-1/2"
         style={{
           width: '6px',
           height: '6px',

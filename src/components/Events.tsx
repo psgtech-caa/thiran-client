@@ -8,7 +8,7 @@ export default function Events() {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleSelectEvent = (event: Event) => {
+  const handleEventClick = (event: Event) => {
     setSelectedEvent(event);
     setIsModalOpen(true);
   };
@@ -47,7 +47,7 @@ export default function Events() {
               key={event.id} 
               event={event} 
               index={index}
-              onSelect={handleSelectEvent}
+              onClick={handleEventClick}
             />
           ))}
         </div>
@@ -56,7 +56,8 @@ export default function Events() {
       {/* Event Modal */}
       <EventModal 
         event={selectedEvent} 
-        isOpen={isModalOpen} 
+        isOpen={isModalOpen}
+        showRegistration={true}
         onClose={() => setIsModalOpen(false)} 
       />
     </section>
