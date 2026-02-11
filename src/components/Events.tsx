@@ -63,17 +63,7 @@ export default function Events() {
             transition={{ duration: 0.8, delay: 0.3, ease: 'easeOut' }}
           >
             {/* Premium Label */}
-            <motion.div
-              className="text-center mb-6"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.5 }}
-            >
-              <span className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold uppercase tracking-widest bg-gradient-to-r from-yellow-500/20 to-amber-500/20 border border-yellow-500/30 text-yellow-400">
-                <span className="text-base">👑</span> The Grand Finale
-              </span>
-            </motion.div>
+            
 
             <div 
               className="relative overflow-hidden rounded-3xl cursor-pointer group"
@@ -118,9 +108,7 @@ export default function Events() {
                         Winners Only
                       </span>
                     </div>
-                    <div className="text-4xl" style={{ filter: 'drop-shadow(0 0 12px rgba(234,179,8,0.5))' }}>
-                      👑
-                    </div>
+                  
                   </div>
 
                   {/* Title */}

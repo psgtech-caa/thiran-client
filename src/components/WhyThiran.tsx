@@ -207,8 +207,91 @@ function StatCard({ stat, index }: { stat: typeof stats[0]; index: number }) {
   );
 }
 
+// Auto-scrolling gallery for last-year images
+function AutoScrollGallery({ images, height = 140, speed = 80 }: { images: string[]; height?: number; speed?: number }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const widthRef = useRef(0);
+  const posRef = useRef(0);
+  const pausedRef = useRef(false);
+  const rafRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    const computeWidth = () => {
+      if (!wrapperRef.current) return;
+      // wrapper contains two sets of images for seamless loop
+      widthRef.current = wrapperRef.current.scrollWidth / 2 || 0;
+    };
+    computeWidth();
+    window.addEventListener('resize', computeWidth);
+    return () => window.removeEventListener('resize', computeWidth);
+  }, [images]);
+
+  useEffect(() => {
+    let last = performance.now();
+    const step = (now: number) => {
+      if (!wrapperRef.current) return;
+      const dt = now - last;
+      last = now;
+      if (!pausedRef.current && widthRef.current > 0) {
+        // speed px per second
+        const delta = (speed * dt) / 1000;
+        posRef.current -= delta;
+        if (Math.abs(posRef.current) >= widthRef.current) {
+          posRef.current += widthRef.current;
+        }
+        wrapperRef.current.style.transform = `translateX(${posRef.current}px)`;
+      }
+      rafRef.current = requestAnimationFrame(step);
+    };
+    rafRef.current = requestAnimationFrame(step);
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, [speed]);
+
+  return (
+    <div
+      ref={containerRef}
+      onMouseEnter={() => (pausedRef.current = true)}
+      onMouseLeave={() => (pausedRef.current = false)}
+      className="w-full overflow-hidden"
+      aria-hidden
+    >
+      <div
+        ref={wrapperRef}
+        className="flex items-center gap-4"
+        style={{
+          willChange: 'transform',
+          transform: 'translateX(0px)',
+        }}
+      >
+        {([...(images || []), ...(images || [])]).map((src, i) => (
+          <div key={`${src}-${i}`} className="flex-shrink-0" style={{ height }}>
+            <img
+              src={src}
+              alt="thiran gallery"
+              className="h-full w-auto rounded-lg object-cover shadow-lg"
+              style={{ display: 'block' }}
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function WhyThiran() {
   const sectionRef = useRef<HTMLElement>(null);
+
+  // last year gallery images (served from public/gallery)
+  const lastYearImages = [
+    '/gallery/gallery-1.jpeg',
+    '/gallery/gallery-2.jpeg',
+    '/gallery/gallery-3.jpeg',
+    '/gallery/gallery-4.jpeg',
+    '/gallery/gallery-5.jpeg',
+  ];
 
   useEffect(() => {
     if (!sectionRef.current) return;
@@ -290,6 +373,14 @@ export default function WhyThiran() {
             Immerse yourself in the future of technology. Experience AR/VR like never before.
             Hover over each card to explore what awaits you.
           </p>
+        </motion.div>
+
+        {/* Auto-scrolling gallery showing last year's pictures */}
+        <motion.div initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }} className="mb-10">
+          <div className="glass rounded-2xl p-4">
+            <h4 className="text-sm font-mono text-cosmic-cyan mb-3">[ LAST YEAR HIGHLIGHTS ]</h4>
+            <AutoScrollGallery images={lastYearImages} height={140} speed={80} />
+          </div>
         </motion.div>
 
         {/* Flip Cards Grid */}

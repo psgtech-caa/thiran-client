@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { motion } from 'framer-motion';
 
@@ -15,41 +15,13 @@ export default function IntroLoader({ onComplete }: IntroLoaderProps) {
   const subtitleRef = useRef<HTMLDivElement>(null);
   const glowRef = useRef<HTMLDivElement>(null);
   const particlesRef = useRef<HTMLDivElement>(null);
-  const [showSkip, setShowSkip] = useState(false);
   const timelineRef = useRef<gsap.core.Timeline | null>(null);
 
-  // Check if intro was already shown in this session
-  useEffect(() => {
-    const introShown = sessionStorage.getItem(INTRO_STORAGE_KEY);
-    if (introShown) {
-      onComplete();
-      return;
-    }
-    
-    // Show skip button after a short delay
-    const skipTimer = setTimeout(() => setShowSkip(true), 500);
-    return () => clearTimeout(skipTimer);
-  }, [onComplete]);
-
-  const handleSkip = () => {
-    if (timelineRef.current) {
-      timelineRef.current.kill();
-    }
-    sessionStorage.setItem(INTRO_STORAGE_KEY, 'true');
-    gsap.to(loaderRef.current, {
-      opacity: 0,
-      duration: 0.3,
-      onComplete: () => onComplete(),
-    });
-  };
+  // NOTE: removed sessionStorage gating and the skip button so the intro runs every refresh
 
   useEffect(() => {
-    // Skip if already shown
-    if (sessionStorage.getItem(INTRO_STORAGE_KEY)) return;
-
     const tl = gsap.timeline({
       onComplete: () => {
-        sessionStorage.setItem(INTRO_STORAGE_KEY, 'true');
         onComplete();
       },
     });
@@ -128,6 +100,11 @@ export default function IntroLoader({ onComplete }: IntroLoaderProps) {
         }
       );
     }
+
+    return () => {
+      // clean up timeline
+      if (timelineRef.current) timelineRef.current.kill();
+    };
   }, [onComplete]);
 
   return (
@@ -218,19 +195,6 @@ export default function IntroLoader({ onComplete }: IntroLoaderProps) {
           background: 'linear-gradient(90deg, transparent, hsl(var(--cosmic-cyan) / 0.5), transparent)',
         }}
       />
-
-      {/* Skip Button */}
-      {showSkip && (
-        <motion.button
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          onClick={handleSkip}
-          className="absolute bottom-8 right-20 px-4 py-2 glass rounded-full text-sm text-cosmic-cyan hover:text-foreground hover:bg-white/10 transition-all duration-300 border border-cosmic-cyan/30 font-mono"
-          aria-label="Skip intro animation"
-        >
-          SKIP →
-        </motion.button>
-      )}
     </div>
   );
 }

@@ -181,17 +181,10 @@ export default function Navbar() {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    {user.photoURL ? (
-                      <img 
-                        src={user.photoURL} 
-                        alt={userProfile?.name || 'User'}
-                        className="w-8 h-8 rounded-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-8 h-8 rounded-full bg-gradient-cosmic flex items-center justify-center">
-                        <User className="w-4 h-4 text-white" />
-                      </div>
-                    )}
+                    {/* Show roll number instead of profile pic in navbar */}
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-r from-cosmic-purple/70 to-cosmic-pink/70 flex items-center justify-center text-[10px] font-semibold tracking-tight text-white">
+                      {userProfile?.rollNumber ?? <User className="w-4 h-4 text-white" />}
+                    </div>
                   </motion.button>
 
                   <AnimatePresence>
@@ -383,17 +376,10 @@ export default function Navbar() {
                     <>
                       <div className="glass rounded-xl p-4 mb-4">
                         <div className="flex items-center gap-3 mb-2">
-                          {user.photoURL ? (
-                            <img 
-                              src={user.photoURL} 
-                              alt={userProfile?.name || 'User'}
-                              className="w-12 h-12 rounded-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-12 h-12 rounded-full bg-gradient-cosmic flex items-center justify-center">
-                              <User className="w-6 h-6 text-white" />
-                            </div>
-                          )}
+                          {/* Show roll number in mobile menu avatar instead of photo */}
+                          <div className="w-12 h-12 rounded-full bg-gradient-to-r from-cosmic-purple/70 to-cosmic-pink/70 flex items-center justify-center text-sm font-semibold text-white">
+                            {userProfile?.rollNumber ?? <User className="w-6 h-6 text-white" />}
+                          </div>
                           <div>
                             <p className="font-semibold">{userProfile?.name}</p>
                             <p className="text-xs text-muted-foreground">{userProfile?.rollNumber}</p>
