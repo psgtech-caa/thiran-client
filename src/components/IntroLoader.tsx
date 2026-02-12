@@ -118,7 +118,7 @@ export default function IntroLoader({ onComplete }: IntroLoaderProps) {
         ref={glowRef}
         className="absolute w-[500px] h-[500px] rounded-full opacity-0"
         style={{
-          background: 'radial-gradient(circle, hsl(var(--cosmic-purple) / 0.3) 0%, hsl(var(--cosmic-pink) / 0.15) 40%, transparent 70%)',
+          background: 'radial-gradient(circle, hsl(var(--glossy-blue) / 0.3) 0%, hsl(var(--silver) / 0.15) 40%, transparent 70%)',
         }}
       />
 
@@ -129,11 +129,9 @@ export default function IntroLoader({ onComplete }: IntroLoaderProps) {
             key={i}
             className="absolute left-1/2 top-1/2 w-1 h-1 rounded-full"
             style={{
-              background: i % 3 === 0
-                ? 'hsl(var(--cosmic-purple))'
-                : i % 3 === 1
-                ? 'hsl(var(--cosmic-pink))'
-                : 'hsl(var(--cosmic-cyan))',
+              background: i % 2 === 0
+                ? 'hsl(var(--glossy-blue))'
+                : 'hsl(var(--silver))',
             }}
           />
         ))}
@@ -143,33 +141,33 @@ export default function IntroLoader({ onComplete }: IntroLoaderProps) {
       <div className="relative flex flex-col items-center" style={{ perspective: '1000px' }}>
         {/* VR Headset outline effect */}
         <motion.div
-          className="absolute -top-16 w-48 h-28 border-2 border-cosmic-cyan/30 rounded-3xl"
+          className="absolute -top-16 w-48 h-28 border-2 border-glossy-blue/30 rounded-3xl"
           initial={{ opacity: 0, scale: 0.5 }}
           animate={{ opacity: [0, 0.5, 0], scale: [0.8, 1.1, 1.3] }}
           transition={{ delay: 0.3, duration: 1.5, ease: 'easeOut' }}
           style={{
-            boxShadow: '0 0 40px hsl(187 94% 55% / 0.3), inset 0 0 40px hsl(187 94% 55% / 0.1)',
+            boxShadow: '0 0 40px hsl(210 100% 50% / 0.3), inset 0 0 40px hsl(210 100% 50% / 0.1)',
           }}
         />
         
         <div ref={logoRef} className="text-center" style={{ transformStyle: 'preserve-3d' }}>
           <img 
-            src="/thiran-logo.png" 
+            src="/new-logo.png" 
             alt="Thiran 2026"
             className="h-32 md:h-48 lg:h-64 w-auto object-contain mx-auto"
             style={{
-              filter: 'drop-shadow(0 0 60px hsl(270 91% 65% / 0.7)) drop-shadow(0 0 120px hsl(330 81% 60% / 0.4))',
+              filter: 'drop-shadow(0 0 60px hsl(210 100% 50% / 0.7)) drop-shadow(0 0 120px hsl(220 12% 75% / 0.4))',
             }}
           />
           <span
             ref={yearRef}
             className="block text-3xl md:text-5xl lg:text-6xl font-bold tracking-[0.3em] mt-2"
             style={{
-              background: 'linear-gradient(90deg, hsl(187 94% 55%), hsl(330 81% 68%))',
+              background: 'linear-gradient(90deg, hsl(220 12% 75%), hsl(210 100% 50%))',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
               backgroundClip: 'text',
-              filter: 'drop-shadow(0 0 30px hsl(187 94% 43% / 0.6))',
+              filter: 'drop-shadow(0 0 30px hsl(210 100% 50% / 0.6))',
             }}
           >
             '26
@@ -177,22 +175,22 @@ export default function IntroLoader({ onComplete }: IntroLoaderProps) {
         </div>
         <div
           ref={subtitleRef}
-          className="mt-4 text-sm md:text-base tracking-[0.5em] uppercase text-cosmic-cyan font-mono"
+          className="mt-4 text-sm md:text-base tracking-[0.5em] uppercase text-glossy-blue font-mono"
         >
-          [ AR / VR Experience ]
+          Welcome to Thiran2k26
         </div>
       </div>
 
       {/* Corner brackets - AR targeting style */}
-      <div className="absolute top-8 left-8 w-12 h-12 border-l-2 border-t-2 border-cosmic-cyan/50" />
-      <div className="absolute top-8 right-8 w-12 h-12 border-r-2 border-t-2 border-cosmic-cyan/50" />
-      <div className="absolute bottom-8 left-8 w-12 h-12 border-l-2 border-b-2 border-cosmic-pink/50" />
-      <div className="absolute bottom-8 right-8 w-12 h-12 border-r-2 border-b-2 border-cosmic-pink/50" />
+      <div className="absolute top-8 left-8 w-12 h-12 border-l-2 border-t-2 border-glossy-blue/50" />
+      <div className="absolute top-8 right-8 w-12 h-12 border-r-2 border-t-2 border-glossy-blue/50" />
+      <div className="absolute bottom-8 left-8 w-12 h-12 border-l-2 border-b-2 border-silver/50" />
+      <div className="absolute bottom-8 right-8 w-12 h-12 border-r-2 border-b-2 border-silver/50" />
 
       {/* Scanning line */}
       <div className="absolute inset-x-0 h-[2px] animate-scan-line" 
         style={{
-          background: 'linear-gradient(90deg, transparent, hsl(var(--cosmic-cyan) / 0.5), transparent)',
+          background: 'linear-gradient(90deg, transparent, hsl(var(--glossy-blue) / 0.5), transparent)',
         }}
       />
     </div>

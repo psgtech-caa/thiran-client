@@ -9,7 +9,7 @@ export default function LoadingScreen() {
         className="text-center"
       >
         <motion.img 
-          src="/thiran-logo.png" 
+          src="/new-logo.png" 
           alt="Thiran 2026"
           className="h-40 md:h-48 w-auto mx-auto mb-8"
           animate={{ 
@@ -23,7 +23,7 @@ export default function LoadingScreen() {
           }}
         />
         <motion.div
-          className="w-16 h-16 border-4 border-cosmic-purple border-t-transparent rounded-full mx-auto"
+          className="w-16 h-16 border-4 border-glossy-blue border-t-transparent rounded-full mx-auto"
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
         />

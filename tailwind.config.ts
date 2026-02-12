@@ -57,12 +57,10 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
-        cosmic: {
-          purple: "hsl(var(--cosmic-purple))",
-          pink: "hsl(var(--cosmic-pink))",
-          cyan: "hsl(var(--cosmic-cyan))",
-          surface: "hsl(var(--cosmic-surface))",
-        },
+        silver: "hsl(var(--silver))",
+        "glossy-blue": "hsl(var(--glossy-blue))",
+        "deep-blue": "hsl(var(--deep-blue))",
+        surface: "hsl(var(--cosmic-surface))",
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -70,8 +68,8 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
-        display: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['Sora', 'Segoe UI', 'system-ui', 'sans-serif'],
+        display: ['Sora', 'Segoe UI', 'system-ui', 'sans-serif'],
       },
       keyframes: {
         "accordion-down": {
@@ -107,8 +105,8 @@ export default {
           "100%": { backgroundPosition: "200% 0" },
         },
         glow: {
-          "0%, 100%": { boxShadow: "0 0 20px hsl(var(--cosmic-purple) / 0.5)" },
-          "50%": { boxShadow: "0 0 40px hsl(var(--cosmic-pink) / 0.8)" },
+          "0%, 100%": { boxShadow: "0 0 20px hsl(var(--glossy-blue) / 0.5)" },
+          "50%": { boxShadow: "0 0 40px hsl(var(--silver) / 0.8)" },
         },
       },
       animation: {
@@ -124,7 +122,7 @@ export default {
       },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
-        "gradient-cosmic": "linear-gradient(135deg, hsl(var(--cosmic-purple)), hsl(var(--cosmic-pink)), hsl(var(--cosmic-cyan)))",
+        "gradient-silver-blue": "linear-gradient(135deg, hsl(var(--silver)), hsl(var(--glossy-blue)))",
       },
     },
   },

@@ -4,7 +4,7 @@ import { useEffect, useRef, useMemo, useState } from 'react';
 import gsap from 'gsap';
 import MagneticButton from './MagneticButton';
 import { useCountdown } from '@/hooks/useCountdown';
-import { BlurText, GradientText } from './reactbits';
+import { GradientText } from './reactbits';
 
 // Animated number counter
 function AnimatedCounter({ value }: { value: number }) {
@@ -50,7 +50,7 @@ function CountdownBox({ value, label, index }: { value: number; label: string; i
     >
       <div className="relative glass rounded-xl p-3 sm:p-4 md:p-6 min-w-[60px] sm:min-w-[70px] md:min-w-[90px] overflow-hidden transition-all duration-300 group-hover:bg-white/10">
         <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-          <div className="absolute inset-[-2px] rounded-xl bg-gradient-to-r from-cosmic-purple via-cosmic-pink to-cosmic-cyan animate-spin-slow" style={{ animationDuration: '3s' }} />
+          <div className="absolute inset-[-2px] rounded-xl bg-gradient-to-r from-silver via-glossy-blue to-silver animate-spin-slow" style={{ animationDuration: '3s' }} />
           <div className="absolute inset-0 rounded-xl bg-background" />
         </div>
         
@@ -109,12 +109,38 @@ export default function Hero() {
       id="home"
       className="relative min-h-screen flex items-center justify-center overflow-hidden pt-24 pb-12 bg-gradient-to-b from-background via-background to-cosmic-surface/50"
     >
-      {/* Subtle background gradient */}
-      <div 
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background: 'radial-gradient(ellipse 80% 80% at 50% -20%, rgba(120,50,200,0.12), transparent)',
+      {/* Blue-silver moving ambient lights */}
+      <motion.div
+        className="absolute -top-32 left-1/4 w-80 h-80 rounded-full blur-3xl pointer-events-none"
+        style={{ background: 'hsl(210 100% 50% / 0.18)' }}
+        animate={{ x: [0, 40, -20, 0], y: [0, -30, 20, 0] }}
+        transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
+      />
+      <motion.div
+        className="absolute bottom-16 right-1/4 w-72 h-72 rounded-full blur-3xl pointer-events-none"
+        style={{ background: 'hsl(220 12% 75% / 0.16)' }}
+        animate={{ x: [0, -35, 20, 0], y: [0, 25, -15, 0] }}
+        transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
+      />
+
+      {/* Floating animated orbs */}
+      <motion.div
+        className="absolute top-1/3 left-1/4 w-40 h-40 rounded-full blur-2xl pointer-events-none"
+        style={{ background: 'hsl(210 100% 50% / 0.08)' }}
+        animate={{ 
+          y: [0, 30, -30, 0],
+          x: [0, -20, 20, 0],
         }}
+        transition={{ duration: 15, repeat: Infinity, ease: 'easeInOut' }}
+      />
+      <motion.div
+        className="absolute bottom-1/3 right-1/3 w-48 h-48 rounded-full blur-2xl pointer-events-none"
+        style={{ background: 'hsl(220 12% 75% / 0.06)' }}
+        animate={{ 
+          y: [0, -40, 40, 0],
+          x: [0, 25, -25, 0],
+        }}
+        transition={{ duration: 18, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
       />
       
       {/* Perspective grid - CSS only */}
@@ -124,8 +150,8 @@ export default function Hero() {
           style={{
             background: `
               linear-gradient(to bottom, transparent 0%, hsl(var(--background)) 100%),
-              linear-gradient(90deg, hsl(270 91% 65% / 0.15) 1px, transparent 1px),
-              linear-gradient(0deg, hsl(270 91% 65% / 0.15) 1px, transparent 1px)
+              linear-gradient(90deg, hsl(var(--glossy-blue) / 0.18) 1px, transparent 1px),
+              linear-gradient(0deg, hsl(var(--silver) / 0.16) 1px, transparent 1px)
             `,
             backgroundSize: '100% 100%, 40px 40px, 40px 40px',
             transform: 'perspective(500px) rotateX(60deg)',
@@ -136,9 +162,27 @@ export default function Hero() {
         />
       </div>
       
-      {/* Static accent lines */}
-      <div className="absolute left-[10%] top-0 bottom-0 w-[1px] bg-gradient-to-b from-transparent via-cosmic-purple/10 to-transparent pointer-events-none" />
-      <div className="absolute right-[10%] top-0 bottom-0 w-[1px] bg-gradient-to-b from-transparent via-cosmic-pink/10 to-transparent pointer-events-none" />
+      {/* Animated accent lines */}
+      <motion.div 
+        className="absolute left-[10%] top-0 bottom-0 w-[1px] pointer-events-none"
+        style={{
+          background: 'linear-gradient(to bottom, transparent 0%, hsl(210 100% 50% / 0.1) 25%, hsl(210 100% 50% / 0.2) 50%, hsl(210 100% 50% / 0.1) 75%, transparent 100%)',
+        }}
+        animate={{
+          opacity: [0.5, 1, 0.5],
+        }}
+        transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+      />
+      <motion.div 
+        className="absolute right-[10%] top-0 bottom-0 w-[1px] pointer-events-none"
+        style={{
+          background: 'linear-gradient(to bottom, transparent 0%, hsl(220 12% 75% / 0.1) 25%, hsl(220 12% 75% / 0.2) 50%, hsl(220 12% 75% / 0.1) 75%, transparent 100%)',
+        }}
+        animate={{
+          opacity: [0.5, 1, 0.5],
+        }}
+        transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut', delay: 0.2 }}
+      />
 
       {/* Radial gradient overlay */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,hsl(var(--background))_70%)] pointer-events-none" />
@@ -149,162 +193,124 @@ export default function Hero() {
 
           {/* Main Logo - Larger and more prominent */}
           <div className="mb-8">
-            <motion.img 
-              src="/thiran-logo.png" 
-              alt="Thiran 2026"
-              className="h-32 md:h-44 lg:h-56 w-auto object-contain mx-auto"
-              style={{
-                filter: 'drop-shadow(0 0 40px hsl(270 91% 65% / 0.7)) drop-shadow(0 0 80px hsl(330 81% 68% / 0.4))',
-              }}
-              initial={{ opacity: 0, scale: 0.7, y: 50 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              transition={{ duration: 1, ease: 'easeOut' }}
-              whileHover={{ scale: 1.05, filter: 'drop-shadow(0 0 60px hsl(270 91% 65% / 0.9)) drop-shadow(0 0 100px hsl(330 81% 68% / 0.6))' }}
-            />
+            <motion.div
+              animate={{ y: [0, -8, 0] }}
+              transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+            >
+              <motion.img 
+                src="/new-logo.png" 
+                alt="Thiran 2026"
+                className="h-32 md:h-44 lg:h-56 w-auto object-contain mx-auto"
+                style={{
+                  filter: 'drop-shadow(0 0 40px hsl(210 100% 50% / 0.7)) drop-shadow(0 0 80px hsl(220 12% 75% / 0.4))',
+                }}
+                initial={{ opacity: 0, scale: 0.7, y: 50 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{ duration: 1, ease: 'easeOut' }}
+                whileHover={{ scale: 1.05, filter: 'drop-shadow(0 0 60px hsl(210 100% 50% / 0.9)) drop-shadow(0 0 100px hsl(220 12% 75% / 0.6))' }}
+              />
+            </motion.div>
           </div>
 
-          {/* Tagline with highlighted THIRAN letters */}
-          <motion.p 
-            className="hero-tagline text-xl md:text-2xl lg:text-3xl text-foreground/60 mb-4 opacity-0 font-medium tracking-wide"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+          {/* Tagline */}
+          <motion.div 
+            className="hero-tagline text-xl md:text-2xl lg:text-3xl mb-4 opacity-0 font-semibold tracking-wide text-foreground/80 relative"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.3 }}
           >
+            {/* Animated underline decoration */}
+            <motion.div
+              className="absolute -bottom-3 left-1/2 h-0.5 bg-gradient-to-r from-transparent via-glossy-blue to-transparent"
+              initial={{ width: 0, x: '-50%' }}
+              animate={{ width: '80%' }}
+              transition={{ duration: 1, delay: 1.2 }}
+            />
+            
             <motion.span 
-              className="font-black"
-              style={{
-                background: 'linear-gradient(135deg, hsl(270 91% 72%), hsl(330 81% 68%), hsl(187 94% 55%))',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-              }}
-              animate={{ 
-                textShadow: [
-                  "0 0 10px hsl(270 91% 65% / 0.5)",
-                  "0 0 20px hsl(330 81% 68% / 0.8)",
-                  "0 0 10px hsl(187 94% 55% / 0.5)"
-                ]
-              }}
-              transition={{ duration: 2, repeat: Infinity }}
-            >T</motion.span>
+              className="text-glossy-blue inline-block"
+              animate={{ y: [0, -4, 0], scale: [1, 1.15, 1] }}
+              transition={{ duration: 0.6, delay: 0.5, repeat: Infinity, repeatDelay: 2.5 }}
+            >
+              T
+            </motion.span>
             <motion.span 
-              className="font-black"
-              style={{
-                background: 'linear-gradient(135deg, hsl(270 91% 72%), hsl(330 81% 68%), hsl(187 94% 55%))',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-              }}
-              animate={{ 
-                textShadow: [
-                  "0 0 10px hsl(270 91% 65% / 0.5)",
-                  "0 0 20px hsl(330 81% 68% / 0.8)",
-                  "0 0 10px hsl(187 94% 55% / 0.5)"
-                ]
-              }}
-              transition={{ duration: 2, repeat: Infinity, delay: 0.1 }}
-            >H</motion.span>
-            e{" "}
+              className="text-glossy-blue inline-block"
+              animate={{ y: [0, -4, 0], scale: [1, 1.15, 1] }}
+              transition={{ duration: 0.6, delay: 0.6, repeat: Infinity, repeatDelay: 2.5 }}
+            >
+              H
+            </motion.span>
+            e{' '}
             <motion.span 
-              className="font-black"
-              style={{
-                background: 'linear-gradient(135deg, hsl(270 91% 72%), hsl(330 81% 68%), hsl(187 94% 55%))',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-              }}
-              animate={{ 
-                textShadow: [
-                  "0 0 10px hsl(270 91% 65% / 0.5)",
-                  "0 0 20px hsl(330 81% 68% / 0.8)",
-                  "0 0 10px hsl(187 94% 55% / 0.5)"
-                ]
-              }}
-              transition={{ duration: 2, repeat: Infinity, delay: 0.2 }}
-            >I</motion.span>
+              className="text-glossy-blue inline-block"
+              animate={{ y: [0, -4, 0], scale: [1, 1.15, 1] }}
+              transition={{ duration: 0.6, delay: 0.7, repeat: Infinity, repeatDelay: 2.5 }}
+            >
+              I
+            </motion.span>
             nt
             <motion.span 
-              className="font-black"
-              style={{
-                background: 'linear-gradient(135deg, hsl(270 91% 72%), hsl(330 81% 68%), hsl(187 94% 55%))',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-              }}
-              animate={{ 
-                textShadow: [
-                  "0 0 10px hsl(270 91% 65% / 0.5)",
-                  "0 0 20px hsl(330 81% 68% / 0.8)",
-                  "0 0 10px hsl(187 94% 55% / 0.5)"
-                ]
-              }}
-              transition={{ duration: 2, repeat: Infinity, delay: 0.3 }}
-            >R</motion.span>
-            a collegiate{" "}
+              className="text-glossy-blue inline-block"
+              animate={{ y: [0, -4, 0], scale: [1, 1.15, 1] }}
+              transition={{ duration: 0.6, delay: 0.8, repeat: Infinity, repeatDelay: 2.5 }}
+            >
+              R
+            </motion.span>
+            a collegiate{' '}
             <motion.span 
-              className="font-black"
-              style={{
-                background: 'linear-gradient(135deg, hsl(270 91% 72%), hsl(330 81% 68%), hsl(187 94% 55%))',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-              }}
-              animate={{ 
-                textShadow: [
-                  "0 0 10px hsl(270 91% 65% / 0.5)",
-                  "0 0 20px hsl(330 81% 68% / 0.8)",
-                  "0 0 10px hsl(187 94% 55% / 0.5)"
-                ]
-              }}
-              transition={{ duration: 2, repeat: Infinity, delay: 0.4 }}
-            >A</motion.span>
+              className="text-glossy-blue inline-block"
+              animate={{ y: [0, -4, 0], scale: [1, 1.15, 1] }}
+              transition={{ duration: 0.6, delay: 0.9, repeat: Infinity, repeatDelay: 2.5 }}
+            >
+              A
+            </motion.span>
             re
             <motion.span 
-              className="font-black"
-              style={{
-                background: 'linear-gradient(135deg, hsl(270 91% 72%), hsl(330 81% 68%), hsl(187 94% 55%))',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-              }}
-              animate={{ 
-                textShadow: [
-                  "0 0 10px hsl(270 91% 65% / 0.5)",
-                  "0 0 20px hsl(330 81% 68% / 0.8)",
-                  "0 0 10px hsl(187 94% 55% / 0.5)"
-                ]
-              }}
-              transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
-            >N</motion.span>
+              className="text-glossy-blue inline-block"
+              animate={{ y: [0, -4, 0], scale: [1, 1.15, 1] }}
+              transition={{ duration: 0.6, delay: 1.0, repeat: Infinity, repeatDelay: 2.5 }}
+            >
+              N
+            </motion.span>
             a
-          </motion.p>
+          </motion.div>
 
-          {/* Subtitle with BlurText */}
-          <div className="hero-description text-base md:text-lg text-muted-foreground max-w-2xl mx-auto mb-5 opacity-0">
-            <BlurText 
-              text="Unleash your potential at the ultimate intra-collegiate fest. Compete in exciting events, showcase your skills, and claim your glory!"
-              delay={30}
-              duration={0.4}
-            />
-          </div>
+          {/* Subtitle */}
+          <motion.p
+            className="hero-description text-base md:text-lg text-muted-foreground max-w-2xl mx-auto mb-5 opacity-0"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.45 }}
+          >
+            Unleash your potential at the ultimate intra-collegiate fest. Compete in exciting events, showcase your skills, and claim your glory!
+          </motion.p>
 
           {/* Event Info Cards */}
           <div className="flex flex-wrap justify-center gap-4 md:gap-6 mb-5">
             {[
-              { icon: Calendar, text: "February 23, 2026", color: "cosmic-purple" },
-              { icon: MapPin, text: "MCA Block, PSG Tech Campus", color: "cosmic-pink" },
+              { icon: Calendar, text: "February 23, 2026" },
+              { icon: MapPin, text: "K Block, 4th Floor" },
             ].map((item, i) => (
               <motion.div 
                 key={i}
-                className={`hero-info-badge flex items-center gap-2 glass rounded-full px-4 py-2 cursor-pointer transition-all duration-300 opacity-0 border border-${item.color}/20`}
+                className="hero-info-badge flex items-center gap-2 glass rounded-full px-4 py-2 cursor-pointer transition-all duration-300 opacity-0 border border-glossy-blue/25 group relative overflow-hidden"
                 whileHover={{ 
                   scale: 1.08, 
                   y: -3,
-                  boxShadow: `0 10px 30px hsl(var(--${item.color}) / 0.2)` 
+                  boxShadow: '0 10px 30px hsl(var(--glossy-blue) / 0.2)'
                 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <item.icon className={`w-4 h-4 text-${item.color}`} />
-                <span className="text-sm">{item.text}</span>
+                <motion.span
+                  className="absolute inset-0 bg-gradient-to-r from-glossy-blue/0 via-glossy-blue/20 to-glossy-blue/0 opacity-0 group-hover:opacity-100"
+                  animate={{ x: [-100, 100] }}
+                  transition={{ duration: 0.7, repeat: Infinity, repeatDelay: 1.5 }}
+                />
+                <motion.div animate={{ rotate: [0, 5, -5, 0] }} transition={{ duration: 2, repeat: Infinity }}>
+                  <item.icon className="w-4 h-4 text-silver relative z-10" />
+                </motion.div>
+                <span className="text-sm relative z-10">{item.text}</span>
               </motion.div>
             ))}
           </div>
@@ -313,15 +319,17 @@ export default function Hero() {
           <div className="flex flex-col sm:flex-row justify-center gap-4 mb-16">
             <motion.div 
               className="hero-cta opacity-0"
-              whileHover={{ scale: 1.02 }}
+              whileHover={{ scale: 1.02, y: -4 }}
               whileTap={{ scale: 0.98 }}
             >
-              <MagneticButton className="btn-cosmic text-white text-lg">
-                <a href="#events" className="flex items-center gap-2">
-                  <motion.span
-                    animate={{ rotate: [0, 360] }}
-                    transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                  >
+              <MagneticButton className="btn-cosmic btn-hero-primary text-white text-lg group relative overflow-hidden">
+                <motion.span
+                  className="absolute inset-0 bg-gradient-to-r from-glossy-blue/0 via-glossy-blue/30 to-glossy-blue/0 opacity-0 group-hover:opacity-100"
+                  animate={{ x: [-200, 200] }}
+                  transition={{ duration: 0.8, repeat: Infinity, repeatDelay: 1 }}
+                />
+                <a href="#events" className="flex items-center gap-2 relative z-10">
+                  <motion.span animate={{ rotate: [0, 8, 0] }} transition={{ duration: 1.6, repeat: Infinity }}>
                     <Scan className="w-5 h-5" />
                   </motion.span>
                   Explore Events
@@ -330,15 +338,17 @@ export default function Hero() {
             </motion.div>
             <motion.div 
               className="hero-cta opacity-0"
-              whileHover={{ scale: 1.02 }}
+              whileHover={{ scale: 1.02, y: -4 }}
               whileTap={{ scale: 0.98 }}
             >
-              <MagneticButton className="btn-cosmic-outline text-white text-lg">
-                <a href="#contact" className="flex items-center gap-2">
-                  <motion.span
-                    animate={{ scale: [1, 1.2, 1] }}
-                    transition={{ duration: 1.5, repeat: Infinity }}
-                  >
+              <MagneticButton className="btn-cosmic-outline btn-hero-secondary text-white text-lg group relative overflow-hidden">
+                <motion.span
+                  className="absolute inset-0 bg-gradient-to-r from-silver/0 via-silver/30 to-silver/0 opacity-0 group-hover:opacity-100"
+                  animate={{ x: [-200, 200] }}
+                  transition={{ duration: 0.8, repeat: Infinity, repeatDelay: 1.2 }}
+                />
+                <a href="#contact" className="flex items-center gap-2 relative z-10">
+                  <motion.span animate={{ y: [0, -2, 0] }} transition={{ duration: 1.2, repeat: Infinity }}>
                     <Sparkles className="w-5 h-5" />
                   </motion.span>
                   Register Now
@@ -358,7 +368,7 @@ export default function Hero() {
             >
               <GradientText 
                 text="[ LAUNCHING IN ]" 
-                colors={["#22d3ee", "#c084fc", "#f472b6", "#22d3ee"]}
+                colors={["#B8C0D0", "#0080FF", "#B8C0D0", "#0080FF"]}
                 animationSpeed={3}
               />
             </motion.p>
@@ -368,34 +378,42 @@ export default function Hero() {
               <CountdownBox value={timeLeft.minutes} label="Minutes" index={2} />
               <CountdownBox value={timeLeft.seconds} label="Seconds" index={3} />
             </div>
+
+            <motion.a
+              href="#events"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.4 }}
+              className="mt-8 inline-flex flex-col items-center gap-2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer group"
+              whileHover={{ y: 4 }}
+              aria-label="Scroll to events section"
+            >
+              <motion.span
+                className="text-xs uppercase tracking-widest group-hover:text-glossy-blue transition-colors"
+                animate={{ opacity: [0.55, 1, 0.55] }}
+                transition={{ duration: 1.6, repeat: Infinity }}
+              >
+                Scroll
+              </motion.span>
+              <motion.div
+                animate={{ y: [0, 6, 0] }}
+                transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+                className="relative"
+              >
+                <motion.div
+                  className="absolute inset-0 blur-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                  style={{
+                    background: 'linear-gradient(to bottom, hsl(210 100% 50% / 0.5), transparent)',
+                  }}
+                  animate={{ scale: [1, 1.3, 1] }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                />
+                <ChevronDown className="w-6 h-6 relative z-10" aria-hidden="true" />
+              </motion.div>
+            </motion.a>
           </div>
         </div>
       </div>
-
-      {/* Scroll Indicator */}
-      <motion.a
-        href="#events"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 2 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer group"
-        whileHover={{ y: 5 }}
-        aria-label="Scroll to events section"
-      >
-        <motion.span 
-          className="text-xs uppercase tracking-widest group-hover:text-cosmic-cyan transition-colors"
-          animate={{ opacity: [0.5, 1, 0.5] }}
-          transition={{ duration: 1.5, repeat: Infinity }}
-        >
-          Scroll
-        </motion.span>
-        <motion.div
-          animate={{ y: [0, 8, 0] }}
-          transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-        >
-          <ChevronDown className="w-6 h-6" aria-hidden="true" />
-        </motion.div>
-      </motion.a>
     </section>
   );
 }

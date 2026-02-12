@@ -16,7 +16,7 @@ gsap.registerPlugin(ScrollTrigger);
 // Floating particle component
 const FloatingParticle = ({ delay = 0 }: { delay?: number }) => (
   <motion.div
-    className="absolute w-1 h-1 rounded-full bg-gradient-to-r from-violet-400 to-fuchsia-400"
+    className="absolute w-1 h-1 rounded-full bg-gradient-to-r from-silver to-glossy-blue"
     initial={{ opacity: 0, y: 100 }}
     animate={{ 
       opacity: [0, 1, 0],
@@ -70,13 +70,13 @@ export default function Contact() {
       {/* Aurora background effects */}
       <div className="contact-aurora-1 absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full opacity-30"
         style={{
-          background: 'radial-gradient(ellipse at center, rgba(139, 92, 246, 0.4) 0%, rgba(236, 72, 153, 0.2) 40%, transparent 70%)',
+          background: 'radial-gradient(ellipse at center, hsl(210 100% 50% / 0.35) 0%, hsl(220 12% 75% / 0.2) 40%, transparent 70%)',
           filter: 'blur(80px)',
         }}
       />
       <div className="contact-aurora-2 absolute -bottom-40 -left-40 w-[500px] h-[500px] rounded-full opacity-25"
         style={{
-          background: 'radial-gradient(ellipse at center, rgba(34, 211, 238, 0.4) 0%, rgba(139, 92, 246, 0.2) 40%, transparent 70%)',
+          background: 'radial-gradient(ellipse at center, hsl(220 12% 75% / 0.35) 0%, hsl(210 100% 50% / 0.2) 40%, transparent 70%)',
           filter: 'blur(80px)',
         }}
       />
@@ -85,9 +85,9 @@ export default function Contact() {
       <div className="absolute inset-0 opacity-[0.03]"
         style={{
           backgroundImage: `
-            radial-gradient(at 20% 30%, rgba(139, 92, 246, 0.8) 0%, transparent 50%),
-            radial-gradient(at 80% 70%, rgba(236, 72, 153, 0.6) 0%, transparent 50%),
-            radial-gradient(at 50% 50%, rgba(34, 211, 238, 0.4) 0%, transparent 50%)
+            radial-gradient(at 20% 30%, hsl(210 100% 50% / 0.75) 0%, transparent 50%),
+            radial-gradient(at 80% 70%, hsl(220 12% 75% / 0.55) 0%, transparent 50%),
+            radial-gradient(at 50% 50%, hsl(210 100% 50% / 0.35) 0%, transparent 50%)
           `,
         }}
       />
@@ -104,16 +104,16 @@ export default function Contact() {
           <motion.div 
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full mb-6"
             style={{
-              background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(236, 72, 153, 0.15) 100%)',
-              border: '1px solid rgba(139, 92, 246, 0.3)',
+              background: 'linear-gradient(135deg, hsl(220 12% 75% / 0.18) 0%, hsl(210 100% 50% / 0.2) 100%)',
+              border: '1px solid hsl(210 100% 50% / 0.35)',
             }}
             whileHover={{ scale: 1.05 }}
           >
-            <Sparkles className="w-4 h-4 text-violet-400" />
-            <span className="text-sm text-violet-300 font-medium">Let's Connect</span>
+            <Sparkles className="w-4 h-4 text-glossy-blue" />
+            <span className="text-sm text-silver font-medium">Let's Connect</span>
           </motion.div>
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
-            <span className="bg-gradient-to-r from-violet-400 via-fuchsia-400 to-cyan-400 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-silver via-glossy-blue to-silver bg-clip-text text-transparent">
               Get In Touch
             </span>
           </h2>
@@ -128,14 +128,14 @@ export default function Contact() {
           {contactInfo.map((info, index) => {
             const Icon = info.icon;
             const gradients = [
-              'from-violet-500/20 to-fuchsia-500/20',
-              'from-fuchsia-500/20 to-pink-500/20',
-              'from-cyan-500/20 to-violet-500/20',
+              'from-silver/15 to-glossy-blue/20',
+              'from-glossy-blue/20 to-silver/15',
+              'from-silver/10 to-glossy-blue/15',
             ];
             const iconBgs = [
-              'from-violet-500 to-fuchsia-500',
-              'from-fuchsia-500 to-pink-500',
-              'from-cyan-500 to-violet-500',
+              'from-silver to-glossy-blue',
+              'from-glossy-blue to-silver',
+              'from-silver to-glossy-blue',
             ];
             
             return (
@@ -155,7 +155,7 @@ export default function Contact() {
                   {/* Hover glow effect */}
                   <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
                     style={{
-                      background: 'radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.2) 0%, transparent 70%)',
+                      background: 'radial-gradient(circle at 50% 50%, hsl(210 100% 50% / 0.2) 0%, transparent 70%)',
                     }}
                   />
                   
@@ -165,7 +165,7 @@ export default function Contact() {
                     </div>
                     <div>
                       <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">{info.label}</p>
-                      <p className="font-medium text-white group-hover:text-violet-300 transition-colors">{info.value}</p>
+                      <p className="font-medium text-white group-hover:text-silver transition-colors">{info.value}</p>
                     </div>
                   </div>
                 </div>
@@ -182,16 +182,16 @@ export default function Contact() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="p-6 rounded-2xl bg-gradient-to-br from-violet-500/10 to-fuchsia-500/10 backdrop-blur-xl border border-white/10"
+            className="p-6 rounded-2xl bg-gradient-to-br from-glossy-blue/10 to-silver/10 backdrop-blur-xl border border-white/10"
           >
             <div className="flex items-center gap-2 mb-4">
-              <Heart className="w-4 h-4 text-fuchsia-400" />
+              <Heart className="w-4 h-4 text-glossy-blue" />
               <h3 className="text-lg font-semibold text-white">Follow Us</h3>
             </div>
             <div className="flex gap-3 justify-center">
               {socialLinks.map((social, index) => {
                 const Icon = social.icon;
-                const colors = ['hover:bg-violet-500', 'hover:bg-cyan-500', 'hover:bg-fuchsia-500', 'hover:bg-pink-500'];
+                const colors = ['hover:bg-glossy-blue', 'hover:bg-silver hover:text-deep-blue', 'hover:bg-glossy-blue', 'hover:bg-silver hover:text-deep-blue'];
                 return (
                   <motion.a
                     key={social.label}
@@ -217,7 +217,7 @@ export default function Contact() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="p-6 rounded-2xl bg-gradient-to-br from-cyan-500/10 to-violet-500/10 backdrop-blur-xl border border-white/10 relative overflow-hidden"
+            className="p-6 rounded-2xl bg-gradient-to-br from-glossy-blue/10 to-silver/10 backdrop-blur-xl border border-white/10 relative overflow-hidden"
           >
             {/* Floating particles */}
             <div className="absolute inset-0 pointer-events-none">
@@ -231,7 +231,7 @@ export default function Contact() {
                 animate={{ y: [0, -5, 0] }}
                 transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
               >
-                <MapPin className="w-8 h-8 text-fuchsia-400" />
+                <MapPin className="w-8 h-8 text-glossy-blue" />
               </motion.div>
               <div>
                 <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Location</p>

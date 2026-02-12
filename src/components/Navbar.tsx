@@ -78,7 +78,7 @@ export default function Navbar() {
           isScrolled ? 'glass py-3' : 'bg-transparent py-5'
         }`}
       >
-        <div className="container mx-auto px-4 md:px-8">
+        <div className="mx-auto px-4 md:px-8">
           <div className="flex items-center justify-between">
             {/* Logo */}
             <a 
@@ -95,7 +95,7 @@ export default function Navbar() {
               <motion.span 
                 className="text-xl md:text-2xl font-bold tracking-tight"
                 style={{
-                  background: 'linear-gradient(135deg, hsl(270 91% 72%), hsl(330 81% 68%), hsl(187 94% 55%))',
+                  background: 'linear-gradient(135deg, hsl(var(--silver)), hsl(var(--glossy-blue)))',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
                   backgroundClip: 'text',
@@ -315,7 +315,7 @@ export default function Navbar() {
             className="fixed inset-0 z-40 md:hidden"
           >
             <motion.div 
-              className="absolute inset-0 bg-background/90 backdrop-blur-xl"
+              className="absolute inset-0 bg-background/95 backdrop-blur-xl"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -326,63 +326,82 @@ export default function Navbar() {
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 25 }}
-              className="absolute right-0 top-0 bottom-0 w-3/4 max-w-sm glass-strong"
+              className="absolute right-0 top-0 bottom-0 w-full max-w-sm glass-strong overflow-y-auto"
             >
-              <div className="flex flex-col p-8 pt-24 gap-6">
-                {navLinks.map((link, index) => (
-                  <motion.a
-                    key={link.name}
-                    href={link.href}
-                    initial={{ opacity: 0, x: 50 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    onClick={(e) => {
-                      setIsMobileMenuOpen(false);
-                      
-                      if (link.isRoute) {
-                        // If it's the home route
-                        if (link.href === '/' && window.location.pathname !== '/') {
-                          navigate('/');
-                        }
-                      } else {
-                        // For hash links, navigate to home first if not already there
-                        if (window.location.pathname !== '/') {
-                          e.preventDefault();
-                          navigate('/');
-                          // Wait for navigation, then scroll
-                          setTimeout(() => {
-                            const hash = link.href.startsWith('#') ? link.href : link.href.substring(link.href.indexOf('#'));
-                            const element = document.querySelector(hash);
-                            if (element) {
-                              element.scrollIntoView({ behavior: 'smooth' });
-                            }
-                          }, 100);
-                        }
-                      }
-                    }}
-                    className="flex items-center justify-between text-2xl font-medium text-foreground/80 hover:text-foreground hover:gradient-text transition-all duration-300 group"
+              <div className="flex flex-col h-full">
+                {/* Header */}
+                <div className="sticky top-0 flex items-center justify-between p-4 border-b border-white/10">
+                  <motion.span 
+                    className="text-lg font-bold gradient-text"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
                   >
-                    <span>{link.name}</span>
-                    <ChevronRight className="w-5 h-5 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
-                  </motion.a>
-                ))}
+                    Menu
+                  </motion.span>
+                  <motion.button
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                    whileTap={{ scale: 0.9 }}
+                  >
+                    <X size={24} />
+                  </motion.button>
+                </div>
+
+                {/* Navigation Links */}
+                <div className="flex-1 p-4 md:p-6 flex flex-col gap-3">
+                  {navLinks.map((link, index) => (
+                    <motion.a
+                      key={link.name}
+                      href={link.href}
+                      initial={{ opacity: 0, x: 50 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.08 }}
+                      onClick={(e) => {
+                        setIsMobileMenuOpen(false);
+                        
+                        if (link.isRoute) {
+                          if (link.href === '/' && window.location.pathname !== '/') {
+                            navigate('/');
+                          }
+                        } else {
+                          if (window.location.pathname !== '/') {
+                            e.preventDefault();
+                            navigate('/');
+                            setTimeout(() => {
+                              const hash = link.href.startsWith('#') ? link.href : link.href.substring(link.href.indexOf('#'));
+                              const element = document.querySelector(hash);
+                              if (element) {
+                                element.scrollIntoView({ behavior: 'smooth' });
+                              }
+                            }, 100);
+                          }
+                        }
+                      }}
+                      className="flex items-center justify-between px-4 py-3 rounded-xl text-lg md:text-xl font-medium text-foreground/80 hover:text-foreground hover:bg-white/10 transition-all duration-300 group"
+                    >
+                      <span>{link.name}</span>
+                      <ChevronRight className="w-5 h-5 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+                    </motion.a>
+                  ))}
+                </div>
+
+                {/* User Section */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.4 }}
-                  className="mt-4"
+                  className="border-t border-white/10 p-4 md:p-6 space-y-3"
                 >
                   {user ? (
                     <>
-                      <div className="glass rounded-xl p-4 mb-4">
+                      <div className="glass rounded-xl p-3 md:p-4 mb-3">
                         <div className="flex items-center gap-3 mb-2">
-                          {/* Show roll number in mobile menu avatar instead of photo */}
-                          <div className="w-12 h-12 rounded-full bg-gradient-to-r from-cosmic-purple/70 to-cosmic-pink/70 flex items-center justify-center text-sm font-semibold text-white">
-                            {userProfile?.rollNumber ?? <User className="w-6 h-6 text-white" />}
+                          <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-r from-cosmic-purple/70 to-cosmic-pink/70 flex items-center justify-center text-xs md:text-sm font-semibold text-white flex-shrink-0">
+                            {userProfile?.rollNumber ?? <User className="w-5 h-5 md:w-6 md:h-6 text-white" />}
                           </div>
-                          <div>
-                            <p className="font-semibold">{userProfile?.name}</p>
-                            <p className="text-xs text-muted-foreground">{userProfile?.rollNumber}</p>
+                          <div className="min-w-0">
+                            <p className="font-semibold text-sm md:text-base truncate">{userProfile?.name}</p>
+                            <p className="text-xs text-muted-foreground truncate">{userProfile?.rollNumber}</p>
                           </div>
                         </div>
                         {userProfile?.mobile && (
@@ -395,7 +414,7 @@ export default function Navbar() {
                           navigate('/my-registrations');
                           setIsMobileMenuOpen(false);
                         }}
-                        className="btn-cosmic text-white w-full mb-3"
+                        className="btn-cosmic text-white w-full text-sm md:text-base py-2.5 md:py-3"
                       >
                         My Registrations
                       </MagneticButton>
@@ -405,14 +424,14 @@ export default function Navbar() {
                             navigate('/admin');
                             setIsMobileMenuOpen(false);
                           }}
-                          className="w-full mb-3 px-4 py-3 rounded-xl bg-gradient-to-r from-cosmic-purple/20 to-cosmic-pink/20 border border-cosmic-purple/30 text-left"
+                          className="w-full px-4 py-2.5 md:py-3 rounded-xl bg-gradient-to-r from-cosmic-purple/20 to-cosmic-pink/20 border border-cosmic-purple/30 text-left text-sm md:text-base"
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
                         >
                           <div className="flex items-center gap-3">
-                            <Shield className="w-5 h-5 text-cosmic-purple" />
-                            <div>
-                              <p className="text-sm font-semibold">Admin Panel</p>
+                            <Shield className="w-4 h-4 md:w-5 md:h-5 text-cosmic-purple flex-shrink-0" />
+                            <div className="min-w-0">
+                              <p className="font-semibold text-xs md:text-sm">Admin Panel</p>
                               <p className="text-xs text-muted-foreground">Coordinators only</p>
                             </div>
                           </div>
@@ -423,13 +442,13 @@ export default function Navbar() {
                           await signOut();
                           setIsMobileMenuOpen(false);
                         }}
-                        className="w-full btn-cosmic-outline text-sm py-3"
+                        className="w-full btn-cosmic-outline text-xs md:text-sm py-2.5 md:py-3"
                       >
                         Sign Out
                       </button>
                     </>
                   ) : (
-                    <MagneticButton onClick={signInWithGoogle} className="btn-cosmic text-white w-full">
+                    <MagneticButton onClick={signInWithGoogle} className="btn-cosmic text-white w-full text-sm md:text-base py-2.5 md:py-3">
                       Register Now
                     </MagneticButton>
                   )}

@@ -4,12 +4,10 @@ import {
   Users, 
   Trophy 
 } from 'lucide-react';
-import { useEffect, useState, useRef, lazy, Suspense } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-// Lazy load 3D scene for performance
-const Thiran3DScene = lazy(() => import('./Thiran3DText'));
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -213,7 +211,6 @@ function AutoScrollGallery({ images, height = 140, speed = 80 }: { images: strin
   const wrapperRef = useRef<HTMLDivElement>(null);
   const widthRef = useRef(0);
   const posRef = useRef(0);
-  const pausedRef = useRef(false);
   const rafRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -233,7 +230,7 @@ function AutoScrollGallery({ images, height = 140, speed = 80 }: { images: strin
       if (!wrapperRef.current) return;
       const dt = now - last;
       last = now;
-      if (!pausedRef.current && widthRef.current > 0) {
+      if (widthRef.current > 0) {
         // speed px per second
         const delta = (speed * dt) / 1000;
         posRef.current -= delta;
@@ -253,8 +250,6 @@ function AutoScrollGallery({ images, height = 140, speed = 80 }: { images: strin
   return (
     <div
       ref={containerRef}
-      onMouseEnter={() => (pausedRef.current = true)}
-      onMouseLeave={() => (pausedRef.current = false)}
       className="w-full overflow-hidden"
       aria-hidden
     >
@@ -271,6 +266,8 @@ function AutoScrollGallery({ images, height = 140, speed = 80 }: { images: strin
             <img
               src={src}
               alt="thiran gallery"
+              loading="lazy"
+              decoding="async"
               className="h-full w-auto rounded-lg object-cover shadow-lg"
               style={{ display: 'block' }}
             />
@@ -284,13 +281,22 @@ function AutoScrollGallery({ images, height = 140, speed = 80 }: { images: strin
 export default function WhyThiran() {
   const sectionRef = useRef<HTMLElement>(null);
 
-  // last year gallery images (served from public/gallery)
+  // Thiran 2k25 Gallery - All available images from public/gallery
   const lastYearImages = [
-    '/gallery/gallery-1.jpeg',
+    '/gallery/IMG_2679.JPG',
+    '/gallery/IMG_2815.JPG',
+    '/gallery/IMG_2836.JPG',
+    '/gallery/IMG_2851.JPG',
+    '/gallery/IMG_2863.JPG',
+    '/gallery/IMG_2872.JPG',
     '/gallery/gallery-2.jpeg',
-    '/gallery/gallery-3.jpeg',
     '/gallery/gallery-4.jpeg',
     '/gallery/gallery-5.jpeg',
+    '/gallery/img1.jpg',
+    '/gallery/img2.jpg',
+    '/gallery/img3.jpg',
+    '/gallery/img4.jpg',
+    '/gallery/img5.jpg',
   ];
 
   useEffect(() => {
@@ -334,23 +340,8 @@ export default function WhyThiran() {
         }}
       />
 
-      <div className="container mx-auto relative z-10">
-        {/* 3D VR Model Section */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          className="mb-12"
-        >
-          <Suspense fallback={
-            <div className="w-full h-[350px] md:h-[450px] flex items-center justify-center">
-              <div className="animate-pulse text-cosmic-purple font-mono">[ LOADING XR EXPERIENCE ]</div>
-            </div>
-          }>
-            <Thiran3DScene />
-          </Suspense>
-        </motion.div>
+  
+        
 
         {/* Section Header */}
         <motion.div
@@ -360,12 +351,7 @@ export default function WhyThiran() {
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
-          <motion.span 
-            className="inline-block px-4 py-2 glass rounded-full text-sm text-cosmic-cyan mb-4 font-mono border border-cosmic-cyan/30"
-            whileHover={{ scale: 1.05 }}
-          >
-            [ THE XR EXPERIENCE ]
-          </motion.span>
+          
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
             Why <span className="gradient-text-animated">Thiran</span>?
           </h2>
@@ -378,7 +364,7 @@ export default function WhyThiran() {
         {/* Auto-scrolling gallery showing last year's pictures */}
         <motion.div initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }} className="mb-10">
           <div className="glass rounded-2xl p-4">
-            <h4 className="text-sm font-mono text-cosmic-cyan mb-3">[ LAST YEAR HIGHLIGHTS ]</h4>
+            <h4 className="text-sm font-mono text-glossy-blue mb-3">[ 2025 THIRAN MOMENTOS ]</h4>
             <AutoScrollGallery images={lastYearImages} height={140} speed={80} />
           </div>
         </motion.div>
@@ -410,7 +396,6 @@ export default function WhyThiran() {
             </div>
           </div>
         </motion.div>
-      </div>
-    </section>
+      </section>
   );
 }

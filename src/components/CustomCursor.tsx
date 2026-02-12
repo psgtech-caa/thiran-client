@@ -26,6 +26,26 @@ export default function CustomCursor() {
       gsap.to(cursor, { x: e.clientX, y: e.clientY, duration: 0.4, ease: 'power3.out' });
     };
 
+    const handleInteractiveState = (e: MouseEvent) => {
+      const target = e.target as HTMLElement | null;
+      const interactive = target?.closest('a, button, [role="button"], input, textarea, select');
+      if (interactive) {
+        gsap.to(cursor, {
+          scale: 1.45,
+          borderColor: 'hsl(var(--silver) / 0.95)',
+          boxShadow: '0 0 20px hsl(var(--glossy-blue) / 0.45)',
+          duration: 0.18,
+        });
+      } else {
+        gsap.to(cursor, {
+          scale: 1,
+          borderColor: 'hsl(var(--glossy-blue) / 0.85)',
+          boxShadow: '0 0 14px hsl(var(--glossy-blue) / 0.3)',
+          duration: 0.2,
+        });
+      }
+    };
+
     const handleMouseDown = () => {
       gsap.to(cursor, { scale: 0.8, duration: 0.2 });
     };
@@ -35,6 +55,7 @@ export default function CustomCursor() {
     };
 
     window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mousemove', handleInteractiveState);
     window.addEventListener('mousedown', handleMouseDown);
     window.addEventListener('mouseup', handleMouseUp);
 
@@ -42,6 +63,7 @@ export default function CustomCursor() {
       document.body.style.cursor = '';
       style.remove();
       window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mousemove', handleInteractiveState);
       window.removeEventListener('mousedown', handleMouseDown);
       window.removeEventListener('mouseup', handleMouseUp);
     };
@@ -57,7 +79,8 @@ export default function CustomCursor() {
           width: '32px',
           height: '32px',
           borderRadius: '50%',
-          border: '2px solid hsl(var(--cosmic-cyan) / 0.8)',
+          border: '2px solid hsl(var(--glossy-blue) / 0.85)',
+          boxShadow: '0 0 14px hsl(var(--glossy-blue) / 0.3)',
         }}
       />
       
@@ -69,7 +92,8 @@ export default function CustomCursor() {
           width: '5px',
           height: '5px',
           borderRadius: '50%',
-          background: 'linear-gradient(135deg, hsl(var(--cosmic-purple)), hsl(var(--cosmic-cyan)))',
+          background: 'linear-gradient(135deg, hsl(var(--silver)), hsl(var(--glossy-blue)))',
+          boxShadow: '0 0 10px hsl(var(--glossy-blue) / 0.7)',
         }}
       />
     </div>

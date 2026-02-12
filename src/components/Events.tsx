@@ -66,8 +66,7 @@ export default function Events() {
             
 
             <div 
-              className="relative overflow-hidden rounded-3xl cursor-pointer group"
-              onClick={() => handleEventClick(event)}
+              className="relative overflow-hidden rounded-3xl group"
             >
               {/* Animated rotating gradient border */}
               <div className="absolute -inset-[2px] rounded-3xl overflow-hidden">

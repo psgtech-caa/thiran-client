@@ -4,8 +4,8 @@ export const contactInfo = [
   {
     icon: Mail,
     label: 'Email',
-    value: 'info@thiran2026.com',
-    href: 'mailto:info@thiran2026.com',
+    value: 'thiran2k26@gmail.com',
+    href: 'mailto:thiran2k26@gmail.com',
     color: 'purple' as const,
   },
   {
@@ -18,7 +18,7 @@ export const contactInfo = [
   {
     icon: MapPin,
     label: 'Address',
-    value: 'PSG College of Technology, Coimbatore',
+    value: 'K Block, 4th floor, PSG College of Technology, Coimbatore',
     href: '#',
     color: 'cyan' as const,
   },
