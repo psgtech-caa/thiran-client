@@ -22,10 +22,7 @@ const rules = [
   'Plagiarism will lead to disqualification',
 ];
 
-const coordinators = [
-  { name: 'Arun Kumar', phone: '+91 98765 43210' },
-  { name: 'Priya Sharma', phone: '+91 87654 32109' },
-];
+
 
 const DEPARTMENTS = [
   'MCA',
@@ -174,7 +171,7 @@ export default function EventModal({ event, isOpen, showRegistration = false, on
           onClick={onClose}
         >
           {/* Backdrop with blur */}
-          <motion.div 
+          <motion.div
             className="absolute inset-0 bg-background/80 backdrop-blur-xl"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -194,156 +191,158 @@ export default function EventModal({ event, isOpen, showRegistration = false, on
           >
             {/* Scrollable content */}
             <div className="overflow-y-auto max-h-[90vh] scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent pb-24">
-            {/* Subtle border */}
-            <div className="absolute -inset-[1px] rounded-3xl bg-white/10 pointer-events-none" />
-            
-            <div className="relative glass-strong rounded-3xl overflow-hidden">
-              {/* Close Button */}
-              <motion.button
-                onClick={onClose}
-                className="absolute top-4 right-4 z-10 p-2 glass rounded-full hover:bg-white/20 transition-colors"
-                whileHover={{ scale: 1.1, rotate: 90 }}
-                whileTap={{ scale: 0.9 }}
-              >
-                <X className="w-5 h-5" />
-              </motion.button>
+              {/* Subtle border */}
+              <div className="absolute -inset-[1px] rounded-3xl bg-white/10 pointer-events-none" />
 
-              {/* Header Image */}
-              <div className="relative h-48 md:h-64 overflow-hidden">
-                <motion.div 
-                  className="absolute inset-0 bg-cover bg-center"
-                  style={{ 
-                    backgroundImage: `url(${event.image})`,
-                    backgroundColor: 'hsl(var(--cosmic-surface))',
-                  }}
-                  initial={{ scale: 1.2 }}
-                  animate={{ scale: 1 }}
-                  transition={{ duration: 0.8 }}
-                />
-                {/* Shimmer overlay */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full animate-shimmer" />
-                <div className="absolute inset-0 bg-gradient-to-t from-card via-card/50 to-transparent" />
-                
-                <div className="absolute bottom-6 left-6 right-6">
-                  <motion.span 
-                    className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-gradient-cosmic text-white mb-3"
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.3 }}
-                  >
-                    {event.category}
-                  </motion.span>
-                  <motion.h2 
-                    className="text-3xl md:text-4xl font-bold gradient-text"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.4 }}
-                  >
-                    {event.name}
-                  </motion.h2>
-                </div>
-              </div>
+              <div className="relative glass-strong rounded-3xl overflow-hidden">
+                {/* Close Button */}
+                <motion.button
+                  onClick={onClose}
+                  className="absolute top-4 right-4 z-10 p-2 glass rounded-full hover:bg-white/20 transition-colors"
+                  whileHover={{ scale: 1.1, rotate: 90 }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  <X className="w-5 h-5" />
+                </motion.button>
 
-              {/* Content */}
-              <div className="p-6 md:p-8">
-                {/* Event Info Grid */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                  {[
-                    { icon: Calendar, label: 'Date', value: event.date },
-                    { icon: Clock, label: 'Time', value: event.time },
-                    { icon: MapPin, label: 'Venue', value: event.venue },
-                    { icon: Trophy, label: 'Prize Pool', value: event.prizePool, valueColor: 'text-yellow-400' },
-                  ].map((item, index) => (
-                    <motion.div 
-                      key={item.label}
-                      className="modal-item glass rounded-xl p-4 text-center hover:bg-white/10 transition-all duration-300 cursor-pointer group"
-                      whileHover={{ scale: 1.05, y: -3 }}
+                {/* Header Image */}
+                <div className="relative h-48 md:h-64 overflow-hidden">
+                  <motion.div
+                    className="absolute inset-0 bg-cover bg-center"
+                    style={{
+                      backgroundImage: `url(${event.image})`,
+                      backgroundColor: 'hsl(var(--cosmic-surface))',
+                    }}
+                    initial={{ scale: 1.2 }}
+                    animate={{ scale: 1 }}
+                    transition={{ duration: 0.8 }}
+                  />
+                  {/* Shimmer overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full animate-shimmer" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-card via-card/50 to-transparent" />
+
+                  <div className="absolute bottom-6 left-6 right-6">
+                    <motion.span
+                      className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-gradient-cosmic text-white mb-3"
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.3 }}
                     >
-                      <item.icon className="w-5 h-5 text-muted-foreground mx-auto mb-2 group-hover:scale-110 transition-transform" />
-                      <p className="text-xs text-muted-foreground">{item.label}</p>
-                      <p className={`font-semibold text-sm ${item.valueColor || ''}`}>{item.value}</p>
-                    </motion.div>
-                  ))}
+                      {event.category}
+                    </motion.span>
+                    <motion.h2
+                      className="text-3xl md:text-4xl font-bold gradient-text"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.4 }}
+                    >
+                      {event.name}
+                    </motion.h2>
+                  </div>
                 </div>
 
-                {/* Description */}
-                <div className="modal-item mb-8">
-                  <h3 className="text-lg font-bold mb-3 gradient-text">About This Event</h3>
-                  <p className="text-muted-foreground leading-relaxed">
-                    {event.description} Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
-                    Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
-                    Participants will have the opportunity to showcase their skills and compete 
-                    for exciting prizes.
-                  </p>
-                </div>
-
-                {/* Rules */}
-                <div className="modal-item mb-8">
-                  <h3 className="text-lg font-bold mb-3 gradient-text">Rules & Regulations</h3>
-                  <ul className="space-y-2">
-                    {rules.map((rule, index) => (
-                      <motion.li 
-                        key={index} 
-                        className="flex items-start gap-3 text-sm text-muted-foreground group cursor-pointer"
-                        whileHover={{ x: 5 }}
+                {/* Content */}
+                <div className="p-6 md:p-8">
+                  {/* Event Info Grid */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                    {[
+                      { icon: Calendar, label: 'Date', value: event.date },
+                      { icon: Clock, label: 'Time', value: event.time },
+                      { icon: MapPin, label: 'Venue', value: event.venue },
+                      { icon: Trophy, label: 'Prize Pool', value: event.prizePool, valueColor: 'text-yellow-400' },
+                    ].map((item, index) => (
+                      <motion.div
+                        key={item.label}
+                        className="modal-item glass rounded-xl p-4 text-center hover:bg-white/10 transition-all duration-300 cursor-pointer group"
+                        whileHover={{ scale: 1.05, y: -3 }}
                       >
-                        <span className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-foreground text-xs flex-shrink-0 group-hover:scale-110 transition-transform">
-                          {index + 1}
-                        </span>
-                        <span className="group-hover:text-foreground transition-colors">{rule}</span>
-                      </motion.li>
-                    ))}
-                  </ul>
-                </div>
-
-                {/* Coordinators */}
-                <div className="modal-item mb-8">
-                  <h3 className="text-lg font-bold mb-3 gradient-text">Event Coordinators</h3>
-                  <div className="grid md:grid-cols-2 gap-4">
-                    {coordinators.map((coordinator, index) => (
-                      <motion.div 
-                        key={index} 
-                        className="glass rounded-xl p-4 flex items-center gap-4 hover:bg-white/10 transition-all duration-300 cursor-pointer group"
-                        whileHover={{ scale: 1.02, x: 5 }}
-                      >
-                        <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center">
-                          <User className="w-6 h-6 text-muted-foreground" />
-                        </div>
-                        <div>
-                          <p className="font-semibold group-hover:gradient-text transition-all">{coordinator.name}</p>
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <Phone className="w-3 h-3" />
-                            {coordinator.phone}
-                          </div>
-                        </div>
+                        <item.icon className="w-5 h-5 text-muted-foreground mx-auto mb-2 group-hover:scale-110 transition-transform" />
+                        <p className="text-xs text-muted-foreground">{item.label}</p>
+                        <p className={`font-semibold text-sm ${item.valueColor || ''}`}>{item.value}</p>
                       </motion.div>
                     ))}
                   </div>
-                </div>
 
-                {/* Team Size */}
-                <div className="modal-item flex items-center gap-3 mb-8 glass rounded-xl p-4">
-                  <Users className="w-5 h-5 text-muted-foreground" />
-                  <span className="text-muted-foreground">Team Size:</span>
-                  <span className="font-semibold">{event.teamSize} {event.isRegistrationOpen !== false && 'members'}</span>
-                </div>
+                  {/* Description */}
+                  <div className="modal-item mb-8">
+                    <h3 className="text-lg font-bold mb-3 gradient-text">About This Event</h3>
+                    <p className="text-muted-foreground leading-relaxed">
+                      {event.description} Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                      Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                      Participants will have the opportunity to showcase their skills and compete
+                      for exciting prizes.
+                    </p>
+                  </div>
 
-                {/* Special Note for Flagship Events */}
-                {event.specialNote && (
-                  <div className="modal-item mb-8 glass rounded-xl p-4 border border-yellow-500/30 bg-yellow-500/5">
-                    <div className="flex items-start gap-3">
-                      <Trophy className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" />
-                      <div>
-                        <p className="font-semibold text-yellow-400 mb-1">Flagship Event</p>
-                        <p className="text-sm text-muted-foreground">{event.specialNote}</p>
+                  {/* Rules */}
+                  <div className="modal-item mb-8">
+                    <h3 className="text-lg font-bold mb-3 gradient-text">Rules & Regulations</h3>
+                    <ul className="space-y-2">
+                      {rules.map((rule, index) => (
+                        <motion.li
+                          key={index}
+                          className="flex items-start gap-3 text-sm text-muted-foreground group cursor-pointer"
+                          whileHover={{ x: 5 }}
+                        >
+                          <span className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-foreground text-xs flex-shrink-0 group-hover:scale-110 transition-transform">
+                            {index + 1}
+                          </span>
+                          <span className="group-hover:text-foreground transition-colors">{rule}</span>
+                        </motion.li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* Coordinators */}
+                  {event.coordinators && event.coordinators.length > 0 && (
+                    <div className="modal-item mb-8">
+                      <h3 className="text-lg font-bold mb-3 gradient-text">Event Coordinators</h3>
+                      <div className="grid md:grid-cols-2 gap-4">
+                        {event.coordinators.map((coordinator, index) => (
+                          <motion.div
+                            key={index}
+                            className="glass rounded-xl p-4 flex items-center gap-4 hover:bg-white/10 transition-all duration-300 cursor-pointer group"
+                            whileHover={{ scale: 1.02, x: 5 }}
+                          >
+                            <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center">
+                              <User className="w-6 h-6 text-muted-foreground" />
+                            </div>
+                            <div>
+                              <p className="font-semibold group-hover:gradient-text transition-all">{coordinator.name}</p>
+                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                <Phone className="w-3 h-3" />
+                                {coordinator.phone}
+                              </div>
+                            </div>
+                          </motion.div>
+                        ))}
                       </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {/* CTA - Now removed from scroll area, will be sticky */}
+                  {/* Team Size */}
+                  <div className="modal-item flex items-center gap-3 mb-8 glass rounded-xl p-4">
+                    <Users className="w-5 h-5 text-muted-foreground" />
+                    <span className="text-muted-foreground">Team Size:</span>
+                    <span className="font-semibold">{event.teamSize} {event.isRegistrationOpen !== false && 'members'}</span>
+                  </div>
+
+                  {/* Special Note for Flagship Events */}
+                  {event.specialNote && (
+                    <div className="modal-item mb-8 glass rounded-xl p-4 border border-yellow-500/30 bg-yellow-500/5">
+                      <div className="flex items-start gap-3">
+                        <Trophy className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <p className="font-semibold text-yellow-400 mb-1">Flagship Event</p>
+                          <p className="text-sm text-muted-foreground">{event.specialNote}</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* CTA - Now removed from scroll area, will be sticky */}
+                </div>
               </div>
-            </div>
             </div>
 
             {/* Sticky Footer with Actions */}
@@ -411,11 +410,10 @@ export default function EventModal({ event, isOpen, showRegistration = false, on
                                 key={y}
                                 type="button"
                                 onClick={() => setYearOfStudy(y)}
-                                className={`flex-1 py-2 rounded-lg font-semibold text-xs transition-all border ${
-                                  yearOfStudy === y
-                                    ? 'bg-gradient-to-r from-cosmic-purple to-cosmic-pink text-white border-transparent'
-                                    : 'glass text-gray-400 border-white/10 hover:bg-white/10 hover:text-white'
-                                }`}
+                                className={`flex-1 py-2 rounded-lg font-semibold text-xs transition-all border ${yearOfStudy === y
+                                  ? 'bg-gradient-to-r from-cosmic-purple to-cosmic-pink text-white border-transparent'
+                                  : 'glass text-gray-400 border-white/10 hover:bg-white/10 hover:text-white'
+                                  }`}
                               >
                                 Y{y}
                               </button>
@@ -427,7 +425,7 @@ export default function EventModal({ event, isOpen, showRegistration = false, on
                   )}
 
                   <div className="flex gap-3">
-                    <motion.button 
+                    <motion.button
                       onClick={handleRegister}
                       disabled={isRegistering}
                       className="flex-1 btn-cosmic text-white py-3 text-base flex items-center justify-center gap-2 group disabled:opacity-70"
@@ -450,8 +448,8 @@ export default function EventModal({ event, isOpen, showRegistration = false, on
                   </div>
                 </>
               ) : (
-                <motion.button 
-                  onClick={onClose} 
+                <motion.button
+                  onClick={onClose}
                   className="w-full btn-cosmic-outline py-3"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}

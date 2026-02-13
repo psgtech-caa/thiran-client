@@ -15,6 +15,7 @@ export default function IntroLoader({ onComplete }: IntroLoaderProps) {
   const subtitleRef = useRef<HTMLDivElement>(null);
   const glowRef = useRef<HTMLDivElement>(null);
   const particlesRef = useRef<HTMLDivElement>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
   const timelineRef = useRef<gsap.core.Timeline | null>(null);
 
   // NOTE: removed sessionStorage gating and the skip button so the intro runs every refresh
@@ -25,8 +26,14 @@ export default function IntroLoader({ onComplete }: IntroLoaderProps) {
         onComplete();
       },
     });
-    
+
     timelineRef.current = tl;
+
+    // Play sound
+    if (audioRef.current) {
+      audioRef.current.volume = 0.5;
+      audioRef.current.play().catch((e) => console.log('Audio play failed:', e));
+    }
 
     // Phase 1: Logo appears with glow
     tl.fromTo(
@@ -34,57 +41,57 @@ export default function IntroLoader({ onComplete }: IntroLoaderProps) {
       { scale: 0, opacity: 0 },
       { scale: 1.5, opacity: 0.6, duration: 0.8, ease: 'power2.out' }
     )
-    .fromTo(
-      logoRef.current,
-      { scale: 3, opacity: 0, rotateX: -45 },
-      { scale: 1, opacity: 1, rotateX: 0, duration: 1.2, ease: 'expo.out' },
-      '-=0.5'
-    )
-    .fromTo(
-      yearRef.current,
-      { opacity: 0, y: 30, scale: 0.8 },
-      { opacity: 1, y: 0, scale: 1, duration: 0.6, ease: 'back.out(1.7)' },
-      '-=0.4'
-    )
-    .fromTo(
-      subtitleRef.current,
-      { opacity: 0, y: 20 },
-      { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' },
-      '-=0.2'
-    )
-    // Phase 2: Hold for a beat
-    .to({}, { duration: 0.6 })
-    // Phase 3: Logo zooms out and fades
-    .to(logoRef.current, {
-      scale: 0.6,
-      y: -20,
-      duration: 0.8,
-      ease: 'power3.inOut',
-    })
-    .to(
-      [yearRef.current, subtitleRef.current],
-      { opacity: 0, y: -20, duration: 0.4, ease: 'power2.in' },
-      '-=0.6'
-    )
-    .to(
-      glowRef.current,
-      { scale: 3, opacity: 0, duration: 0.8, ease: 'power2.in' },
-      '-=0.6'
-    )
-    // Phase 4: Loader fades out
-    .to(loaderRef.current, {
-      opacity: 0,
-      duration: 0.5,
-      ease: 'power2.inOut',
-    }, '-=0.3');
+      .fromTo(
+        logoRef.current,
+        { scale: 3, opacity: 0, rotateX: -45 },
+        { scale: 1, opacity: 1, rotateX: 0, duration: 1.2, ease: 'expo.out' },
+        '-=0.5'
+      )
+      .fromTo(
+        yearRef.current,
+        { opacity: 0, y: 30, scale: 0.8 },
+        { opacity: 1, y: 0, scale: 1, duration: 0.6, ease: 'back.out(1.7)' },
+        '-=0.4'
+      )
+      .fromTo(
+        subtitleRef.current,
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' },
+        '-=0.2'
+      )
+      // Phase 2: Hold for a beat
+      .to({}, { duration: 0.6 })
+      // Phase 3: Logo zooms out and fades
+      .to(logoRef.current, {
+        scale: 0.6,
+        y: -20,
+        duration: 0.8,
+        ease: 'power3.inOut',
+      })
+      .to(
+        [yearRef.current, subtitleRef.current],
+        { opacity: 0, y: -20, duration: 0.4, ease: 'power2.in' },
+        '-=0.6'
+      )
+      .to(
+        glowRef.current,
+        { scale: 3, opacity: 0, duration: 0.8, ease: 'power2.in' },
+        '-=0.6'
+      )
+      // Phase 4: Loader fades out
+      .to(loaderRef.current, {
+        opacity: 0,
+        duration: 0.5,
+        ease: 'power2.inOut',
+      }, '-=0.3');
 
     // Particle animation
     if (particlesRef.current) {
       const particles = particlesRef.current.children;
       gsap.fromTo(
         particles,
-        { 
-          opacity: 0, 
+        {
+          opacity: 0,
           scale: 0,
           x: () => gsap.utils.random(-50, 50),
           y: () => gsap.utils.random(-50, 50),
@@ -113,6 +120,8 @@ export default function IntroLoader({ onComplete }: IntroLoaderProps) {
       className="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden"
       style={{ background: 'hsl(var(--background))' }}
     >
+      {/* Audio Element */}
+      <audio ref={audioRef} src="/intro-sound.mp3" preload="auto" />
       {/* Background glow */}
       <div
         ref={glowRef}
@@ -149,10 +158,10 @@ export default function IntroLoader({ onComplete }: IntroLoaderProps) {
             boxShadow: '0 0 40px hsl(210 100% 50% / 0.3), inset 0 0 40px hsl(210 100% 50% / 0.1)',
           }}
         />
-        
+
         <div ref={logoRef} className="text-center" style={{ transformStyle: 'preserve-3d' }}>
-          <img 
-            src="/new-logo.png" 
+          <img
+            src="/new-logo.png"
             alt="Thiran 2026"
             className="h-32 md:h-48 lg:h-64 w-auto object-contain mx-auto"
             style={{
@@ -188,7 +197,7 @@ export default function IntroLoader({ onComplete }: IntroLoaderProps) {
       <div className="absolute bottom-8 right-8 w-12 h-12 border-r-2 border-b-2 border-silver/50" />
 
       {/* Scanning line */}
-      <div className="absolute inset-x-0 h-[2px] animate-scan-line" 
+      <div className="absolute inset-x-0 h-[2px] animate-scan-line"
         style={{
           background: 'linear-gradient(90deg, transparent, hsl(var(--glossy-blue) / 0.5), transparent)',
         }}

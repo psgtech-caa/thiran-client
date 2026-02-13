@@ -11,70 +11,91 @@ export interface Event {
   image: string;
   isRegistrationOpen?: boolean;
   specialNote?: string;
+  coordinators?: { name: string; phone: string }[];
 }
 
 export const events: Event[] = [
   {
+    id: 3,
+    name: 'Witty Mindz',
+    category: 'Non-Technical',
+    description: 'A battle of wits and logic! Test your critical thinking, riddle-solving abilities, and teamwork in this fast-paced non-technical showdown. Expect the unexpected as you navigate through mind-bending puzzles.',
+    date: 'February 23, 2026',
+    time: '04:00 PM - 6:30 PM',
+    venue: 'MCA Block, Seminar Hall',
+    teamSize: '2',
+    prizePool: '₹3,000',
+    image: 'https://thumbs.dreamstime.com/b/brain-training-games-vector-illustration-featuring-people-having-fun-riddles-crosswords-logic-game-puzzle-solving-397605106.jpg',
+    coordinators: [
+      { name: 'Vishaly', phone: '9976477887' },
+      { name: 'Thamizhthilaga', phone: '7825007711' }
+    ]
+  },
+  {
     id: 1,
     name: 'Hack-The-Box',
     category: 'Technical',
-    description: 'Solving complex problems with innovative algorithms under time constraints. An intense challenge to test your problem-solving abilities and coding expertise.',
+    description: 'Determine to dominate the digital realm? Engage in an intense capture-the-flag style coding competition. Solve algorithmic challenges, crack ciphers, and debug your way to victory in this test of pure technical prowess.',
     date: 'February 24, 2026',
     time: '04:00 PM - 6:30 PM',
     venue: 'MCA Lab',
     teamSize: '2',
     prizePool: '₹3,500',
     image: 'https://media.licdn.com/dms/image/v2/C4D16AQGZ3_juPBxqmw/profile-displaybackgroundimage-shrink_200_800/profile-displaybackgroundimage-shrink_200_800/0/1663496420391?e=2147483647&v=beta&t=75BUUkMv4BHCJIF2JAE5tJgQrO52yICPknPrJBT7rFY',
+    coordinators: [
+      { name: 'Dayananda', phone: '9524785141' },
+      { name: 'Induja', phone: '9791868857' }
+    ]
+  },
+  {
+    id: 4,
+    name: 'Brand Sprint',
+    category: 'Non-Technical',
+    description: 'Unleash your inner marketer! In this high-pressure challenge, teams must conceptualize and pitch a brand strategy for a surprise product. Creativity, spontaneity, and persuasion are your best weapons.',
+    date: 'February 25, 2026',
+    time: '04:00 PM - 6:30 PM',
+    venue: 'MCA Block, Seminar Hall',
+    teamSize: '3',
+    prizePool: '₹3,000',
+    image: 'https://cdn.prod.website-files.com/646cb2a160bc4ae7a0eb728e/6745bbd9f6b066834ca1d384_Frame%203.png',
+    coordinators: [
+      { name: 'Dheepthi', phone: '7339140106' },
+      { name: 'Kaavya', phone: '6382760741' }
+    ]
   },
   {
     id: 2,
     name: 'Blind Coding',
     category: 'Technical',
-    description: 'Blind coding is writing code without seeing the output or running it, relying purely on logic and understanding. Test your coding intuition and problem-solving skills without visual feedback.',
+    description: 'Code in the dark! Trust your fingers and your logic as you write code without seeing the screen. A true test of syntax mastery and mental visualization for the bravest coders.',
     date: 'February 26, 2026',
     time: '04:00 PM - 6:30 PM',
     venue: 'MCA Block, Lab 2',
     teamSize: 'Individual',
     prizePool: '₹3,500',
     image: 'https://www.hp.com/us-en/shop/app/assets/images/uploads/prod/5%20Best%20Coding%20Programs%20for%20Aspiring%20Programmers1650304687858345.jpg',
-  },
-  {
-    id: 3,
-    name: 'Witty Mindz',
-    category: 'Non-Technical',
-    description: 'A fast-paced battle of brains where logic, creativity, and quick thinking come together to challenge your mind and teamwork skills. Compete in a series of mind-bending puzzles and riddles.',
-    date: 'February 23, 2026',
-    time: '04:00 PM - 6:30 PM',
-    venue: 'MCA Block, Seminar Hall',
-    teamSize: '2',
-    prizePool: '₹3,000',
-    image: 'https://images.unsplash.com/photo-1606326608606-aa0b62935f2b?w=800&auto=format&fit=crop&q=60',
-  },
-  {
-    id: 4,
-    name: 'Brand Sprint',
-    category: 'Non-Technical',
-    description: 'A fast paced team challenge where each member builds on the previous one\'s work to transform a surprise product into a completed brand without any discussion. Collaboration at its finest!',
-    date: 'February 25, 2026',
-    time: '04:00 PM - 6:30 PM',
-    venue: 'MCA Block, Seminar Hall',
-    teamSize: '3',
-    prizePool: '₹3,000',
-    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&auto=format&fit=crop&q=60',
+    coordinators: [
+      { name: 'Nitheesh', phone: '9944725360' },
+      { name: 'Chinnaza', phone: '8056576531' }
+    ]
   },
   {
     id: 5,
     name: 'Star of Thiran',
     category: 'Flagship',
-    description: 'Flagship event - Answer thought provoking questions and participate in stage test with 2 rounds. This prestigious event is for individual performance with winners and runners of other events competing for the ultimate title.',
+    description: 'The ultimate glory awaits! Winners and runners-up from all events face off in a grueling multi-round stage test. Only the most versatile and sharpest mind will be crowned the Star of Thiran.',
     date: 'March 6, 2026',
     time: '02:00 PM - 4:00 PM',
     venue: 'MCA Block, Main Auditorium',
-    teamSize: 'Individual (Winners & Runners)',
+    teamSize: 'Individual',
     prizePool: '₹5,000',
-    image: 'https://media.istockphoto.com/id/166272870/photo/racers-cheering-on-track.jpg?s=612x612&w=0&k=20&c=7eOo7eOxdwfNR-B0dPNSZe5kkXiyIcvAwv21KxAyCnY=',
+    image: 'https://img.freepik.com/premium-vector/three-athletes-stand-proudly-podium-holding-their-medals-paralympic-sports-event-customizable-cartoon-illustration-paralympic-boccia_585735-37611.jpg',
     isRegistrationOpen: false,
-    specialNote: 'For winners and runners of all other events only. 2-round stage test with thought-provoking questions.',
+    specialNote: 'Exclusive for Winners & Runners of other events.',
+    coordinators: [
+      { name: 'Mithulesh', phone: '9488893193' },
+      { name: 'Nandithasri', phone: '6380916334' }
+    ]
   },
 ];
 

@@ -1,101 +1,83 @@
-import { useEffect, useRef } from 'react';
-import gsap from 'gsap';
+import { useEffect, useState } from 'react';
+import { motion, useMotionValue, useSpring } from 'framer-motion';
 
 export default function CustomCursor() {
-  const cursorRef = useRef<HTMLDivElement>(null);
-  const cursorDotRef = useRef<HTMLDivElement>(null);
+  const [isHovering, setIsHovering] = useState(false);
+  const cursorX = useMotionValue(-100);
+  const cursorY = useMotionValue(-100);
+
+  const springConfig = { damping: 20, stiffness: 150, mass: 0.5 };
+  const cursorXSpring = useSpring(cursorX, springConfig);
+  const cursorYSpring = useSpring(cursorY, springConfig);
 
   useEffect(() => {
-    const cursor = cursorRef.current;
-    const dot = cursorDotRef.current;
-    if (!cursor || !dot) return;
-
-    // Hide default cursor globally, but keep native cursor on inputs
-    document.body.style.cursor = 'none';
-    
-    const style = document.createElement('style');
-    style.textContent = `
-      *, *::before, *::after { cursor: none !important; }
-      input, textarea, select, [contenteditable] { cursor: text !important; }
-      select { cursor: pointer !important; }
-    `;
-    document.head.appendChild(style);
-
-    const handleMouseMove = (e: MouseEvent) => {
-      gsap.to(dot, { x: e.clientX, y: e.clientY, duration: 0.1, ease: 'power2.out' });
-      gsap.to(cursor, { x: e.clientX, y: e.clientY, duration: 0.4, ease: 'power3.out' });
+    const moveCursor = (e: MouseEvent) => {
+      cursorX.set(e.clientX);
+      cursorY.set(e.clientY);
     };
 
-    const handleInteractiveState = (e: MouseEvent) => {
-      const target = e.target as HTMLElement | null;
-      const interactive = target?.closest('a, button, [role="button"], input, textarea, select');
-      if (interactive) {
-        gsap.to(cursor, {
-          scale: 1.45,
-          borderColor: 'hsl(var(--silver) / 0.95)',
-          boxShadow: '0 0 20px hsl(var(--glossy-blue) / 0.45)',
-          duration: 0.18,
-        });
+    const handleMouseOver = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (
+        target.tagName === 'A' ||
+        target.tagName === 'BUTTON' ||
+        target.closest('a') ||
+        target.closest('button') ||
+        target.classList.contains('cursor-hover')
+      ) {
+        setIsHovering(true);
       } else {
-        gsap.to(cursor, {
-          scale: 1,
-          borderColor: 'hsl(var(--glossy-blue) / 0.85)',
-          boxShadow: '0 0 14px hsl(var(--glossy-blue) / 0.3)',
-          duration: 0.2,
-        });
+        setIsHovering(false);
       }
     };
 
-    const handleMouseDown = () => {
-      gsap.to(cursor, { scale: 0.8, duration: 0.2 });
-    };
+    window.addEventListener('mousemove', moveCursor);
+    window.addEventListener('mouseover', handleMouseOver);
 
-    const handleMouseUp = () => {
-      gsap.to(cursor, { scale: 1, duration: 0.3, ease: 'elastic.out(1, 0.3)' });
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mousemove', handleInteractiveState);
-    window.addEventListener('mousedown', handleMouseDown);
-    window.addEventListener('mouseup', handleMouseUp);
+    // Hide default cursor
+    document.body.style.cursor = 'none';
 
     return () => {
-      document.body.style.cursor = '';
-      style.remove();
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mousemove', handleInteractiveState);
-      window.removeEventListener('mousedown', handleMouseDown);
-      window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('mousemove', moveCursor);
+      window.removeEventListener('mouseover', handleMouseOver);
+      document.body.style.cursor = 'auto';
     };
-  }, []);
+  }, [cursorX, cursorY]);
+
+  // Only render on desktop to avoid issues on touch devices
+  if (typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches) {
+    return null;
+  }
 
   return (
-    <div className="hidden md:block">
-      {/* Main cursor ring */}
-      <div
-        ref={cursorRef}
-        className="fixed top-0 left-0 pointer-events-none z-[100] -translate-x-1/2 -translate-y-1/2 mix-blend-difference"
+    <>
+      {/* Main Dot */}
+      <motion.div
+        className="fixed top-0 left-0 w-3 h-3 bg-white rounded-full pointer-events-none z-[9999] mix-blend-difference"
         style={{
-          width: '32px',
-          height: '32px',
-          borderRadius: '50%',
-          border: '2px solid hsl(var(--glossy-blue) / 0.85)',
-          boxShadow: '0 0 14px hsl(var(--glossy-blue) / 0.3)',
+          x: cursorXSpring,
+          y: cursorYSpring,
+          translateX: '-50%',
+          translateY: '-50%',
         }}
       />
-      
-      {/* Center dot */}
-      <div
-        ref={cursorDotRef}
-        className="fixed top-0 left-0 pointer-events-none z-[100] -translate-x-1/2 -translate-y-1/2"
+
+      {/* Trailing Ring */}
+      <motion.div
+        className="fixed top-0 left-0 w-8 h-8 border border-white rounded-full pointer-events-none z-[9998] mix-blend-difference"
         style={{
-          width: '5px',
-          height: '5px',
-          borderRadius: '50%',
-          background: 'linear-gradient(135deg, hsl(var(--silver)), hsl(var(--glossy-blue)))',
-          boxShadow: '0 0 10px hsl(var(--glossy-blue) / 0.7)',
+          x: cursorXSpring,
+          y: cursorYSpring,
+          translateX: '-50%',
+          translateY: '-50%',
         }}
+        animate={{
+          scale: isHovering ? 2.5 : 1,
+          opacity: isHovering ? 0.8 : 0.5,
+          backgroundColor: isHovering ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
+        }}
+        transition={{ duration: 0.15 }}
       />
-    </div>
+    </>
   );
 }

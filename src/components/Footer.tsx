@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { 
+import {
   Sparkles,
   Heart
 } from 'lucide-react';
@@ -13,6 +13,11 @@ export default function Footer() {
       <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-cosmic-purple/10 rounded-full blur-[50px] animate-pulse-glow" />
       <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-cosmic-pink/10 rounded-full blur-[50px] animate-float" />
 
+      {/* Massive Background Text */}
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/3 whitespace-nowrap opacity-[0.03] select-none pointer-events-none">
+        <span className="text-[15rem] md:text-[20rem] font-black tracking-tighter">THIRAN</span>
+      </div>
+
       <div className="container mx-auto px-4 md:px-8 relative z-10">
         {/* Main Footer */}
         <div className="py-12 md:py-20">
@@ -25,15 +30,45 @@ export default function Footer() {
               transition={{ duration: 0.6 }}
               className="col-span-2 md:col-span-2 lg:col-span-2"
             >
-              <motion.a 
-                href="#home" 
+              <motion.a
+                href="#home"
                 className="flex items-center gap-2 mb-4 md:mb-6 group"
                 whileHover={{ x: 5 }}
               >
-                <span className="text-xl md:text-2xl font-bold gradient-text">THIRAN 2026</span>
+                <div className="flex items-center gap-2 group perspective-container">
+                  <span
+                    className="text-xl md:text-2xl font-bold tracking-tight"
+                    style={{
+                      background: 'linear-gradient(135deg, hsl(var(--silver)), hsl(var(--glossy-blue)))',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                      backgroundClip: 'text',
+                    }}
+                  >
+                    Thiran
+                  </span>
+                  <motion.span
+                    className="text-sm md:text-base font-bold px-2 py-0.5 rounded-md border border-cosmic-cyan/50 text-cosmic-cyan"
+                    animate={{
+                      boxShadow: [
+                        '0 0 5px hsl(187 94% 55% / 0.3)',
+                        '0 0 15px hsl(187 94% 55% / 0.5)',
+                        '0 0 5px hsl(187 94% 55% / 0.3)',
+                      ],
+                      borderColor: [
+                        'hsl(187 94% 55% / 0.5)',
+                        'hsl(187 94% 55% / 0.8)',
+                        'hsl(187 94% 55% / 0.5)',
+                      ],
+                    }}
+                    transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                  >
+                    2k26
+                  </motion.span>
+                </div>
               </motion.a>
               <p className="text-xs md:text-sm text-muted-foreground mb-4 md:mb-6 max-w-sm leading-relaxed">
-                Thiran is the ultimate tech symposium where innovation meets excellence. 
+                Thiran is the ultimate tech symposium where innovation meets excellence.
                 Join us for an extraordinary celebration of technology and creativity.
               </p>
 
@@ -118,7 +153,7 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="py-4 md:py-6 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-3 md:gap-4">
-          <motion.p 
+          <motion.p
             className="text-xs md:text-sm text-muted-foreground flex items-center gap-1 text-center md:text-left"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}

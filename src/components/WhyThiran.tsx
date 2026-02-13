@@ -1,8 +1,8 @@
 import { motion } from 'framer-motion';
-import { 
-  Lightbulb, 
-  Users, 
-  Trophy 
+import {
+  Lightbulb,
+  Users,
+  Trophy
 } from 'lucide-react';
 import { useEffect, useState, useRef } from 'react';
 import gsap from 'gsap';
@@ -38,8 +38,8 @@ const features = [
 const stats = [
   { value: 200, suffix: '+', label: 'Participants' },
   { value: 5, suffix: '', label: 'Events' },
-  { value: 15000, prefix: '₹', suffix: '+', label: 'Prize Pool' },
-  { value: 1, suffix: '', label: 'Day' },
+  { value: 15000, prefix: '₹', suffix: '', label: 'Prize Pool' },
+  { value: 5, suffix: '', label: 'Days' },
 ];
 
 function AnimatedCounter({ value, prefix = '', suffix = '' }: { value: number; prefix?: string; suffix?: string }) {
@@ -101,7 +101,7 @@ function AnimatedCounter({ value, prefix = '', suffix = '' }: { value: number; p
 
 function FlipCard({ feature, index }: { feature: typeof features[0]; index: number }) {
   const Icon = feature.icon;
-  
+
   const colorMap = {
     purple: {
       bg: 'bg-cosmic-purple/20',
@@ -194,10 +194,10 @@ function StatCard({ stat, index }: { stat: typeof stats[0]; index: number }) {
     >
       <div className="relative">
         <div className="absolute inset-0 bg-gradient-radial from-cosmic-purple/20 to-transparent rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-        <AnimatedCounter 
-          value={stat.value} 
-          prefix={stat.prefix} 
-          suffix={stat.suffix} 
+        <AnimatedCounter
+          value={stat.value}
+          prefix={stat.prefix}
+          suffix={stat.suffix}
         />
       </div>
       <p className="text-muted-foreground mt-2 group-hover:text-foreground transition-colors">{stat.label}</p>
@@ -281,7 +281,7 @@ function AutoScrollGallery({ images, height = 140, speed = 80 }: { images: strin
 export default function WhyThiran() {
   const sectionRef = useRef<HTMLElement>(null);
 
-  // Thiran 2k25 Gallery - All available images from public/gallery
+  // Thiran 2k26 Gallery - All available images from public/gallery
   const lastYearImages = [
     '/gallery/IMG_2679.JPG',
     '/gallery/IMG_2815.JPG',
@@ -302,27 +302,31 @@ export default function WhyThiran() {
   useEffect(() => {
     if (!sectionRef.current) return;
 
-    gsap.to('.why-orb-1', {
-      yPercent: -30,
-      ease: 'none',
-      scrollTrigger: {
-        trigger: sectionRef.current,
-        start: 'top bottom',
-        end: 'bottom top',
-        scrub: true,
-      },
-    });
+    const ctx = gsap.context(() => {
+      gsap.to('.why-orb-1', {
+        yPercent: -30,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: 'top bottom',
+          end: 'bottom top',
+          scrub: true,
+        },
+      });
 
-    gsap.to('.why-orb-2', {
-      yPercent: 40,
-      ease: 'none',
-      scrollTrigger: {
-        trigger: sectionRef.current,
-        start: 'top bottom',
-        end: 'bottom top',
-        scrub: true,
-      },
-    });
+      gsap.to('.why-orb-2', {
+        yPercent: 40,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: 'top bottom',
+          end: 'bottom top',
+          scrub: true,
+        },
+      });
+    }, sectionRef);
+
+    return () => ctx.revert();
   }, []);
 
   return (
@@ -331,7 +335,7 @@ export default function WhyThiran() {
       <div className="absolute inset-0 bg-gradient-to-b from-background via-cosmic-surface to-background" />
       <div className="why-orb-1 absolute top-0 left-1/3 w-96 h-96 bg-cosmic-purple/10 rounded-full blur-[50px]" />
       <div className="why-orb-2 absolute bottom-0 right-1/3 w-96 h-96 bg-cosmic-pink/10 rounded-full blur-[50px]" />
-      
+
       {/* Grid pattern */}
       <div className="absolute inset-0 opacity-[0.03]"
         style={{
@@ -340,62 +344,59 @@ export default function WhyThiran() {
         }}
       />
 
-  
-        
+      {/* Section Header */}
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6 }}
+        className="text-center mb-16 relative z-10"
+      >
 
-        {/* Section Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-16"
-        >
-          
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
-            Why <span className="gradient-text-animated">Thiran</span>?
-          </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-            Immerse yourself in the future of technology. Experience AR/VR like never before.
-            Hover over each card to explore what awaits you.
-          </p>
-        </motion.div>
+        <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
+          Why <span className="gradient-text-animated">Thiran</span>?
+        </h2>
+        <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
+          Immerse yourself in the future of technology. Experience AR/VR like never before.
+          Hover over each card to explore what awaits you.
+        </p>
+      </motion.div>
 
-        {/* Auto-scrolling gallery showing last year's pictures */}
-        <motion.div initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }} className="mb-10">
-          <div className="glass rounded-2xl p-4">
-            <h4 className="text-sm font-mono text-glossy-blue mb-3">[ 2025 THIRAN MOMENTOS ]</h4>
-            <AutoScrollGallery images={lastYearImages} height={140} speed={80} />
-          </div>
-        </motion.div>
-
-        {/* Flip Cards Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 mb-20">
-          {features.map((feature, index) => (
-            <FlipCard key={feature.title} feature={feature} index={index} />
-          ))}
+      {/* Auto-scrolling gallery showing last year's pictures */}
+      <motion.div initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }} className="mb-10 relative z-10">
+        <div className="glass rounded-2xl p-4">
+          <h4 className="text-sm font-mono text-glossy-blue mb-3">[ 2025 THIRAN MOMENTOS ]</h4>
+          <AutoScrollGallery images={lastYearImages} height={140} speed={60} />
         </div>
+      </motion.div>
 
-        {/* Stats Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          className="relative"
-        >
-          <div className="absolute -inset-[1px] rounded-3xl bg-gradient-to-r from-cosmic-purple via-cosmic-pink to-cosmic-cyan opacity-50 animate-pulse-glow" />
-          
-          <div className="relative glass-strong rounded-3xl p-8 md:p-12 overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full animate-shimmer" />
-            
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 relative z-10">
-              {stats.map((stat, index) => (
-                <StatCard key={stat.label} stat={stat} index={index} />
-              ))}
-            </div>
+      {/* Flip Cards Grid */}
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 mb-20 relative z-10">
+        {features.map((feature, index) => (
+          <FlipCard key={feature.title} feature={feature} index={index} />
+        ))}
+      </div>
+
+      {/* Stats Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.8 }}
+        className="relative z-10"
+      >
+        <div className="absolute -inset-[1px] rounded-3xl bg-gradient-to-r from-cosmic-purple via-cosmic-pink to-cosmic-cyan opacity-50 animate-pulse-glow" />
+
+        <div className="relative glass-strong rounded-3xl p-8 md:p-12 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full animate-shimmer" />
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 relative z-10">
+            {stats.map((stat, index) => (
+              <StatCard key={stat.label} stat={stat} index={index} />
+            ))}
           </div>
-        </motion.div>
-      </section>
+        </div>
+      </motion.div>
+    </section>
   );
 }

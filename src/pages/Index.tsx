@@ -7,13 +7,17 @@ import Events from '@/components/Events';
 import WhyThiran from '@/components/WhyThiran';
 import Contact from '@/components/Contact';
 import Footer from '@/components/Footer';
+import Timeline from '@/components/Timeline';
 import IntroLoader from '@/components/IntroLoader';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import LoadingScreen from '@/components/LoadingScreen';
+import FAQ from '@/components/FAQ';
+import CustomCursor from '@/components/CustomCursor';
 import { useAuth } from '@/contexts/AuthContext';
 
 // Lazy load heavy 3D component
 const StarField = lazy(() => import('@/components/StarField'));
+const FloatingShapes = lazy(() => import('@/components/3d/FloatingShapes'));
 
 // Loading fallback for 3D components
 function LoadingFallback() {
@@ -35,7 +39,7 @@ export default function Index() {
     const handleScroll = () => {
       setShowScrollTop(window.scrollY > 500);
     };
-    
+
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -56,10 +60,12 @@ export default function Index() {
       )}
 
       <div className={`min-h-screen bg-background text-foreground overflow-x-hidden scrollbar-cosmic transition-opacity duration-500 ${introComplete ? 'opacity-100' : 'opacity-0'}`}>
+        <CustomCursor />
         {/* 3D Star Field Background with Error Boundary */}
         <ErrorBoundary fallback={<LoadingFallback />}>
           <Suspense fallback={<LoadingFallback />}>
             <StarField />
+            <FloatingShapes />
           </Suspense>
         </ErrorBoundary>
 
@@ -70,7 +76,9 @@ export default function Index() {
         <main>
           <Hero />
           <Events />
+          <Timeline />
           <WhyThiran />
+          <FAQ />
           <Contact />
         </main>
 

@@ -35,7 +35,7 @@ export default function Events() {
             <span className="gradient-text">Explore Events</span>
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-            From intense hackathons to creative design challenges, discover events 
+            From intense hackathons to creative design challenges, discover events
             that challenge your skills and push your boundaries.
           </p>
         </motion.div>
@@ -43,18 +43,18 @@ export default function Events() {
         {/* Events Grid - 2x2 + Featured */}
         <div className="grid md:grid-cols-2 gap-6 md:gap-8 max-w-5xl mx-auto">
           {events.filter(e => e.category !== 'Flagship').map((event, index) => (
-            <EventCard 
-              key={event.id} 
-              event={event} 
+            <EventCard
+              key={event.id}
+              event={event}
               index={index}
               onClick={handleEventClick}
             />
           ))}
         </div>
-        
+
         {/* Star of Thiran - Premium Flagship */}
         {events.filter(e => e.category === 'Flagship').map((event) => (
-          <motion.div 
+          <motion.div
             key={event.id}
             className="max-w-5xl mx-auto mt-12"
             initial={{ opacity: 0, y: 50, scale: 0.95 }}
@@ -63,26 +63,26 @@ export default function Events() {
             transition={{ duration: 0.8, delay: 0.3, ease: 'easeOut' }}
           >
             {/* Premium Label */}
-            
 
-            <div 
+
+            <div
               className="relative overflow-hidden rounded-3xl group"
             >
               {/* Animated rotating gradient border */}
               <div className="absolute -inset-[2px] rounded-3xl overflow-hidden">
-                <div 
+                <div
                   className="absolute inset-0 bg-[conic-gradient(from_0deg,#eab308,#f97316,#ef4444,#eab308,#f97316,#ef4444,#eab308)]"
                   style={{ animation: 'spin 4s linear infinite' }}
                 />
               </div>
-              
+
               {/* Outer glow */}
               <div className="absolute -inset-4 bg-gradient-to-r from-yellow-500/20 via-orange-500/20 to-yellow-500/20 rounded-[2rem] blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
 
               <div className="relative rounded-3xl overflow-hidden" style={{ background: 'rgba(10, 10, 15, 0.85)', backdropFilter: 'blur(24px)' }}>
                 {/* Full-width background image */}
                 <div className="absolute inset-0">
-                  <div 
+                  <div
                     className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
                     style={{ backgroundImage: `url(${event.image})` }}
                   />
@@ -107,7 +107,7 @@ export default function Events() {
                         Winners Only
                       </span>
                     </div>
-                  
+
                   </div>
 
                   {/* Title */}
@@ -129,11 +129,10 @@ export default function Events() {
                       { icon: '🕐', label: 'Time', value: event.time },
                       { icon: '📍', label: 'Venue', value: event.venue },
                     ].map((item) => (
-                      <div key={item.label} className={`rounded-xl p-3 text-center border ${
-                        item.highlight 
-                          ? 'bg-yellow-500/10 border-yellow-500/30' 
-                          : 'bg-white/5 border-white/10'
-                      }`}>
+                      <div key={item.label} className={`rounded-xl p-3 text-center border transition-colors duration-300 ${item.highlight
+                          ? 'bg-yellow-500/5 border-yellow-500/20 group-hover:border-yellow-500/40'
+                          : 'bg-white/[0.02] border-white/5 group-hover:border-white/10'
+                        }`}>
                         <span className="text-lg">{item.icon}</span>
                         <p className="text-[10px] uppercase tracking-wider text-gray-500 mt-1">{item.label}</p>
                         <p className={`font-bold text-sm mt-0.5 ${item.highlight ? 'text-yellow-400' : 'text-white'}`}>{item.value}</p>
@@ -156,11 +155,11 @@ export default function Events() {
       </div>
 
       {/* Event Modal */}
-      <EventModal 
-        event={selectedEvent} 
+      <EventModal
+        event={selectedEvent}
         isOpen={isModalOpen}
         showRegistration={true}
-        onClose={() => setIsModalOpen(false)} 
+        onClose={() => setIsModalOpen(false)}
       />
     </section>
   );

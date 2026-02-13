@@ -5,10 +5,12 @@ import { useNavigate } from 'react-router-dom';
 import gsap from 'gsap';
 import MagneticButton from './MagneticButton';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSound } from '@/hooks/use-sound';
 
 const navLinks = [
   { name: 'Home', href: '/', isRoute: true },
   { name: 'Events', href: '/#events', isRoute: false },
+  { name: 'Schedule', href: '/#schedule', isRoute: false },
   { name: 'Why Thiran', href: '/#why-thiran', isRoute: false },
   { name: 'Contact', href: '/#contact', isRoute: false },
 ];
@@ -22,6 +24,7 @@ export default function Navbar() {
   const userMenuRef = useRef<HTMLDivElement>(null);
   const { user, userProfile, isAdmin, signInWithGoogle, signOut } = useAuth();
   const navigate = useNavigate();
+  const { playSound } = useSound();
 
   // Close user menu when clicking outside
   useEffect(() => {
@@ -43,7 +46,7 @@ export default function Navbar() {
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
-      
+
       // Update active link based on scroll position
       const sections = navLinks.map(link => link.href.slice(1));
       for (const section of sections.reverse()) {
@@ -74,16 +77,15 @@ export default function Navbar() {
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.6, ease: 'easeOut' }}
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-          isScrolled ? 'glass py-3' : 'bg-transparent py-5'
-        }`}
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${isScrolled ? 'glass-strong py-2 shadow-2xl' : 'bg-transparent py-4'
+          }`}
       >
         <div className="mx-auto px-4 md:px-8">
           <div className="flex items-center justify-between">
             {/* Logo */}
-            <a 
-              ref={logoRef} 
-              href="/" 
+            <a
+              ref={logoRef}
+              href="/"
               onClick={(e) => {
                 if (window.location.pathname === '/') {
                   e.preventDefault();
@@ -92,7 +94,7 @@ export default function Navbar() {
               }}
               className="flex items-center gap-1 group perspective-container"
             >
-              <motion.span 
+              <motion.span
                 className="text-xl md:text-2xl font-bold tracking-tight"
                 style={{
                   background: 'linear-gradient(135deg, hsl(var(--silver)), hsl(var(--glossy-blue)))',
@@ -154,13 +156,13 @@ export default function Navbar() {
                       }
                     }
                   }}
-                  className={`relative text-foreground/80 hover:text-foreground transition-colors duration-300 group ${
-                    activeLink === link.href ? 'text-foreground' : ''
-                  }`}
+                  onMouseEnter={() => playSound('hover')}
+                  className={`relative text-foreground/80 hover:text-foreground transition-colors duration-300 group ${activeLink === link.href ? 'text-foreground' : ''
+                    }`}
                   whileHover={{ y: -2 }}
                 >
                   {link.name}
-                  <motion.span 
+                  <motion.span
                     className="absolute -bottom-1 left-0 h-0.5 bg-gradient-cosmic"
                     initial={{ width: activeLink === link.href ? '100%' : '0%' }}
                     animate={{ width: activeLink === link.href ? '100%' : '0%' }}
@@ -198,8 +200,8 @@ export default function Navbar() {
                         <div className="p-4 border-b border-white/10">
                           <div className="flex items-center gap-3 mb-2">
                             {user.photoURL ? (
-                              <img 
-                                src={user.photoURL} 
+                              <img
+                                src={user.photoURL}
                                 alt={userProfile?.name || 'User'}
                                 className="w-12 h-12 rounded-full object-cover"
                               />
@@ -314,7 +316,7 @@ export default function Navbar() {
             transition={{ duration: 0.3 }}
             className="fixed inset-0 z-40 md:hidden"
           >
-            <motion.div 
+            <motion.div
               className="absolute inset-0 bg-background/95 backdrop-blur-xl"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -331,7 +333,7 @@ export default function Navbar() {
               <div className="flex flex-col h-full">
                 {/* Header */}
                 <div className="sticky top-0 flex items-center justify-between p-4 border-b border-white/10">
-                  <motion.span 
+                  <motion.span
                     className="text-lg font-bold gradient-text"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -358,7 +360,7 @@ export default function Navbar() {
                       transition={{ delay: index * 0.08 }}
                       onClick={(e) => {
                         setIsMobileMenuOpen(false);
-                        
+
                         if (link.isRoute) {
                           if (link.href === '/' && window.location.pathname !== '/') {
                             navigate('/');

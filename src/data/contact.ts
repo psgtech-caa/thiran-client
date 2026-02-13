@@ -36,18 +36,14 @@ export const footerLinks = {
     { name: 'Home', href: '#home' },
     { name: 'Events', href: '#events' },
     { name: 'Why Thiran', href: '#why-thiran' },
-    { name: 'Contact', href: '#contact' },
   ],
   'Events': [
     { name: 'Technical', href: '#events' },
     { name: 'Non-Technical', href: '#events' },
-    { name: 'Workshops', href: '#events' },
-    { name: 'Gaming', href: '#events' },
   ],
   'Support': [
     { name: 'FAQs', href: '#' },
-    { name: 'Guidelines', href: '#' },
-    { name: 'Terms & Conditions', href: '#' },
-    { name: 'Privacy Policy', href: '#' },
+    { name: 'Contact', href: '#contact' },
+
   ],
 };

@@ -18,5 +18,13 @@
     "location": "asia-south1",
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
+  },
+  "auth": {
+    "providers": {
+      "googleSignIn": {
+        "oAuthBrandDisplayName": "thiran2k26",
+        "supportEmail": "thiran2k26@gmail.com"
+      }
+    }
   }
 }
