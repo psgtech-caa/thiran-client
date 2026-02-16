@@ -159,7 +159,7 @@ export default function Timeline() {
 
                         {/* Content Card */}
                         <div className={`ml-8 md:ml-0 md:w-1/2 ${isContentRight ? 'md:pr-16 md:text-right' : 'md:pl-16'}`}>
-                          <div className={`glass-strong p-5 md:p-6 rounded-2xl transition-all group hover:-translate-y-1 duration-300 border ${isHighlight ? 'border-yellow-500/50 shadow-[0_0_30px_rgba(234,179,8,0.2)] bg-yellow-500/10 hover:bg-yellow-500/20' : 'border-white/10 hover:border-white/30 hover:bg-white/[0.12]'}`}>
+                          <div className={`glass-strong p-5 md:p-6 rounded-2xl transition-all group hover:-translate-y-1 duration-300 border ${isHighlight ? 'border-yellow-500/50 shadow-[0_0_15px_rgba(234,179,8,0.3)] bg-gradient-to-br from-yellow-500/10 to-orange-500/10 hover:bg-yellow-500/20' : 'border-white/10 hover:border-white/30 hover:bg-white/[0.12]'}`}>
                             <div className={`flex flex-col gap-2 ${isContentRight ? 'md:items-end' : ''}`}>
                               <span className={`inline-block px-3 py-1 rounded-full text-[10px] md:text-xs font-bold ${isHighlight ? 'bg-yellow-500/20 text-yellow-300' : `bg-${item.color}-500/20 text-${item.color}-300`} mb-2 w-fit`}>
                                 {item.time}

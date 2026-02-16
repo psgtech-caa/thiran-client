@@ -1,5 +1,5 @@
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Stars, Float, Sphere, MeshDistortMaterial, Octahedron, Torus, Grid } from '@react-three/drei';
+import { Stars, Float, Sphere, Octahedron, Torus, Grid, Icosahedron } from '@react-three/drei';
 import { useRef, useState } from 'react';
 import * as THREE from 'three';
 
@@ -23,18 +23,15 @@ function RotatingSphere() {
     return (
         <Float speed={2} rotationIntensity={0.5} floatIntensity={1}>
             <Sphere
-                args={[1.5, 64, 64]}
+                args={[1.5, 32, 32]}
                 ref={meshRef}
                 onPointerOver={() => setHover(true)}
                 onPointerOut={() => setHover(false)}
                 scale={hovered ? 1.1 : 1}
             >
-                <MeshDistortMaterial
+                <meshStandardMaterial
                     color={hovered ? "#8b5cf6" : "#6d28d9"}
-                    attach="material"
-                    distort={0.4}
-                    speed={2}
-                    roughness={0.2}
+                    roughness={0.4}
                     metalness={0.8}
                 />
             </Sphere>
@@ -84,12 +81,21 @@ function OrbitingTorus() {
 export default function HeroScene() {
     return (
         <div className="absolute inset-0 -z-10">
-            <Canvas camera={{ position: [0, 0, 5], fov: 60 }} gl={{ antialias: true }}>
+            <Canvas
+                camera={{ position: [0, 0, 5], fov: 60 }}
+                gl={{
+                    antialias: false, // Huge RAM saver
+                    stencil: false,
+                    depth: true,
+                    powerPreference: "default"
+                }}
+                dpr={[1, 1.5]}
+            >
                 <ambientLight intensity={0.5} />
                 <pointLight position={[10, 10, 10]} intensity={1} color="#22d3ee" />
                 <pointLight position={[-10, -10, -10]} intensity={0.5} color="#ec4899" />
 
-                <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />
+                <Stars radius={100} depth={50} count={2000} factor={4} saturation={0} fade speed={1} />
 
                 {/* Central Element */}
                 <RotatingSphere />
@@ -101,6 +107,30 @@ export default function HeroScene() {
                 <FloatingCrystal position={[-3, 2, -2]} color="#00e5ff" speed={0.8} delay={0} />
                 <FloatingCrystal position={[3, -1, -1]} color="#d946ef" speed={0.6} delay={2} />
                 <FloatingCrystal position={[-2, -3, 0]} color="#8b5cf6" speed={0.7} delay={4} />
+
+                {/* Extra Floating Shapes (Merged from FloatingShapes.tsx) */}
+                <group>
+                    <Float speed={2} rotationIntensity={1} floatIntensity={1} position={[-6, 2, -2]}>
+                        <Icosahedron args={[1, 0]} scale={1.5}>
+                            <meshStandardMaterial color="#a855f7" roughness={0.1} metalness={0.8} transparent opacity={0.6} wireframe />
+                        </Icosahedron>
+                    </Float>
+                    <Float speed={2} rotationIntensity={1} floatIntensity={1} position={[-5, -3, -4]}>
+                        <Torus args={[1, 0.4, 8, 24]} scale={1}>
+                            <meshStandardMaterial color="#06b6d4" roughness={0.1} metalness={0.8} transparent opacity={0.6} wireframe />
+                        </Torus>
+                    </Float>
+                    <Float speed={2} rotationIntensity={1} floatIntensity={1} position={[6, 3, -3]}>
+                        <Octahedron args={[1, 0]} scale={1.8}>
+                            <meshStandardMaterial color="#ec4899" roughness={0.1} metalness={0.8} transparent opacity={0.6} wireframe />
+                        </Octahedron>
+                    </Float>
+                    <Float speed={2} rotationIntensity={1} floatIntensity={1} position={[5, -2, -5]}>
+                        <Icosahedron args={[1, 0]} scale={1.2}>
+                            <meshStandardMaterial color="#8b5cf6" roughness={0.1} metalness={0.8} transparent opacity={0.6} wireframe />
+                        </Icosahedron>
+                    </Float>
+                </group>
 
                 {/* Cyber Grid Floor */}
                 <group position={[0, -3, 0]} rotation={[0, 0, 0]}>

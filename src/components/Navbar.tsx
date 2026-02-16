@@ -22,7 +22,7 @@ export default function Navbar() {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const logoRef = useRef<HTMLAnchorElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
-  const { user, userProfile, isAdmin, signInWithGoogle, signOut } = useAuth();
+  const { user, userProfile, isAdmin, isCoordinator, signInWithGoogle, signOut } = useAuth();
   const navigate = useNavigate();
   const { playSound } = useSound();
 
@@ -184,8 +184,10 @@ export default function Navbar() {
                     whileTap={{ scale: 0.95 }}
                   >
                     {/* Show roll number instead of profile pic in navbar */}
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-r from-cosmic-purple/70 to-cosmic-pink/70 flex items-center justify-center text-[10px] font-semibold tracking-tight text-white">
-                      {userProfile?.rollNumber ?? <User className="w-4 h-4 text-white" />}
+                    <div className="flex items-center gap-3 pr-2">
+                      <span className="text-sm font-medium text-white hidden lg:block">
+                        {userProfile?.name?.split(' ')[0]}
+                      </span>
                     </div>
                   </motion.button>
 
@@ -210,9 +212,9 @@ export default function Navbar() {
                                 <User className="w-6 h-6 text-white" />
                               </div>
                             )}
-                            <div>
-                              <p className="font-semibold">{userProfile?.name}</p>
-                              <p className="text-xs text-muted-foreground">{userProfile?.rollNumber}</p>
+                            <div className="min-w-0">
+                              <p className="font-semibold text-sm md:text-base truncate">{userProfile?.name}</p>
+                              <p className="text-xs text-muted-foreground truncate">{userProfile?.rollNumber}</p>
                             </div>
                           </div>
                           <p className="text-xs text-muted-foreground">{userProfile?.email}</p>
@@ -233,7 +235,7 @@ export default function Navbar() {
                             <ListChecks className="w-4 h-4" />
                             <span className="text-sm">My Registrations</span>
                           </motion.button>
-                          {isAdmin && (
+                          {isCoordinator && (
                             <motion.button
                               onClick={() => {
                                 navigate('/admin');
@@ -266,7 +268,7 @@ export default function Navbar() {
                   </AnimatePresence>
                 </div>
               ) : (
-                <MagneticButton onClick={signInWithGoogle} className="btn-cosmic text-white">
+                <MagneticButton onClick={() => { document.getElementById('events')?.scrollIntoView({ behavior: 'smooth' }); }} className="btn-cosmic text-white">
                   Register Now
                 </MagneticButton>
               )}
@@ -304,162 +306,164 @@ export default function Navbar() {
             </motion.button>
           </div>
         </div>
-      </motion.nav>
+      </motion.nav >
 
       {/* Mobile Menu */}
       <AnimatePresence>
-        {isMobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-40 md:hidden"
-          >
+        {
+          isMobileMenuOpen && (
             <motion.div
-              className="absolute inset-0 bg-background/95 backdrop-blur-xl"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setIsMobileMenuOpen(false)}
-            />
-            <motion.div
-              initial={{ x: '100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '100%' }}
-              transition={{ type: 'spring', damping: 25 }}
-              className="absolute right-0 top-0 bottom-0 w-full max-w-sm glass-strong overflow-y-auto"
+              transition={{ duration: 0.3 }}
+              className="fixed inset-0 z-[100] md:hidden"
             >
-              <div className="flex flex-col h-full">
-                {/* Header */}
-                <div className="sticky top-0 flex items-center justify-between p-4 border-b border-white/10">
-                  <motion.span
-                    className="text-lg font-bold gradient-text"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                  >
-                    Menu
-                  </motion.span>
-                  <motion.button
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="p-2 hover:bg-white/10 rounded-lg transition-colors"
-                    whileTap={{ scale: 0.9 }}
-                  >
-                    <X size={24} />
-                  </motion.button>
-                </div>
-
-                {/* Navigation Links */}
-                <div className="flex-1 p-4 md:p-6 flex flex-col gap-3">
-                  {navLinks.map((link, index) => (
-                    <motion.a
-                      key={link.name}
-                      href={link.href}
-                      initial={{ opacity: 0, x: 50 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.08 }}
-                      onClick={(e) => {
-                        setIsMobileMenuOpen(false);
-
-                        if (link.isRoute) {
-                          if (link.href === '/' && window.location.pathname !== '/') {
-                            navigate('/');
-                          }
-                        } else {
-                          if (window.location.pathname !== '/') {
-                            e.preventDefault();
-                            navigate('/');
-                            setTimeout(() => {
-                              const hash = link.href.startsWith('#') ? link.href : link.href.substring(link.href.indexOf('#'));
-                              const element = document.querySelector(hash);
-                              if (element) {
-                                element.scrollIntoView({ behavior: 'smooth' });
-                              }
-                            }, 100);
-                          }
-                        }
-                      }}
-                      className="flex items-center justify-between px-4 py-3 rounded-xl text-lg md:text-xl font-medium text-foreground/80 hover:text-foreground hover:bg-white/10 transition-all duration-300 group"
+              <motion.div
+                className="absolute inset-0 bg-background/95 backdrop-blur-xl"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setIsMobileMenuOpen(false)}
+              />
+              <motion.div
+                initial={{ x: '100%' }}
+                animate={{ x: 0 }}
+                exit={{ x: '100%' }}
+                transition={{ type: 'spring', damping: 25 }}
+                className="absolute right-0 top-0 bottom-0 w-full max-w-sm glass-strong overflow-y-auto"
+              >
+                <div className="flex flex-col h-full">
+                  {/* Header */}
+                  <div className="sticky top-0 flex items-center justify-between p-4 border-b border-white/10">
+                    <motion.span
+                      className="text-lg font-bold gradient-text"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
                     >
-                      <span>{link.name}</span>
-                      <ChevronRight className="w-5 h-5 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
-                    </motion.a>
-                  ))}
-                </div>
+                      Menu
+                    </motion.span>
+                    <motion.button
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                      whileTap={{ scale: 0.9 }}
+                    >
+                      <X size={24} />
+                    </motion.button>
+                  </div>
 
-                {/* User Section */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4 }}
-                  className="border-t border-white/10 p-4 md:p-6 space-y-3"
-                >
-                  {user ? (
-                    <>
-                      <div className="glass rounded-xl p-3 md:p-4 mb-3">
-                        <div className="flex items-center gap-3 mb-2">
-                          <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-r from-cosmic-purple/70 to-cosmic-pink/70 flex items-center justify-center text-xs md:text-sm font-semibold text-white flex-shrink-0">
-                            {userProfile?.rollNumber ?? <User className="w-5 h-5 md:w-6 md:h-6 text-white" />}
-                          </div>
-                          <div className="min-w-0">
-                            <p className="font-semibold text-sm md:text-base truncate">{userProfile?.name}</p>
-                            <p className="text-xs text-muted-foreground truncate">{userProfile?.rollNumber}</p>
-                          </div>
-                        </div>
-                        {userProfile?.mobile && (
-                          <p className="text-xs text-muted-foreground">{userProfile.mobile}</p>
-                        )}
-                        <p className="text-xs text-muted-foreground">{userProfile?.department} • Year {userProfile?.year}</p>
-                      </div>
-                      <MagneticButton
-                        onClick={() => {
-                          navigate('/my-registrations');
+                  {/* Navigation Links */}
+                  <div className="flex-1 p-4 md:p-6 flex flex-col gap-3">
+                    {navLinks.map((link, index) => (
+                      <motion.a
+                        key={link.name}
+                        href={link.href}
+                        initial={{ opacity: 0, x: 50 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.08 }}
+                        onClick={(e) => {
                           setIsMobileMenuOpen(false);
+
+                          if (link.isRoute) {
+                            if (link.href === '/' && window.location.pathname !== '/') {
+                              navigate('/');
+                            }
+                          } else {
+                            if (window.location.pathname !== '/') {
+                              e.preventDefault();
+                              navigate('/');
+                              setTimeout(() => {
+                                const hash = link.href.startsWith('#') ? link.href : link.href.substring(link.href.indexOf('#'));
+                                const element = document.querySelector(hash);
+                                if (element) {
+                                  element.scrollIntoView({ behavior: 'smooth' });
+                                }
+                              }, 100);
+                            }
+                          }
                         }}
-                        className="btn-cosmic text-white w-full text-sm md:text-base py-2.5 md:py-3"
+                        className="flex items-center justify-between px-4 py-3 rounded-xl text-lg md:text-xl font-medium text-foreground/80 hover:text-foreground hover:bg-white/10 transition-all duration-300 group"
                       >
-                        My Registrations
-                      </MagneticButton>
-                      {isAdmin && (
-                        <motion.button
-                          onClick={() => {
-                            navigate('/admin');
-                            setIsMobileMenuOpen(false);
-                          }}
-                          className="w-full px-4 py-2.5 md:py-3 rounded-xl bg-gradient-to-r from-cosmic-purple/20 to-cosmic-pink/20 border border-cosmic-purple/30 text-left text-sm md:text-base"
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
-                        >
-                          <div className="flex items-center gap-3">
-                            <Shield className="w-4 h-4 md:w-5 md:h-5 text-cosmic-purple flex-shrink-0" />
+                        <span>{link.name}</span>
+                        <ChevronRight className="w-5 h-5 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+                      </motion.a>
+                    ))}
+                  </div>
+
+                  {/* User Section */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className="border-t border-white/10 p-4 md:p-6 space-y-3"
+                  >
+                    {user ? (
+                      <>
+                        <div className="glass rounded-xl p-3 md:p-4 mb-3">
+                          <div className="flex items-center gap-3 mb-2">
+                            <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-r from-cosmic-purple/70 to-cosmic-pink/70 flex items-center justify-center text-xs md:text-sm font-semibold text-white flex-shrink-0">
+                              {userProfile?.rollNumber ?? <User className="w-5 h-5 md:w-6 md:h-6 text-white" />}
+                            </div>
                             <div className="min-w-0">
-                              <p className="font-semibold text-xs md:text-sm">Admin Panel</p>
-                              <p className="text-xs text-muted-foreground">Coordinators only</p>
+                              <p className="font-semibold text-sm md:text-base truncate">{userProfile?.name}</p>
+                              <p className="text-xs text-muted-foreground truncate">{userProfile?.rollNumber}</p>
                             </div>
                           </div>
-                        </motion.button>
-                      )}
-                      <button
-                        onClick={async () => {
-                          await signOut();
-                          setIsMobileMenuOpen(false);
-                        }}
-                        className="w-full btn-cosmic-outline text-xs md:text-sm py-2.5 md:py-3"
-                      >
-                        Sign Out
-                      </button>
-                    </>
-                  ) : (
-                    <MagneticButton onClick={signInWithGoogle} className="btn-cosmic text-white w-full text-sm md:text-base py-2.5 md:py-3">
-                      Register Now
-                    </MagneticButton>
-                  )}
-                </motion.div>
-              </div>
+                          {userProfile?.mobile && (
+                            <p className="text-xs text-muted-foreground">{userProfile.mobile}</p>
+                          )}
+                          <p className="text-xs text-muted-foreground">{userProfile?.department} • Year {userProfile?.year}</p>
+                        </div>
+                        <MagneticButton
+                          onClick={() => {
+                            navigate('/my-registrations');
+                            setIsMobileMenuOpen(false);
+                          }}
+                          className="btn-cosmic text-white w-full text-sm md:text-base py-2.5 md:py-3"
+                        >
+                          My Registrations
+                        </MagneticButton>
+                        {isCoordinator && (
+                          <motion.button
+                            onClick={() => {
+                              navigate('/admin');
+                              setIsMobileMenuOpen(false);
+                            }}
+                            className="w-full px-4 py-2.5 md:py-3 rounded-xl bg-gradient-to-r from-cosmic-purple/20 to-cosmic-pink/20 border border-cosmic-purple/30 text-left text-sm md:text-base"
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                          >
+                            <div className="flex items-center gap-3">
+                              <Shield className="w-4 h-4 md:w-5 md:h-5 text-cosmic-purple flex-shrink-0" />
+                              <div className="min-w-0">
+                                <p className="font-semibold text-xs md:text-sm">Admin Panel</p>
+                                <p className="text-xs text-muted-foreground">Coordinators only</p>
+                              </div>
+                            </div>
+                          </motion.button>
+                        )}
+                        <button
+                          onClick={async () => {
+                            await signOut();
+                            setIsMobileMenuOpen(false);
+                          }}
+                          className="w-full btn-cosmic-outline text-xs md:text-sm py-2.5 md:py-3"
+                        >
+                          Sign Out
+                        </button>
+                      </>
+                    ) : (
+                      <MagneticButton onClick={() => { document.getElementById('events')?.scrollIntoView({ behavior: 'smooth' }); setIsMobileMenuOpen(false); }} className="btn-cosmic text-white w-full text-sm md:text-base py-2.5 md:py-3">
+                        Register Now
+                      </MagneticButton>
+                    )}
+                  </motion.div>
+                </div>
+              </motion.div>
             </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          )
+        }
+      </AnimatePresence >
     </>
   );
 }

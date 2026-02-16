@@ -2,7 +2,6 @@ import { collection, doc, setDoc, getDoc, getDocs, query, where, deleteDoc, Time
 import { db } from '@/lib/firebase';
 import { Event } from '@/data/events';
 import { toast } from 'sonner';
-import { sendRegistrationEmail } from '@/lib/emailService';
 
 export interface EventRegistration {
   userId: string;
@@ -29,7 +28,7 @@ export async function registerForEvent(
   }
 
   const registrationRef = doc(db, 'registrations', `${userId}_${event.id}`);
-  
+
   try {
     const existingReg = await getDoc(registrationRef);
     if (existingReg.exists()) {
@@ -52,21 +51,6 @@ export async function registerForEvent(
 
     await setDoc(registrationRef, registration);
     toast.success(`Successfully registered for ${event.name}!`);
-
-    // Send confirmation email (non-blocking)
-    sendRegistrationEmail({
-      userName: userProfile.name,
-      userEmail: userProfile.email,
-      eventName: event.name,
-      eventDate: event.date,
-      eventTime: event.time,
-      eventVenue: event.venue,
-      rollNumber: userProfile.rollNumber,
-    }).then(sent => {
-      if (sent) {
-        toast.success('Confirmation email sent!');
-      }
-    });
 
     return true;
   } catch (error: any) {
@@ -109,6 +93,17 @@ export async function checkIfRegistered(userId: string, eventId: number): Promis
   }
 }
 
+export async function removeRegistration(userId: string, eventId: number): Promise<boolean> {
+  try {
+    const registrationRef = doc(db, 'registrations', `${userId}_${eventId}`);
+    await deleteDoc(registrationRef);
+    return true;
+  } catch (error) {
+    console.error('Error removing registration:', error);
+    return false;
+  }
+}
+
 export async function markAttendance(userId: string, eventId: number, attended: boolean): Promise<boolean> {
   try {
     const registrationRef = doc(db, 'registrations', `${userId}_${eventId}`);
@@ -131,5 +126,16 @@ export async function markBulkAttendance(eventId: number, userIds: string[], att
   } catch (error) {
     console.error('Error marking bulk attendance:', error);
     return false;
+  }
+}
+
+export async function getAllRegistrations(): Promise<EventRegistration[]> {
+  try {
+    const registrationRef = collection(db, 'registrations');
+    const snapshot = await getDocs(registrationRef);
+    return snapshot.docs.map(doc => doc.data() as EventRegistration);
+  } catch (error) {
+    console.error('Error fetching all registrations:', error);
+    return [];
   }
 }

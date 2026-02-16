@@ -2,13 +2,15 @@ import { createContext, useContext, useEffect, useState, ReactNode } from 'react
 import { User, onAuthStateChanged, signInWithPopup, signOut as firebaseSignOut } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, googleProvider, db } from '@/lib/firebase';
-import { UserProfile, parseUserProfile, isAdmin } from '@/lib/userUtils';
+import { UserProfile, UserRole, parseUserProfile, isAdmin, isCoordinator, getUserRole } from '@/lib/userUtils';
 import { toast } from 'sonner';
 
 interface AuthContextType {
   user: User | null;
   userProfile: UserProfile | null;
+  userRole: UserRole;
   isAdmin: boolean;
+  isCoordinator: boolean;
   loading: boolean;
   needsProfileSetup: boolean;
   signInWithGoogle: () => Promise<void>;
@@ -29,7 +31,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const unsubscribe = onAuthStateChanged(auth, async (user) => {
         setUser(user);
-        
+
         if (user) {
           if (!user.email?.endsWith('@psgtech.ac.in')) {
             toast.error('Only @psgtech.ac.in emails are allowed');
@@ -42,13 +44,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
           const profile = parseUserProfile(user.email, user.displayName);
           if (profile) {
+            // Determine role from environment config
+            const role = getUserRole(user.email);
+            profile.role = role;
+
             try {
               const userDoc = await getDoc(doc(db, 'users', user.uid));
               if (userDoc.exists()) {
                 const data = userDoc.data();
-                const merged = { ...profile, photoURL: user.photoURL || undefined, ...data } as UserProfile;
+                const merged = { ...profile, photoURL: user.photoURL || undefined, ...data, role } as UserProfile;
                 setUserProfile(merged);
-                // Check if profile is complete (has mobile and department set by user)
                 setNeedsProfileSetup(!data.profileComplete);
               } else {
                 setUserProfile({ ...profile, photoURL: user.photoURL || undefined });
@@ -56,14 +61,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               }
             } catch (err: any) {
               console.warn('Could not fetch user doc (possibly offline):', err.message);
-              // Use parsed profile so the app still works offline
               setUserProfile({ ...profile, photoURL: user.photoURL || undefined });
             }
           }
         } else {
           setUserProfile(null);
         }
-        
+
         setLoading(false);
       });
 
@@ -71,7 +75,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (error: any) {
       console.error('Firebase Auth initialization error:', error);
       setLoading(false);
-      // Continue rendering the app even if Firebase Auth fails to initialize
     }
   }, []);
 
@@ -86,19 +89,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      // Save user profile with photoURL
       const profile = parseUserProfile(user.email, user.displayName);
       if (profile) {
+        const role = getUserRole(user.email);
         const userDocRef = doc(db, 'users', user.uid);
         const userDoc = await getDoc(userDocRef);
-        
+
         if (!userDoc.exists()) {
-          // First time sign in — don't save yet, let profile setup modal handle it
           setNeedsProfileSetup(true);
         } else {
           const data = userDoc.data();
-          // Update photoURL if changed
-          await setDoc(userDocRef, { photoURL: user.photoURL }, { merge: true });
+          // Update photoURL and role if changed
+          await setDoc(userDocRef, { photoURL: user.photoURL, role }, { merge: true });
           if (!data.profileComplete) {
             setNeedsProfileSetup(true);
           }
@@ -146,6 +148,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     try {
+      const role = getUserRole(user.email || '');
       const updatedProfile = {
         ...userProfile,
         mobile: data.mobile,
@@ -153,6 +156,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         year: data.year,
         photoURL: user.photoURL,
         profileComplete: true,
+        role,
       };
       await setDoc(doc(db, 'users', user.uid), updatedProfile, { merge: true });
       setUserProfile(updatedProfile as UserProfile);
@@ -168,7 +172,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const value = {
     user,
     userProfile,
+    userRole: userProfile?.role || (user?.email ? getUserRole(user.email) : 'student') as UserRole,
     isAdmin: user?.email ? isAdmin(user.email) : false,
+    isCoordinator: user?.email ? isCoordinator(user.email) : false,
     loading,
     needsProfileSetup,
     signInWithGoogle,

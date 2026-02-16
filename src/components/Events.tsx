@@ -96,7 +96,7 @@ export default function Events() {
                 </div>
 
                 {/* Content */}
-                <div className="relative z-10 p-8 md:p-10">
+                <div className="relative z-10 p-8 md:p-10 min-h-[320px] md:min-h-[380px] flex flex-col justify-end">
                   {/* Top badges */}
                   <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-3">
@@ -130,8 +130,8 @@ export default function Events() {
                       { icon: '📍', label: 'Venue', value: event.venue },
                     ].map((item) => (
                       <div key={item.label} className={`rounded-xl p-3 text-center border transition-colors duration-300 ${item.highlight
-                          ? 'bg-yellow-500/5 border-yellow-500/20 group-hover:border-yellow-500/40'
-                          : 'bg-white/[0.02] border-white/5 group-hover:border-white/10'
+                        ? 'bg-yellow-500/5 border-yellow-500/20 group-hover:border-yellow-500/40'
+                        : 'bg-white/[0.02] border-white/5 group-hover:border-white/10'
                         }`}>
                         <span className="text-lg">{item.icon}</span>
                         <p className="text-[10px] uppercase tracking-wider text-gray-500 mt-1">{item.label}</p>

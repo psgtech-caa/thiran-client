@@ -19,13 +19,13 @@ export const events: Event[] = [
     id: 3,
     name: 'Witty Mindz',
     category: 'Non-Technical',
-    description: 'A battle of wits and logic! Test your critical thinking, riddle-solving abilities, and teamwork in this fast-paced non-technical showdown. Expect the unexpected as you navigate through mind-bending puzzles.',
+    description: 'Witty Mindz is a high-intensity team competition that challenges mental agility, coordination, and creative thinking across three escalating rounds. From solving logical puzzles and recalling critical details to decoding clues and presenting with impact, participants must adapt quickly and communicate effectively. Only the sharpest and most synchronized teams will rise to the top.',
     date: 'February 23, 2026',
     time: '04:00 PM - 6:30 PM',
     venue: 'MCA Block, Seminar Hall',
     teamSize: '2',
     prizePool: '₹3,000',
-    image: 'https://thumbs.dreamstime.com/b/brain-training-games-vector-illustration-featuring-people-having-fun-riddles-crosswords-logic-game-puzzle-solving-397605106.jpg',
+    image: 'https://images.unsplash.com/photo-1606326608606-aa0b62935f2b?q=80&w=2070&auto=format&fit=crop',
     coordinators: [
       { name: 'Vishaly', phone: '9976477887' },
       { name: 'Thamizhthilaga', phone: '7825007711' }
@@ -51,7 +51,7 @@ export const events: Event[] = [
     id: 4,
     name: 'Brand Sprint',
     category: 'Non-Technical',
-    description: 'Unleash your inner marketer! In this high-pressure challenge, teams must conceptualize and pitch a brand strategy for a surprise product. Creativity, spontaneity, and persuasion are your best weapons.',
+    description: 'Brand Sprint is a fast-paced, offline relay challenge that tests creativity, intuition, and branding instincts under pressure. One member sketches a logo without words, another crafts a tagline without knowing the product, and the final member delivers a complete pitch based only on those clues. With strict time limits and accuracy-based evaluation, teams must think quickly, collaborate seamlessly, and sell their ideas with confidence.',
     date: 'February 25, 2026',
     time: '04:00 PM - 6:30 PM',
     venue: 'MCA Block, Seminar Hall',
@@ -83,7 +83,7 @@ export const events: Event[] = [
     id: 5,
     name: 'Star of Thiran',
     category: 'Flagship',
-    description: 'The ultimate glory awaits! Winners and runners-up from all events face off in a grueling multi-round stage test. Only the most versatile and sharpest mind will be crowned the Star of Thiran.',
+    description: 'Star of Thiran 2026 is the flagship individual championship that seeks the most adaptable, intelligent, and confident participant of the fest. Beginning with a strategic brainstorming round and culminating in a live on-stage challenge, the competition tests creativity, clarity, composure, and stage presence under pressure. In the end, only one will claim the title.',
     date: 'March 6, 2026',
     time: '02:00 PM - 4:00 PM',
     venue: 'MCA Block, Main Auditorium',
@@ -104,3 +104,29 @@ export const categoryColors = {
   'Non-Technical': 'from-cosmic-pink to-cosmic-cyan',
   'Flagship': 'from-yellow-500 to-orange-500',
 };
+
+/**
+ * Check if an event date has passed.
+ * Parses the "February 23, 2026" format and compares with current date.
+ */
+export function isEventPast(event: Event): boolean {
+  try {
+    const eventDate = new Date(event.date);
+    if (isNaN(eventDate.getTime())) return false;
+    // Set to end of event day (11:59 PM)
+    eventDate.setHours(23, 59, 59, 999);
+    return new Date() > eventDate;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Check if registration is currently open for an event.
+ * Returns false if: explicitly closed, or event date has passed.
+ */
+export function isRegistrationOpen(event: Event): boolean {
+  if (event.isRegistrationOpen === false) return false;
+  if (isEventPast(event)) return false;
+  return true;
+}

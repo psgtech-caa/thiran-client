@@ -1,16 +1,23 @@
 import { useEffect, useState } from 'react';
 import { motion, useMotionValue, useSpring } from 'framer-motion';
 
+// Detect touch device ONCE at module level so hooks always run in same order
+const isTouchDevice =
+  typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches;
+
 export default function CustomCursor() {
   const [isHovering, setIsHovering] = useState(false);
   const cursorX = useMotionValue(-100);
   const cursorY = useMotionValue(-100);
 
-  const springConfig = { damping: 20, stiffness: 150, mass: 0.5 };
+  const springConfig = { damping: 40, stiffness: 450, mass: 0.5 };
   const cursorXSpring = useSpring(cursorX, springConfig);
   const cursorYSpring = useSpring(cursorY, springConfig);
 
   useEffect(() => {
+    // Skip all event listeners on touch/mobile devices
+    if (isTouchDevice) return;
+
     const moveCursor = (e: MouseEvent) => {
       cursorX.set(e.clientX);
       cursorY.set(e.clientY);
@@ -44,10 +51,8 @@ export default function CustomCursor() {
     };
   }, [cursorX, cursorY]);
 
-  // Only render on desktop to avoid issues on touch devices
-  if (typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches) {
-    return null;
-  }
+  // Don't render anything on touch/mobile devices
+  if (isTouchDevice) return null;
 
   return (
     <>
@@ -74,7 +79,7 @@ export default function CustomCursor() {
         animate={{
           scale: isHovering ? 2.5 : 1,
           opacity: isHovering ? 0.8 : 0.5,
-          backgroundColor: isHovering ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
+          backgroundColor: isHovering ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0)',
         }}
         transition={{ duration: 0.15 }}
       />

@@ -27,7 +27,7 @@ function Shape({ type, position, color, scale, rotationSpeed = 0.01 }: any) {
         <Float speed={2} rotationIntensity={1} floatIntensity={1}>
             <mesh ref={meshRef} position={position} scale={scale}>
                 {type === 'icosahedron' && <icosahedronGeometry args={[1, 0]} />}
-                {type === 'torus' && <torusGeometry args={[1, 0.4, 16, 32]} />}
+                {type === 'torus' && <torusGeometry args={[1, 0.4, 8, 24]} />}
                 {type === 'octahedron' && <octahedronGeometry args={[1, 0]} />}
                 <Material />
             </mesh>
@@ -38,7 +38,7 @@ function Shape({ type, position, color, scale, rotationSpeed = 0.01 }: any) {
 export default function FloatingShapes() {
     return (
         <div className="absolute inset-0 pointer-events-none z-0">
-            <Canvas camera={{ position: [0, 0, 10], fov: 50 }}>
+            <Canvas camera={{ position: [0, 0, 10], fov: 50 }} dpr={[1, 1.5]}>
                 <ambientLight intensity={0.5} />
                 <pointLight position={[10, 10, 10]} intensity={1} />
                 <pointLight position={[-10, -10, -10]} intensity={0.5} color="#ec4899" />

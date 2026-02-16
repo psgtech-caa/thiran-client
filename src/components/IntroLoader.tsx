@@ -32,7 +32,7 @@ export default function IntroLoader({ onComplete }: IntroLoaderProps) {
     // Play sound
     if (audioRef.current) {
       audioRef.current.volume = 0.5;
-      audioRef.current.play().catch((e) => console.log('Audio play failed:', e));
+      audioRef.current.play().catch(() => { }); // Autoplay might be blocked, ignore
     }
 
     // Phase 1: Logo appears with glow
@@ -44,46 +44,46 @@ export default function IntroLoader({ onComplete }: IntroLoaderProps) {
       .fromTo(
         logoRef.current,
         { scale: 3, opacity: 0, rotateX: -45 },
-        { scale: 1, opacity: 1, rotateX: 0, duration: 1.2, ease: 'expo.out' },
-        '-=0.5'
+        { scale: 1, opacity: 1, rotateX: 0, duration: 1.0, ease: 'expo.out' },
+        '-=0.6'
       )
       .fromTo(
         yearRef.current,
         { opacity: 0, y: 30, scale: 0.8 },
-        { opacity: 1, y: 0, scale: 1, duration: 0.6, ease: 'back.out(1.7)' },
-        '-=0.4'
+        { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: 'back.out(1.7)' },
+        '-=0.8'
       )
       .fromTo(
         subtitleRef.current,
         { opacity: 0, y: 20 },
-        { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' },
-        '-=0.2'
+        { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' },
+        '-=0.3'
       )
-      // Phase 2: Hold for a beat
-      .to({}, { duration: 0.6 })
+      // Phase 2: Short hold
+      .to({}, { duration: 0.3 })
       // Phase 3: Logo zooms out and fades
       .to(logoRef.current, {
         scale: 0.6,
         y: -20,
-        duration: 0.8,
+        duration: 0.6,
         ease: 'power3.inOut',
       })
       .to(
         [yearRef.current, subtitleRef.current],
-        { opacity: 0, y: -20, duration: 0.4, ease: 'power2.in' },
-        '-=0.6'
+        { opacity: 0, y: -20, duration: 0.3, ease: 'power2.in' },
+        '-=0.5'
       )
       .to(
         glowRef.current,
-        { scale: 3, opacity: 0, duration: 0.8, ease: 'power2.in' },
-        '-=0.6'
+        { scale: 3, opacity: 0, duration: 0.6, ease: 'power2.in' },
+        '-=0.5'
       )
       // Phase 4: Loader fades out
       .to(loaderRef.current, {
         opacity: 0,
-        duration: 0.5,
+        duration: 0.4,
         ease: 'power2.inOut',
-      }, '-=0.3');
+      }, '-=0.2');
 
     // Particle animation
     if (particlesRef.current) {
@@ -111,6 +111,12 @@ export default function IntroLoader({ onComplete }: IntroLoaderProps) {
     return () => {
       // clean up timeline
       if (timelineRef.current) timelineRef.current.kill();
+      // clean up audio
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = "";
+        audioRef.current.load();
+      }
     };
   }, [onComplete]);
 
@@ -161,11 +167,11 @@ export default function IntroLoader({ onComplete }: IntroLoaderProps) {
 
         <div ref={logoRef} className="text-center" style={{ transformStyle: 'preserve-3d' }}>
           <img
-            src="/new-logo.png"
+            src="/final-logo.png"
             alt="Thiran 2026"
-            className="h-32 md:h-48 lg:h-64 w-auto object-contain mx-auto"
+            className="h-32 md:h-48 lg:h-64 w-auto object-contain mx-auto will-change-transform"
             style={{
-              filter: 'drop-shadow(0 0 60px hsl(210 100% 50% / 0.7)) drop-shadow(0 0 120px hsl(220 12% 75% / 0.4))',
+              filter: 'drop-shadow(0 0 20px hsl(210 100% 50% / 0.5)) md:drop-shadow(0 0 60px hsl(210 100% 50% / 0.7))',
             }}
           />
           <span

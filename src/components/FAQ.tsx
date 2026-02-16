@@ -15,10 +15,7 @@ const faqs = [
         question: "Can I participate in multiple events?",
         answer: "Yes! You can participate in as many events as you like, provided their schedules don't clash. Please check the Timeline page to plan your day.",
     },
-    {
-        question: "Is accommodation provided?",
-        answer: "Accommodation is available for outstation participants upon request. Please contact the student coordinators for more information regarding stay arrangements.",
-    },
+
     {
         question: "What is the team size for Hack-The-Box?",
         answer: "For Hack-The-Box, you can form a team of 2-4 members. Inter-college teams are allowed and encouraged!",

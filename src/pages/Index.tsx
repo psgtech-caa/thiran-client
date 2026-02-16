@@ -1,4 +1,4 @@
-import { Suspense, useState, useEffect, lazy } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowUp } from 'lucide-react';
 import Navbar from '@/components/Navbar';
@@ -9,25 +9,10 @@ import Contact from '@/components/Contact';
 import Footer from '@/components/Footer';
 import Timeline from '@/components/Timeline';
 import IntroLoader from '@/components/IntroLoader';
-import ErrorBoundary from '@/components/ErrorBoundary';
 import LoadingScreen from '@/components/LoadingScreen';
 import FAQ from '@/components/FAQ';
 import CustomCursor from '@/components/CustomCursor';
 import { useAuth } from '@/contexts/AuthContext';
-
-// Lazy load heavy 3D component
-const StarField = lazy(() => import('@/components/StarField'));
-const FloatingShapes = lazy(() => import('@/components/3d/FloatingShapes'));
-
-// Loading fallback for 3D components
-function LoadingFallback() {
-  return (
-    <div className="fixed inset-0 -z-10 bg-background">
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-cosmic-purple/20 rounded-full blur-[40px]" />
-      <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-cosmic-pink/15 rounded-full blur-[40px]" />
-    </div>
-  );
-}
 
 export default function Index() {
   const [introComplete, setIntroComplete] = useState(false);
@@ -61,13 +46,6 @@ export default function Index() {
 
       <div className={`min-h-screen bg-background text-foreground overflow-x-hidden scrollbar-cosmic transition-opacity duration-500 ${introComplete ? 'opacity-100' : 'opacity-0'}`}>
         <CustomCursor />
-        {/* 3D Star Field Background with Error Boundary */}
-        <ErrorBoundary fallback={<LoadingFallback />}>
-          <Suspense fallback={<LoadingFallback />}>
-            <StarField />
-            <FloatingShapes />
-          </Suspense>
-        </ErrorBoundary>
 
         {/* Navigation */}
         <Navbar />

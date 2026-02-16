@@ -23,8 +23,17 @@ service cloud.firestore {
                       && isPSGEmail()
                       && request.resource.data.keys().hasAll(['userId', 'eventId', 'eventName', 'userName', 'userEmail', 'userRoll', 'userMobile', 'department', 'year', 'registeredAt']);
       
-      allow update: if false;
-      allow delete: if false;
+      // Allow updates for authenticated PSG users (coordinators manage attendance)
+      allow update: if isAuthenticated() && isPSGEmail();
+      
+      // Allow deletes for authenticated PSG users (coordinators remove registrations)
+      allow delete: if isAuthenticated() && isPSGEmail();
+    }
+
+    // Role assignments collection (admin-managed)
+    match /roles/{userId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && isPSGEmail();
     }
   }
 }

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ArrowUp, Calendar, Clock, MapPin, Trophy, Trash2 } from 'lucide-react';
+import { ArrowLeft, ArrowUp, Calendar, Clock, MapPin, Trophy } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { getUserRegistrations, EventRegistration } from '@/lib/registrationService';
 import { events } from '@/data/events';
@@ -31,7 +31,7 @@ export default function MyRegistrations() {
     const handleScroll = () => {
       setShowScrollTop(window.scrollY > 300);
     };
-    
+
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -63,7 +63,7 @@ export default function MyRegistrations() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Navbar />
-      
+
       <div className="container mx-auto px-4 py-24">
         <motion.button
           onClick={() => navigate('/')}
@@ -120,9 +120,11 @@ export default function MyRegistrations() {
                   className="glass rounded-2xl overflow-hidden hover:scale-[1.02] transition-transform"
                 >
                   <div className="relative h-40">
-                    <div
-                      className="absolute inset-0 bg-cover bg-center"
-                      style={{ backgroundImage: `url(${event.image})` }}
+                    <img
+                      src={event.image}
+                      alt={event.name}
+                      loading="lazy"
+                      className="absolute inset-0 w-full h-full object-cover"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
                     <div className="absolute bottom-4 left-4 right-4">

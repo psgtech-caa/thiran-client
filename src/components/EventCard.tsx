@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { Calendar, Clock, MapPin, Users, Trophy, ArrowRight, ExternalLink } from 'lucide-react';
 import HoverCard3D from './HoverCard3D';
-import { Event, categoryColors } from '@/data/events';
+import { Event, categoryColors, isRegistrationOpen } from '@/data/events';
 
 interface EventCardProps {
   event: Event;
@@ -24,14 +24,18 @@ export default function EventCard({ event, index, onClick }: EventCardProps) {
         {/* Image */}
         <div className="relative h-48 overflow-hidden group">
           <motion.div
-            className="absolute inset-0 bg-cover bg-center"
-            style={{
-              backgroundImage: `url(${event.image})`,
-              backgroundColor: 'hsl(var(--cosmic-surface))',
-            }}
+            className="absolute inset-0"
             whileHover={{ scale: 1.1 }}
             transition={{ duration: 0.7, ease: 'easeOut' }}
-          />
+          >
+            <img
+              src={event.image}
+              alt={event.name}
+              loading="lazy"
+              className="w-full h-full object-cover"
+              style={{ backgroundColor: 'hsl(var(--cosmic-surface))' }}
+            />
+          </motion.div>
           {/* Shimmer effect on hover */}
           <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
@@ -120,7 +124,7 @@ export default function EventCard({ event, index, onClick }: EventCardProps) {
               initial={{ opacity: 0.7 }}
               whileHover={{ opacity: 1 }}
             >
-              <span>{event.isRegistrationOpen === false ? 'View details' : 'View details & register'}</span>
+              <span>{isRegistrationOpen(event) ? 'View details & register' : 'View details'}</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </motion.div>
           </div>

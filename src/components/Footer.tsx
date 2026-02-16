@@ -15,7 +15,7 @@ export default function Footer() {
 
       {/* Massive Background Text */}
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/3 whitespace-nowrap opacity-[0.03] select-none pointer-events-none">
-        <span className="text-[15rem] md:text-[20rem] font-black tracking-tighter">THIRAN</span>
+        <span className="text-[5rem] md:text-[15rem] lg:text-[20rem] font-black tracking-tighter">THIRAN</span>
       </div>
 
       <div className="container mx-auto px-4 md:px-8 relative z-10">
@@ -68,7 +68,8 @@ export default function Footer() {
                 </div>
               </motion.a>
               <p className="text-xs md:text-sm text-muted-foreground mb-4 md:mb-6 max-w-sm leading-relaxed">
-                Thiran is the ultimate tech symposium where innovation meets excellence.
+                Thiran is an intracollege event conducted by the Department of Computer Applications.
+                <br />
                 Join us for an extraordinary celebration of technology and creativity.
               </p>
 
@@ -159,7 +160,7 @@ export default function Footer() {
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
           >
-            Made with <Heart className="w-3 h-3 md:w-4 md:h-4 text-cosmic-pink fill-cosmic-pink animate-pulse" /> by Thiran Team © 2026
+            Department of Computer Applications MCA © 2026
           </motion.p>
         </div>
       </div>

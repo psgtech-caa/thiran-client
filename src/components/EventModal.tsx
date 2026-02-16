@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Calendar, Clock, MapPin, Users, Trophy, Phone, User, ArrowRight, CheckCircle, AlertCircle, Building2, GraduationCap } from 'lucide-react';
-import { Event } from '@/data/events';
+import { X, Calendar, Clock, MapPin, Users, Trophy, Phone, User, ArrowRight, CheckCircle, AlertCircle } from 'lucide-react';
+import { Event, isRegistrationOpen as checkRegOpen, isEventPast } from '@/data/events';
 import { useAuth } from '@/contexts/AuthContext';
 import { registerForEvent, checkIfRegistered } from '@/lib/registrationService';
 import gsap from 'gsap';
@@ -22,35 +22,13 @@ const rules = [
   'Plagiarism will lead to disqualification',
 ];
 
-
-
-const DEPARTMENTS = [
-  'MCA',
-  'Computer Science',
-  'Information Technology',
-  'Electronics and Communication',
-  'Electrical Engineering',
-  'Mechanical Engineering',
-  'Civil Engineering',
-  'Chemical Engineering',
-  'Aerospace Engineering',
-  'Automobile Engineering',
-  'Biomedical Engineering',
-  'Industrial Engineering',
-  'Production Engineering',
-  'Textile Engineering',
-];
-
 export default function EventModal({ event, isOpen, showRegistration = false, onClose }: EventModalProps) {
   const [isRegistering, setIsRegistering] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
-  const [showDetailsInput, setShowDetailsInput] = useState(false);
   const [mobileNumber, setMobileNumber] = useState('');
-  const [department, setDepartment] = useState('');
-  const [yearOfStudy, setYearOfStudy] = useState<number>(0);
   const [isAlreadyRegistered, setIsAlreadyRegistered] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
-  const { user, userProfile, signInWithGoogle, updateMobileNumber, completeProfile } = useAuth();
+  const { user, userProfile, signInWithGoogle, completeProfile } = useAuth();
 
   useEffect(() => {
     if (isOpen && modalRef.current) {
@@ -68,22 +46,11 @@ export default function EventModal({ event, isOpen, showRegistration = false, on
     if (isOpen && userProfile?.mobile) {
       setMobileNumber(userProfile.mobile);
     }
-    if (isOpen && userProfile?.department) {
-      setDepartment(userProfile.department);
-    }
-    if (isOpen && userProfile?.year) {
-      setYearOfStudy(userProfile.year);
-    }
-
-    // Show details input when showRegistration is true and user is missing mobile/dept/year
-    if (isOpen && showRegistration && user && (!userProfile?.mobile || !userProfile?.department || !userProfile?.year)) {
-      setShowDetailsInput(true);
-    } else {
-      setShowDetailsInput(false);
-    }
   }, [isOpen, user, event, userProfile, showRegistration]);
 
   if (!event) return null;
+
+  const needsMobile = user && userProfile && !userProfile.mobile;
 
   const handleRegister = async () => {
     if (!user) {
@@ -97,37 +64,21 @@ export default function EventModal({ event, isOpen, showRegistration = false, on
       return;
     }
 
-    // Validate mobile
-    if (!userProfile.mobile && !mobileNumber) {
-      setShowDetailsInput(true);
+    // Only thing we might need from the user: mobile number
+    const mobile = mobileNumber || userProfile.mobile;
+    if (!mobile) {
       toast.error('Please enter your mobile number');
       return;
     }
-    if (mobileNumber && !/^[6-9]\d{9}$/.test(mobileNumber)) {
+    if (!/^[6-9]\d{9}$/.test(mobile)) {
       toast.error('Please enter a valid 10-digit mobile number');
       return;
     }
 
-    // Validate department
-    const finalDept = department || userProfile.department;
-    if (!finalDept) {
-      setShowDetailsInput(true);
-      toast.error('Please select your department');
-      return;
-    }
-
-    // Validate year
-    const finalYear = yearOfStudy || userProfile.year;
-    if (!finalYear) {
-      setShowDetailsInput(true);
-      toast.error('Please select your year of study');
-      return;
-    }
-
-    // Save profile data if not already saved
-    if (mobileNumber && (!userProfile.mobile || !userProfile.department || !userProfile.year)) {
+    // Save mobile if not already saved
+    if (!userProfile.mobile && mobileNumber) {
       try {
-        await completeProfile({ mobile: mobileNumber, department: finalDept, year: finalYear });
+        await completeProfile({ mobile: mobileNumber, department: userProfile.department, year: userProfile.year });
       } catch {
         return;
       }
@@ -143,8 +94,6 @@ export default function EventModal({ event, isOpen, showRegistration = false, on
     const success = await registerForEvent(user.uid, event, {
       ...userProfile,
       mobile: mobileNumber || userProfile.mobile || '',
-      department: department || userProfile.department,
-      year: yearOfStudy || userProfile.year,
     });
 
     if (success) {
@@ -267,10 +216,7 @@ export default function EventModal({ event, isOpen, showRegistration = false, on
                   <div className="modal-item mb-8">
                     <h3 className="text-lg font-bold mb-3 gradient-text">About This Event</h3>
                     <p className="text-muted-foreground leading-relaxed">
-                      {event.description} Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                      Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                      Participants will have the opportunity to showcase their skills and compete
-                      for exciting prizes.
+                      {event.description}
                     </p>
                   </div>
 
@@ -355,6 +301,14 @@ export default function EventModal({ event, isOpen, showRegistration = false, on
                   </div>
                   <p className="text-xs text-muted-foreground text-center">No direct registration - Win other events to qualify!</p>
                 </div>
+              ) : isEventPast(event) ? (
+                <div className="flex flex-col items-center gap-2 py-2">
+                  <div className="flex items-center gap-2 text-gray-400">
+                    <AlertCircle className="w-5 h-5" />
+                    <span className="font-semibold">Registration Closed</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground text-center">This event has already taken place.</p>
+                </div>
               ) : isAlreadyRegistered ? (
                 <div className="flex items-center justify-center gap-3 text-green-400 py-2">
                   <CheckCircle className="w-5 h-5" />
@@ -362,90 +316,43 @@ export default function EventModal({ event, isOpen, showRegistration = false, on
                 </div>
               ) : showRegistration ? (
                 <>
-                  {showDetailsInput && (
-                    <div className="mb-3 space-y-2 max-h-48 overflow-y-auto">
-                      {/* Mobile */}
-                      {!userProfile?.mobile && (
-                        <div className="flex items-center gap-3 glass rounded-xl p-3">
-                          <Phone className="w-4 h-4 text-cosmic-purple flex-shrink-0" />
-                          <input
-                            type="tel"
-                            value={mobileNumber}
-                            onChange={(e) => setMobileNumber(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                            placeholder="Mobile number (10 digits)"
-                            className="flex-1 bg-transparent outline-none text-sm"
-                            maxLength={10}
-                          />
-                        </div>
-                      )}
-
-                      {/* Department */}
-                      {!userProfile?.department && (
-                        <div className="flex items-center gap-3 glass rounded-xl p-3">
-                          <Building2 className="w-4 h-4 text-cosmic-pink flex-shrink-0" />
-                          <select
-                            value={department}
-                            onChange={(e) => setDepartment(e.target.value)}
-                            className="flex-1 bg-transparent outline-none text-sm appearance-none cursor-pointer"
-                          >
-                            <option value="" disabled className="bg-background text-gray-500">
-                              Select department
-                            </option>
-                            {DEPARTMENTS.map((dept) => (
-                              <option key={dept} value={dept} className="bg-background text-white">
-                                {dept}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                      )}
-
-                      {/* Year of Study */}
-                      {!userProfile?.year && (
-                        <div className="flex items-center gap-2">
-                          <GraduationCap className="w-4 h-4 text-cosmic-cyan flex-shrink-0 ml-1" />
-                          <div className="flex gap-1.5 flex-1">
-                            {[1, 2, 3, 4, 5].map((y) => (
-                              <button
-                                key={y}
-                                type="button"
-                                onClick={() => setYearOfStudy(y)}
-                                className={`flex-1 py-2 rounded-lg font-semibold text-xs transition-all border ${yearOfStudy === y
-                                  ? 'bg-gradient-to-r from-cosmic-purple to-cosmic-pink text-white border-transparent'
-                                  : 'glass text-gray-400 border-white/10 hover:bg-white/10 hover:text-white'
-                                  }`}
-                              >
-                                Y{y}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      )}
+                  {/* Only ask for mobile if missing */}
+                  {needsMobile && (
+                    <div className="mb-3">
+                      <div className="flex items-center gap-3 glass rounded-xl p-3">
+                        <Phone className="w-4 h-4 text-cosmic-purple flex-shrink-0" />
+                        <input
+                          type="tel"
+                          value={mobileNumber}
+                          onChange={(e) => setMobileNumber(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                          placeholder="Enter your mobile number"
+                          className="flex-1 bg-transparent outline-none text-sm"
+                          maxLength={10}
+                        />
+                      </div>
                     </div>
                   )}
 
-                  <div className="flex gap-3">
-                    <motion.button
-                      onClick={handleRegister}
-                      disabled={isRegistering}
-                      className="flex-1 btn-cosmic text-white py-3 text-base flex items-center justify-center gap-2 group disabled:opacity-70"
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      {isRegistering ? (
-                        <motion.div
-                          className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
-                          animate={{ rotate: 360 }}
-                          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                        />
-                      ) : (
-                        <>
-                          {user ? 'Register Now' : 'Sign In to Register'}
-                          <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                        </>
-                      )}
-                    </motion.button>
-                  </div>
+                  <motion.button
+                    onClick={handleRegister}
+                    disabled={isRegistering}
+                    className="w-full btn-cosmic text-white py-3 text-base flex items-center justify-center gap-2 group disabled:opacity-70"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    {isRegistering ? (
+                      <motion.div
+                        className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                      />
+                    ) : (
+                      <>
+                        {user ? 'Register Now' : 'Sign In to Register'}
+                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                      </>
+                    )}
+                  </motion.button>
                 </>
               ) : (
                 <motion.button

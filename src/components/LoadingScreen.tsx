@@ -8,15 +8,15 @@ export default function LoadingScreen() {
         animate={{ opacity: 1, scale: 1 }}
         className="text-center"
       >
-        <motion.img 
-          src="/new-logo.png" 
+        <motion.img
+          src="/final-logo.png"
           alt="Thiran 2026"
           className="h-40 md:h-48 w-auto mx-auto mb-8"
-          animate={{ 
+          animate={{
             scale: [1, 1.05, 1],
             opacity: [0.8, 1, 0.8]
           }}
-          transition={{ 
+          transition={{
             duration: 2,
             repeat: Infinity,
             ease: "easeInOut"

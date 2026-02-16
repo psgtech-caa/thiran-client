@@ -66,6 +66,61 @@ function CountdownBox({ value, label, index }: { value: number; label: string; i
   );
 }
 
+function ScrambleHighlightText({ text, highlightIndices }: { text: string; highlightIndices: number[] }) {
+  const [displayText, setDisplayText] = useState(text.split('').map(() => ' '));
+  const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;':\",./<>?";
+
+  useEffect(() => {
+    let iteration = 0;
+    const interval = setInterval(() => {
+      setDisplayText(prev =>
+        text.split('').map((letter, index) => {
+          if (index < iteration) {
+            return text[index];
+          }
+          return letters[Math.floor(Math.random() * 26)];
+        })
+      );
+
+      if (iteration >= text.length) {
+        clearInterval(interval);
+      }
+
+      iteration += 1 / 3;
+    }, 30);
+
+    return () => clearInterval(interval);
+  }, [text]);
+
+  return (
+    <h2 className="text-xl md:text-3xl font-bold tracking-wider font-mono">
+      {displayText.map((char, index) => {
+        const isHighlight = highlightIndices.includes(index);
+        return (
+          <motion.span
+            key={index}
+            className={`inline-block ${isHighlight
+              ? 'text-glossy-blue text-glow-blue scale-110 font-extrabold'
+              : 'text-muted-foreground'
+              }`}
+            animate={isHighlight ? {
+              textShadow: [
+                '0 0 10px hsl(210 100% 50% / 0.5)',
+                '0 0 20px hsl(210 100% 50% / 0.8)',
+                '0 0 10px hsl(210 100% 50% / 0.5)'
+              ],
+              scale: [1, 1.1, 1]
+            } : {}}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
+            {char === ' ' ? '\u00A0' : char}
+          </motion.span>
+        );
+      })}
+    </h2>
+  );
+}
+
 export default function Hero() {
   const heroRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -130,7 +185,7 @@ export default function Hero() {
               transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
             >
               <motion.img
-                src="/new-logo.png"
+                src="/final-logo.png"
                 alt="Thiran 2026"
                 className="h-32 md:h-44 lg:h-56 w-auto object-contain mx-auto"
                 style={{
@@ -194,60 +249,7 @@ export default function Hero() {
               />
             ))}
             {/* Animated underline decoration */}
-            <motion.div
-              className="absolute -bottom-3 left-1/2 h-0.5 bg-gradient-to-r from-transparent via-glossy-blue to-transparent"
-              initial={{ width: 0, x: '-50%' }}
-              animate={{ width: '80%' }}
-              transition={{ duration: 1, delay: 1.2 }}
-            />
 
-            <motion.span
-              className="text-glossy-blue inline-block font-mono"
-              animate={{ opacity: [1, 0.5, 1], x: [0, 2, -2, 0] }}
-              transition={{ duration: 0.2, repeat: Infinity, repeatDelay: 3 }}
-            >
-              T
-            </motion.span>
-            <motion.span
-              className="text-glossy-blue inline-block font-mono"
-              animate={{ opacity: [1, 0.8, 1], y: [0, -2, 0] }}
-              transition={{ duration: 0.1, repeat: Infinity, repeatDelay: 4 }}
-            >
-              H
-            </motion.span>
-            e{' '}
-            <motion.span
-              className="text-glossy-blue inline-block font-mono"
-              animate={{ skewX: [0, 10, -10, 0] }}
-              transition={{ duration: 0.3, repeat: Infinity, repeatDelay: 2.5 }}
-            >
-              I
-            </motion.span>
-            nt
-            <motion.span
-              className="text-glossy-blue inline-block font-mono"
-              animate={{ filter: ['blur(0px)', 'blur(2px)', 'blur(0px)'] }}
-              transition={{ duration: 0.2, repeat: Infinity, repeatDelay: 5 }}
-            >
-              R
-            </motion.span>
-            a collegiate{' '}
-            <motion.span
-              className="text-glossy-blue inline-block font-mono"
-              animate={{ scale: [1, 1.2, 1] }}
-              transition={{ duration: 0.2, repeat: Infinity, repeatDelay: 3.5 }}
-            >
-              A
-            </motion.span>
-            re
-            <motion.span
-              className="text-glossy-blue inline-block font-mono"
-              animate={{ rotate: [0, 10, -10, 0] }}
-              transition={{ duration: 0.3, repeat: Infinity, repeatDelay: 4 }}
-            >
-              N
-            </motion.span>
-            a
           </motion.div>
 
           {/* Subtitle */}
@@ -321,7 +323,7 @@ export default function Hero() {
                   animate={{ x: [-200, 200] }}
                   transition={{ duration: 0.8, repeat: Infinity, repeatDelay: 1.2 }}
                 />
-                <a href="#contact" className="flex items-center gap-2 relative z-10">
+                <a href="#events" className="flex items-center gap-2 relative z-10">
                   <motion.span animate={{ y: [0, -2, 0] }} transition={{ duration: 1.2, repeat: Infinity }}>
                     <Sparkles className="w-5 h-5" />
                   </motion.span>
@@ -353,6 +355,7 @@ export default function Hero() {
               <CountdownBox value={timeLeft.seconds} label="Seconds" index={3} />
             </div>
 
+
             <motion.a
               href="#events"
               initial={{ opacity: 0, y: 10 }}
@@ -362,13 +365,6 @@ export default function Hero() {
               whileHover={{ y: 4 }}
               aria-label="Scroll to events section"
             >
-              <motion.span
-                className="text-xs uppercase tracking-widest group-hover:text-glossy-blue transition-colors"
-                animate={{ opacity: [0.55, 1, 0.55] }}
-                transition={{ duration: 1.6, repeat: Infinity }}
-              >
-                Scroll
-              </motion.span>
               <motion.div
                 animate={{ y: [0, 6, 0] }}
                 transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
