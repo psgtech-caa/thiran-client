@@ -139,3 +139,51 @@ export async function getAllRegistrations(): Promise<EventRegistration[]> {
     return [];
   }
 }
+
+/**
+ * Admin-only: Add a registration for a user who hasn't signed up themselves.
+ * Uses the roll number as a pseudo-userId since the user may not have a Firebase account.
+ */
+export async function adminAddRegistration(
+  event: Event,
+  userData: {
+    rollNumber: string;
+    name: string;
+    email: string;
+    mobile: string;
+    department: string;
+    year: number;
+  }
+): Promise<boolean> {
+  const pseudoUserId = `manual_${userData.rollNumber.toLowerCase()}`;
+  const registrationRef = doc(db, 'registrations', `${pseudoUserId}_${event.id}`);
+
+  try {
+    const existingReg = await getDoc(registrationRef);
+    if (existingReg.exists()) {
+      toast.error(`${userData.rollNumber} is already registered for ${event.name}`);
+      return false;
+    }
+
+    const registration: EventRegistration = {
+      userId: pseudoUserId,
+      eventId: event.id,
+      eventName: event.name,
+      userRoll: userData.rollNumber.toUpperCase(),
+      userName: userData.name,
+      userEmail: userData.email.toLowerCase(),
+      userMobile: userData.mobile,
+      department: userData.department.toUpperCase(),
+      year: userData.year,
+      registeredAt: Timestamp.now(),
+    };
+
+    await setDoc(registrationRef, registration);
+    toast.success(`Added ${userData.name} (${userData.rollNumber}) to ${event.name}`);
+    return true;
+  } catch (error: any) {
+    console.error('Admin add registration error:', error);
+    toast.error(error.message || 'Failed to add user');
+    return false;
+  }
+}

@@ -7,14 +7,6 @@ const schedule = [
     date: 'Feb 23',
     events: [
       {
-        time: '09:00 AM',
-        title: 'Inauguration',
-        description: 'Kickstarting Thiran 2026 with an inspiring opening ceremony.',
-        location: 'Main Auditorium',
-        icon: Calendar,
-        color: 'purple',
-      },
-      {
         time: '04:00 PM',
         title: 'Witty Mindz',
         description: 'Non-Technical | A fast-paced battle of brains.',
@@ -68,7 +60,7 @@ const schedule = [
   },
   {
     day: 'Day 5',
-    date: 'Mar 06',
+    date: 'Feb 27',
     events: [
       {
         time: '02:00 PM',

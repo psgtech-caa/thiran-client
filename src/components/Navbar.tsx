@@ -63,11 +63,10 @@ export default function Navbar() {
 
   useEffect(() => {
     if (logoRef.current) {
-      gsap.to(logoRef.current, {
-        rotateY: 360,
-        duration: 0.8,
-        ease: 'power2.inOut',
-      });
+      gsap.fromTo(logoRef.current,
+        { opacity: 0, x: -20 },
+        { opacity: 1, x: 0, duration: 0.6, ease: 'power2.out' }
+      );
     }
   }, []);
 
@@ -82,7 +81,7 @@ export default function Navbar() {
       >
         <div className="mx-auto px-4 md:px-8">
           <div className="flex items-center justify-between">
-            {/* Logo */}
+            {/* Logos - Left Side */}
             <a
               ref={logoRef}
               href="/"
@@ -92,40 +91,51 @@ export default function Navbar() {
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }
               }}
-              className="flex items-center gap-1 group perspective-container"
+              className="flex items-center gap-2 md:gap-3 group"
             >
-              <motion.span
-                className="text-xl md:text-2xl font-bold tracking-tight"
-                style={{
-                  background: 'linear-gradient(135deg, hsl(var(--silver)), hsl(var(--glossy-blue)))',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text',
-                }}
-                whileHover={{ scale: 1.05 }}
-                transition={{ duration: 0.3 }}
-              >
-                Thiran
-              </motion.span>
-              <motion.span
-                className="text-sm md:text-base font-bold px-2 py-0.5 rounded-md border border-cosmic-cyan/50 text-cosmic-cyan"
-                animate={{
-                  boxShadow: [
-                    '0 0 5px hsl(187 94% 55% / 0.3)',
-                    '0 0 15px hsl(187 94% 55% / 0.5)',
-                    '0 0 5px hsl(187 94% 55% / 0.3)',
-                  ],
-                  borderColor: [
-                    'hsl(187 94% 55% / 0.5)',
-                    'hsl(187 94% 55% / 0.8)',
-                    'hsl(187 94% 55% / 0.5)',
-                  ],
-                }}
-                transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-                whileHover={{ scale: 1.1 }}
-              >
-                2k26
-              </motion.span>
+              {/* Combined Logos in single white pill */}
+              <div className="bg-white/95 backdrop-blur-sm rounded-xl px-2.5 py-1.5 md:px-3 md:py-2 flex items-center gap-2 md:gap-3 shadow-lg shadow-white/10">
+                <img
+                  src="/gallery/ASSETS/1-psgtech_logo.png"
+                  alt="PSGTech Logo"
+                  className="h-6 md:h-8 w-auto object-contain"
+                />
+                <div className="w-px h-5 md:h-6 bg-gray-300" />
+                <img
+                  src="/gallery/ASSETS/2-caa_logo.png"
+                  alt="CAA Logo"
+                  className="h-6 md:h-8 w-auto object-contain"
+                />
+              </div>
+              {/* Thiran 2k26 Text */}
+              <div className="hidden sm:flex items-center gap-1.5">
+                <motion.span
+                  className="text-lg md:text-xl font-bold tracking-tight"
+                  style={{
+                    background: 'linear-gradient(135deg, hsl(var(--silver)), hsl(var(--glossy-blue)))',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
+                  }}
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  Thiran
+                </motion.span>
+                <motion.span
+                  className="text-xs md:text-sm font-bold px-1.5 py-0.5 rounded-md border border-cosmic-cyan/50 text-cosmic-cyan"
+                  animate={{
+                    boxShadow: [
+                      '0 0 5px hsl(187 94% 55% / 0.3)',
+                      '0 0 15px hsl(187 94% 55% / 0.5)',
+                      '0 0 5px hsl(187 94% 55% / 0.3)',
+                    ],
+                  }}
+                  transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                >
+                  2k26
+                </motion.span>
+              </div>
             </a>
 
             {/* Desktop Navigation */}
@@ -174,7 +184,13 @@ export default function Navbar() {
             </div>
 
             {/* CTA Button / User Menu */}
-            <div className="hidden md:block">
+            <div className="hidden md:flex items-center gap-3">
+              {/* PSGTech 75 Years Logo */}
+              <img
+                src="/gallery/ASSETS/3-psgtech_75 years.png"
+                alt="PSGTech 75 Years"
+                className="h-8 md:h-10 w-auto object-contain"
+              />
               {user ? (
                 <div className="relative" ref={userMenuRef}>
                   <motion.button
@@ -274,36 +290,43 @@ export default function Navbar() {
               )}
             </div>
 
-            {/* Mobile Menu Button */}
-            <motion.button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden p-2 text-foreground hover:text-primary transition-colors"
-              whileTap={{ scale: 0.9 }}
-              aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
-              aria-expanded={isMobileMenuOpen}
-            >
-              <AnimatePresence mode="wait">
-                {isMobileMenuOpen ? (
-                  <motion.div
-                    key="close"
-                    initial={{ rotate: -90, opacity: 0 }}
-                    animate={{ rotate: 0, opacity: 1 }}
-                    exit={{ rotate: 90, opacity: 0 }}
-                  >
-                    <X size={28} />
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="menu"
-                    initial={{ rotate: 90, opacity: 0 }}
-                    animate={{ rotate: 0, opacity: 1 }}
-                    exit={{ rotate: -90, opacity: 0 }}
-                  >
-                    <Menu size={28} />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.button>
+            {/* Mobile Right Side - 75 years logo + Menu Button */}
+            <div className="md:hidden flex items-center gap-2">
+              <img
+                src="/gallery/ASSETS/3-psgtech_75 years.png"
+                alt="PSGTech 75 Years"
+                className="h-7 w-auto object-contain"
+              />
+              <motion.button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="p-2 text-foreground hover:text-primary transition-colors"
+                whileTap={{ scale: 0.9 }}
+                aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
+                aria-expanded={isMobileMenuOpen}
+              >
+                <AnimatePresence mode="wait">
+                  {isMobileMenuOpen ? (
+                    <motion.div
+                      key="close"
+                      initial={{ rotate: -90, opacity: 0 }}
+                      animate={{ rotate: 0, opacity: 1 }}
+                      exit={{ rotate: 90, opacity: 0 }}
+                    >
+                      <X size={24} />
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key="menu"
+                      initial={{ rotate: 90, opacity: 0 }}
+                      animate={{ rotate: 0, opacity: 1 }}
+                      exit={{ rotate: -90, opacity: 0 }}
+                    >
+                      <Menu size={24} />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.button>
+            </div>
           </div>
         </div>
       </motion.nav >

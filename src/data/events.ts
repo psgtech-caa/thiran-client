@@ -76,7 +76,7 @@ export const events: Event[] = [
     image: 'https://www.hp.com/us-en/shop/app/assets/images/uploads/prod/5%20Best%20Coding%20Programs%20for%20Aspiring%20Programmers1650304687858345.jpg',
     coordinators: [
       { name: 'Nitheesh', phone: '9944725360' },
-      { name: 'Chinnaza', phone: '8056576531' }
+      { name: 'Chinnaya', phone: '8056576531' }
     ]
   },
   {
@@ -84,9 +84,9 @@ export const events: Event[] = [
     name: 'Star of Thiran',
     category: 'Flagship',
     description: 'Star of Thiran 2026 is the flagship individual championship that seeks the most adaptable, intelligent, and confident participant of the fest. Beginning with a strategic brainstorming round and culminating in a live on-stage challenge, the competition tests creativity, clarity, composure, and stage presence under pressure. In the end, only one will claim the title.',
-    date: 'March 6, 2026',
-    time: '02:00 PM - 4:00 PM',
-    venue: 'MCA Block, Main Auditorium',
+    date: 'Feb 27, 2026',
+    time: '03:30 PM - 6:30 PM',
+    venue: 'D Block, Auditorium',
     teamSize: 'Individual',
     prizePool: '₹5,000',
     image: 'https://img.freepik.com/premium-vector/three-athletes-stand-proudly-podium-holding-their-medals-paralympic-sports-event-customizable-cartoon-illustration-paralympic-boccia_585735-37611.jpg',

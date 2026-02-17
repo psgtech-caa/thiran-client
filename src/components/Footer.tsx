@@ -32,10 +32,25 @@ export default function Footer() {
             >
               <motion.a
                 href="#home"
-                className="flex items-center gap-2 mb-4 md:mb-6 group"
+                className="flex items-center gap-3 mb-4 md:mb-6 group"
                 whileHover={{ x: 5 }}
               >
-                <div className="flex items-center gap-2 group perspective-container">
+                {/* Combined Logos in single white pill */}
+                <div className="bg-white/95 backdrop-blur-sm rounded-xl px-2.5 py-1.5 md:px-3 md:py-2 flex items-center gap-2 md:gap-3 shadow-lg shadow-white/10">
+                  <img
+                    src="/gallery/ASSETS/1-psgtech_logo.png"
+                    alt="PSGTech Logo"
+                    className="h-6 md:h-8 w-auto object-contain"
+                  />
+                  <div className="w-px h-5 md:h-6 bg-gray-300" />
+                  <img
+                    src="/gallery/ASSETS/2-caa_logo.png"
+                    alt="CAA Logo"
+                    className="h-6 md:h-8 w-auto object-contain"
+                  />
+                </div>
+                {/* Thiran 2k26 Text */}
+                <div className="flex items-center gap-1.5">
                   <span
                     className="text-xl md:text-2xl font-bold tracking-tight"
                     style={{
@@ -54,11 +69,6 @@ export default function Footer() {
                         '0 0 5px hsl(187 94% 55% / 0.3)',
                         '0 0 15px hsl(187 94% 55% / 0.5)',
                         '0 0 5px hsl(187 94% 55% / 0.3)',
-                      ],
-                      borderColor: [
-                        'hsl(187 94% 55% / 0.5)',
-                        'hsl(187 94% 55% / 0.8)',
-                        'hsl(187 94% 55% / 0.5)',
                       ],
                     }}
                     transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}

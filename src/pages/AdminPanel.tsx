@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ArrowUp, Download, Users, CheckSquare, Square, CheckCircle, LogOut, Shield, UserCog, GraduationCap, BarChart3, Search, Filter, RefreshCw } from 'lucide-react';
+import { ArrowLeft, ArrowUp, Download, Users, CheckSquare, Square, CheckCircle, LogOut, Shield, UserCog, GraduationCap, BarChart3, Search, Filter, RefreshCw, UserPlus, Phone, Hash, BookOpen } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { getEventRegistrations, markAttendance, markBulkAttendance, EventRegistration, removeRegistration, getAllRegistrations } from '@/lib/registrationService';
+import { getEventRegistrations, markAttendance, markBulkAttendance, EventRegistration, removeRegistration, getAllRegistrations, adminAddRegistration } from '@/lib/registrationService';
 import { events } from '@/data/events';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -19,7 +19,7 @@ interface StudentAggregated {
   eventCount: number;
 }
 
-type AdminTab = 'dashboard' | 'events' | 'participants';
+type AdminTab = 'dashboard' | 'events' | 'participants' | 'adduser';
 
 export default function AdminPanel() {
   const { user, isAdmin: userIsAdmin, isCoordinator: userIsCoordinator, userRole, userProfile, loading: authLoading } = useAuth();
@@ -34,6 +34,18 @@ export default function AdminPanel() {
   const [attendanceUpdating, setAttendanceUpdating] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
   const [departmentFilter, setDepartmentFilter] = useState('all');
+
+  // Add User form state
+  const [addUserForm, setAddUserForm] = useState({
+    rollNumber: '',
+    name: '',
+    mobile: '',
+    department: '',
+    year: 1,
+    email: '',
+    eventId: events[0]?.id || 1,
+  });
+  const [addingUser, setAddingUser] = useState(false);
 
   useEffect(() => {
     if (!authLoading && (!user || !userIsCoordinator)) {
@@ -247,16 +259,28 @@ export default function AdminPanel() {
   // Get unique departments from registrations
   const departments = [...new Set(registrations.map(r => r.department))].sort();
   const allDepartments = [...new Set(Object.values(allParticipants).map(p => p.department))].sort();
+  const dashboardDepartments = [...new Set(allRegistrations.map(r => r.department))].sort();
 
-  // Dashboard stats
-  const totalRegistrations = allRegistrations.length;
-  const totalAttended = allRegistrations.filter(r => r.attended).length;
-  const uniqueParticipants = new Set(allRegistrations.map(r => r.userRoll)).size;
+  // Dashboard stats — filtered by department
+  const dashboardFiltered = departmentFilter === 'all'
+    ? allRegistrations
+    : allRegistrations.filter(r => r.department === departmentFilter);
+  const totalRegistrations = dashboardFiltered.length;
+  const totalAttended = dashboardFiltered.filter(r => r.attended).length;
+  const uniqueParticipants = new Set(dashboardFiltered.map(r => r.userRoll)).size;
   const eventStats = events.map(event => ({
     ...event,
-    registrationCount: allRegistrations.filter(r => r.eventId === event.id).length,
-    attendedCount: allRegistrations.filter(r => r.eventId === event.id && r.attended).length,
+    registrationCount: dashboardFiltered.filter(r => r.eventId === event.id).length,
+    attendedCount: dashboardFiltered.filter(r => r.eventId === event.id && r.attended).length,
   }));
+
+  // Department-wise breakdown
+  const departmentBreakdown = dashboardDepartments.map(dept => ({
+    name: dept,
+    count: allRegistrations.filter(r => r.department === dept).length,
+    attended: allRegistrations.filter(r => r.department === dept && r.attended).length,
+    unique: new Set(allRegistrations.filter(r => r.department === dept).map(r => r.userRoll)).size,
+  })).sort((a, b) => b.count - a.count);
 
   if (authLoading) {
     return (
@@ -318,10 +342,13 @@ export default function AdminPanel() {
             { id: 'dashboard' as AdminTab, label: 'Dashboard', icon: BarChart3 },
             { id: 'events' as AdminTab, label: 'By Event', icon: Users },
             { id: 'participants' as AdminTab, label: 'All Participants', icon: GraduationCap },
+            ...(userIsAdmin ? [{ id: 'adduser' as AdminTab, label: 'Add User', icon: UserPlus }] : []),
           ].map(tab => (
             <motion.button
               key={tab.id}
               onClick={() => {
+                setDepartmentFilter('all');
+                setSearchQuery('');
                 if (tab.id === 'dashboard') {
                   setActiveTab('dashboard');
                   loadDashboardData();
@@ -331,13 +358,15 @@ export default function AdminPanel() {
                     setSelectedEventId(events[0].id);
                     loadEventRegistrations(events[0].id);
                   }
-                } else {
+                } else if (tab.id === 'participants') {
                   loadAllParticipants();
+                } else if (tab.id === 'adduser') {
+                  setActiveTab('adduser');
                 }
               }}
               className={`flex items-center gap-2 px-5 py-2.5 rounded-xl transition-all text-sm font-medium ${activeTab === tab.id
-                  ? 'bg-gradient-to-r from-cosmic-purple to-cosmic-pink text-white shadow-lg shadow-cosmic-purple/20'
-                  : 'glass hover:bg-white/10 text-muted-foreground'
+                ? 'bg-gradient-to-r from-cosmic-purple to-cosmic-pink text-white shadow-lg shadow-cosmic-purple/20'
+                : 'glass hover:bg-white/10 text-muted-foreground'
                 }`}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
@@ -355,6 +384,41 @@ export default function AdminPanel() {
             animate={{ opacity: 1, y: 0 }}
             className="space-y-8"
           >
+            {/* Department Filter Chips */}
+            {dashboardDepartments.length > 0 && (
+              <div className="flex flex-wrap gap-2 items-center">
+                <Filter className="w-4 h-4 text-muted-foreground mr-1" />
+                <motion.button
+                  onClick={() => setDepartmentFilter('all')}
+                  className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${departmentFilter === 'all'
+                    ? 'bg-gradient-to-r from-cosmic-purple to-cosmic-pink text-white shadow-lg shadow-cosmic-purple/20'
+                    : 'glass hover:bg-white/10 text-muted-foreground'
+                    }`}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  All ({allRegistrations.length})
+                </motion.button>
+                {dashboardDepartments.map(dept => {
+                  const count = allRegistrations.filter(r => r.department === dept).length;
+                  return (
+                    <motion.button
+                      key={dept}
+                      onClick={() => setDepartmentFilter(departmentFilter === dept ? 'all' : dept)}
+                      className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${departmentFilter === dept
+                        ? 'bg-gradient-to-r from-cosmic-purple to-cosmic-pink text-white shadow-lg shadow-cosmic-purple/20'
+                        : 'glass hover:bg-white/10 text-muted-foreground'
+                        }`}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      {dept} ({count})
+                    </motion.button>
+                  );
+                })}
+              </div>
+            )}
+
             {/* Stats Grid */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {[
@@ -377,12 +441,62 @@ export default function AdminPanel() {
               ))}
             </div>
 
+            {/* Department Breakdown */}
+            {departmentFilter === 'all' && departmentBreakdown.length > 1 && (
+              <div className="glass-strong rounded-2xl p-6 border border-white/5">
+                <h2 className="text-xl font-bold flex items-center gap-2 mb-5">
+                  <GraduationCap className="w-5 h-5 text-cosmic-cyan" />
+                  Department Breakdown
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {departmentBreakdown.map((dept, index) => {
+                    const maxCount = departmentBreakdown[0]?.count || 1;
+                    const barWidth = (dept.count / maxCount) * 100;
+                    return (
+                      <motion.div
+                        key={dept.name}
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.05 }}
+                        onClick={() => setDepartmentFilter(dept.name)}
+                        className="glass rounded-xl p-4 hover:bg-white/5 transition-all cursor-pointer group"
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="font-bold text-sm group-hover:text-cosmic-cyan transition-colors">{dept.name}</span>
+                          <span className="text-xs text-muted-foreground">{dept.unique} students</span>
+                        </div>
+                        <div className="flex items-center gap-3 mb-2">
+                          <span className="text-lg font-bold">{dept.count}</span>
+                          <span className="text-xs text-muted-foreground">registrations</span>
+                          <span className="text-xs text-green-400 ml-auto">
+                            <CheckCircle className="w-3 h-3 inline mr-0.5" />
+                            {dept.attended}
+                          </span>
+                        </div>
+                        <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
+                          <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: `${barWidth}%` }}
+                            transition={{ duration: 0.6, delay: index * 0.05 }}
+                            className="h-full bg-gradient-to-r from-cosmic-cyan to-cosmic-purple rounded-full"
+                          />
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
             {/* Event Registration Overview */}
             <div className="glass-strong rounded-2xl p-6 border border-white/5">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold flex items-center gap-2">
                   <BarChart3 className="w-5 h-5 text-cosmic-purple" />
                   Event Overview
+                  {departmentFilter !== 'all' && (
+                    <span className="text-xs font-normal text-cosmic-cyan ml-2">({departmentFilter})</span>
+                  )}
                 </h2>
                 <motion.button
                   onClick={loadDashboardData}
@@ -723,6 +837,176 @@ export default function AdminPanel() {
                   ))}
                 </tbody>
               </table>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Add User Tab */}
+        {activeTab === 'adduser' && userIsAdmin && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="glass-strong rounded-2xl p-6 border border-white/5 max-w-2xl"
+          >
+            <div className="flex items-center gap-3 mb-6">
+              <UserPlus className="w-6 h-6 text-cosmic-purple" />
+              <h2 className="text-2xl font-bold">Add User to Event</h2>
+            </div>
+            <p className="text-sm text-muted-foreground mb-6">
+              Manually register a participant for an event. Enter their roll number and the rest will auto-fill.
+            </p>
+
+            <div className="space-y-5">
+              {/* Roll Number */}
+              <div>
+                <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
+                  <Hash className="w-4 h-4 text-cosmic-purple" />
+                  Roll Number
+                </label>
+                <input
+                  type="text"
+                  value={addUserForm.rollNumber}
+                  onChange={(e) => {
+                    const val = e.target.value.toUpperCase();
+                    const updates: any = { rollNumber: val };
+                    // Auto-detect department, year, and email from roll number
+                    const match = val.match(/^(\d{2})([A-Z]+)(\d+)$/);
+                    if (match) {
+                      const yearPrefix = parseInt(match[1]);
+                      const currentYear = new Date().getFullYear() % 100;
+                      updates.department = match[2];
+                      updates.year = currentYear - yearPrefix;
+                      updates.email = `${val.toLowerCase()}@psgtech.ac.in`;
+                    }
+                    setAddUserForm(prev => ({ ...prev, ...updates }));
+                  }}
+                  placeholder="e.g. 25ECE312"
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-gray-600 focus:outline-none focus:border-cosmic-purple/50 focus:ring-1 focus:ring-cosmic-purple/30 transition-all"
+                />
+                {addUserForm.department && (
+                  <p className="text-xs text-green-400/80 mt-1.5">✓ Dept: {addUserForm.department} · Year: {addUserForm.year} · Email: {addUserForm.email}</p>
+                )}
+              </div>
+
+              {/* Name */}
+              <div>
+                <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
+                  <Users className="w-4 h-4 text-cosmic-purple" />
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  value={addUserForm.name}
+                  onChange={(e) => setAddUserForm(prev => ({ ...prev, name: e.target.value }))}
+                  placeholder="Student's full name"
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-gray-600 focus:outline-none focus:border-cosmic-purple/50 focus:ring-1 focus:ring-cosmic-purple/30 transition-all"
+                />
+              </div>
+
+              {/* Mobile */}
+              <div>
+                <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
+                  <Phone className="w-4 h-4 text-cosmic-purple" />
+                  Mobile Number
+                </label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">+91</span>
+                  <input
+                    type="tel"
+                    value={addUserForm.mobile}
+                    onChange={(e) => setAddUserForm(prev => ({ ...prev, mobile: e.target.value.replace(/\D/g, '').slice(0, 10) }))}
+                    placeholder="9876543210"
+                    maxLength={10}
+                    className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-gray-600 focus:outline-none focus:border-cosmic-purple/50 focus:ring-1 focus:ring-cosmic-purple/30 transition-all"
+                  />
+                </div>
+              </div>
+
+              {/* Event Selection */}
+              <div>
+                <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
+                  <BookOpen className="w-4 h-4 text-cosmic-purple" />
+                  Select Event
+                </label>
+                <select
+                  value={addUserForm.eventId}
+                  onChange={(e) => setAddUserForm(prev => ({ ...prev, eventId: parseInt(e.target.value) }))}
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-cosmic-purple/50 transition-all appearance-none cursor-pointer"
+                >
+                  {events.map(event => (
+                    <option key={event.id} value={event.id} className="bg-background">
+                      {event.name} ({event.category})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Submit */}
+              <motion.button
+                onClick={async () => {
+                  // Validation
+                  if (!addUserForm.rollNumber.match(/^\d{2}[A-Z]+\d+$/)) {
+                    toast.error('Enter a valid roll number (e.g. 25ECE312)');
+                    return;
+                  }
+                  if (!addUserForm.name.trim()) {
+                    toast.error('Enter the student\'s name');
+                    return;
+                  }
+                  if (!/^[6-9]\d{9}$/.test(addUserForm.mobile)) {
+                    toast.error('Enter a valid 10-digit mobile number');
+                    return;
+                  }
+
+                  setAddingUser(true);
+                  const selectedEvent = events.find(e => e.id === addUserForm.eventId);
+                  if (!selectedEvent) {
+                    toast.error('Invalid event selected');
+                    setAddingUser(false);
+                    return;
+                  }
+
+                  const success = await adminAddRegistration(selectedEvent, {
+                    rollNumber: addUserForm.rollNumber,
+                    name: addUserForm.name.trim(),
+                    email: addUserForm.email,
+                    mobile: addUserForm.mobile,
+                    department: addUserForm.department,
+                    year: addUserForm.year,
+                  });
+
+                  if (success) {
+                    // Reset form but keep event selection
+                    setAddUserForm(prev => ({
+                      rollNumber: '',
+                      name: '',
+                      mobile: '',
+                      department: '',
+                      year: 1,
+                      email: '',
+                      eventId: prev.eventId,
+                    }));
+                  }
+                  setAddingUser(false);
+                }}
+                disabled={addingUser}
+                className="w-full py-3.5 rounded-xl font-semibold text-white bg-gradient-to-r from-cosmic-purple via-cosmic-pink to-cosmic-cyan disabled:opacity-60 transition-opacity flex items-center justify-center gap-2 shadow-lg shadow-cosmic-purple/20"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                {addingUser ? (
+                  <motion.div
+                    className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                  />
+                ) : (
+                  <>
+                    <UserPlus className="w-5 h-5" />
+                    Add User to Event
+                  </>
+                )}
+              </motion.button>
             </div>
           </motion.div>
         )}

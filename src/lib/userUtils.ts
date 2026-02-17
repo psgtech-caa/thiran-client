@@ -38,59 +38,16 @@ export const ADMIN_EMAILS = getAdminEmails();
 export const EVENT_COORDINATOR_EMAILS = getEventCoordinatorEmails();
 export const STUDENT_COORDINATOR_EMAILS = getStudentCoordinatorEmails();
 
-// Department map supports both 2-letter and 3-letter codes
-// e.g. 24mx336 → MX → MCA, 24ece321 → ECE → Electronics and Communication
-const DEPARTMENT_MAP: Record<string, string> = {
-  // 2-letter codes
-  'MX': 'MCA',
-  'CA': 'MCA',
-  'ME': 'Mechanical Engineering',
-  'EE': 'Electrical Engineering',
-  'EC': 'Electronics and Communication',
-  'CS': 'Computer Science',
-  'IT': 'Information Technology',
-  'CE': 'Civil Engineering',
-  'CH': 'Chemical Engineering',
-  'AE': 'Aerospace Engineering',
-  'AU': 'Automobile Engineering',
-  'BM': 'Biomedical Engineering',
-  'IE': 'Industrial Engineering',
-  'PE': 'Production Engineering',
-  'TX': 'Textile Engineering',
-  'MT': 'Metallurgical Engineering',
-  'RO': 'Robotics and Automation',
-  'FT': 'Fashion Technology',
-  'AP': 'Applied Sciences',
-  'BA': 'Business Administration',
-  // 3-letter codes
-  'ECE': 'Electronics and Communication',
-  'CSE': 'Computer Science',
-  'MCA': 'MCA',
-  'MBA': 'Business Administration',
-  'EEE': 'Electrical Engineering',
-  'BME': 'Biomedical Engineering',
-  'CHE': 'Chemical Engineering',
-  'CIV': 'Civil Engineering',
-  'MEC': 'Mechanical Engineering',
-  'AER': 'Aerospace Engineering',
-  'AUT': 'Automobile Engineering',
-  'IND': 'Industrial Engineering',
-  'PRO': 'Production Engineering',
-  'TEX': 'Textile Engineering',
-  'MET': 'Metallurgical Engineering',
-  'ROB': 'Robotics and Automation',
-};
-
 /**
  * Parse user profile from PSG Tech email.
  * 
  * Email format: <year><dept_code><roll_number>@psgtech.ac.in
  * Examples:
- *   24mx336@psgtech.ac.in  → Year: 2, Dept: MCA (MX = 2-char code)
- *   24ece321@psgtech.ac.in → Year: 2, Dept: Electronics and Communication (ECE = 3-char code)
- *   23cs101@psgtech.ac.in  → Year: 3, Dept: Computer Science (CS = 2-char code)
+ *   25mx336@psgtech.ac.in  → Year: 1, Dept: MX
+ *   25ece312@psgtech.ac.in → Year: 1, Dept: ECE
+ *   24cs101@psgtech.ac.in  → Year: 2, Dept: CS
  * 
- * The function tries 3-letter dept codes first, then falls back to 2-letter codes.
+ * The department is the raw letters extracted from the email (uppercased).
  */
 export function parseUserProfile(email: string, displayName: string | null): UserProfile | null {
   if (!email.endsWith('@psgtech.ac.in')) {
@@ -107,22 +64,11 @@ export function parseUserProfile(email: string, displayName: string | null): Use
   const currentYear = new Date().getFullYear() % 100;
   const year = currentYear - yearPrefix;
 
-  // Try 3-letter department code first, then 2-letter
-  let department = '';
-  const dept3Match = rollNumber.match(/^\d{2}([A-Z]{3})/);
-  const dept2Match = rollNumber.match(/^\d{2}([A-Z]{2})/);
+  // Extract department letters (all letters between the year digits and roll number digits)
+  const deptMatch = rollNumber.match(/^\d{2}([A-Z]+)/);
+  if (!deptMatch) return null;
 
-  if (dept3Match && DEPARTMENT_MAP[dept3Match[1]]) {
-    department = DEPARTMENT_MAP[dept3Match[1]];
-  } else if (dept2Match && DEPARTMENT_MAP[dept2Match[1]]) {
-    department = DEPARTMENT_MAP[dept2Match[1]];
-  } else if (dept3Match) {
-    department = dept3Match[1]; // Use raw 3-letter code as fallback
-  } else if (dept2Match) {
-    department = dept2Match[1]; // Use raw 2-letter code as fallback
-  } else {
-    return null;
-  }
+  const department = deptMatch[1]; // Raw letters uppercased, e.g. ECE, MX, CS
 
   let name = '';
   if (displayName) {

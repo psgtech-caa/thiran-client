@@ -30,7 +30,7 @@ export default function ProfileSetupModal({ userName, rollNumber, email, detecte
     try {
       await onSubmit({
         mobile: mobileClean,
-        department: detectedDepartment || 'MCA',
+        department: detectedDepartment || 'Unknown',
         year: detectedYear || 1,
       });
     } catch {
