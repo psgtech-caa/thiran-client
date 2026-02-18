@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ArrowUp, Download, Users, CheckSquare, Square, CheckCircle, LogOut, Shield, UserCog, GraduationCap, BarChart3, Search, Filter, RefreshCw, UserPlus, Phone, Hash, BookOpen } from 'lucide-react';
+import { ArrowLeft, ArrowUp, Download, Users, CheckSquare, Square, CheckCircle, LogOut, Shield, UserCog, GraduationCap, BarChart3, Search, Filter, RefreshCw, UserPlus, Phone, Hash, BookOpen, Edit, Trash2, X, Save, Table, LayoutGrid } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { getEventRegistrations, markAttendance, markBulkAttendance, EventRegistration, removeRegistration, getAllRegistrations, adminAddRegistration } from '@/lib/registrationService';
+import { getEventRegistrations, markAttendance, markBulkAttendance, EventRegistration, removeRegistration, getAllRegistrations, adminAddRegistration, deleteUserByRoll, updateUserDetails } from '@/lib/registrationService';
 import { events } from '@/data/events';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -16,6 +16,7 @@ interface StudentAggregated {
   department: string;
   year: number;
   mobile: string;
+  email: string;
   eventCount: number;
 }
 
@@ -41,6 +42,15 @@ export default function AdminPanel() {
   });
   const [selectedEventIds, setSelectedEventIds] = useState<Set<number>>(new Set());
   const [addingUser, setAddingUser] = useState(false);
+  const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
+
+  // Edit User State
+  const [editingUser, setEditingUser] = useState<StudentAggregated | null>(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editUserForm, setEditUserForm] = useState({
+    name: '', email: '', mobile: '', department: '', year: 1
+  });
+  const [updatingUser, setUpdatingUser] = useState(false);
 
   const handleRollChange = (val: string) => {
     val = val.toUpperCase();
@@ -121,6 +131,7 @@ export default function AdminPanel() {
           department: reg.department,
           year: reg.year,
           mobile: reg.userMobile,
+          email: reg.userEmail,
           eventCount: 0
         };
       }
@@ -252,6 +263,75 @@ export default function AdminPanel() {
     } else {
       toast.error('Failed to remove registration');
     }
+  };
+
+  const handleDeleteUser = async (student: StudentAggregated) => {
+    if (!userIsAdmin) {
+      toast.error('Only admins can delete users');
+      return;
+    }
+
+    if (!window.confirm(`Are you sure you want to delete ${student.name} (${student.rollNumber})? This will remove ALL their event registrations and cannot be undone.`)) {
+      return;
+    }
+
+    const success = await deleteUserByRoll(student.rollNumber);
+    if (success) {
+      toast.success(`User ${student.rollNumber} deleted successfully`);
+      const newParticipants = { ...allParticipants };
+      delete newParticipants[student.rollNumber];
+      setAllParticipants(newParticipants);
+    } else {
+      toast.error('Failed to delete user');
+    }
+  };
+
+  const openEditModal = (student: StudentAggregated) => {
+    setEditingUser(student);
+    setEditUserForm({
+      name: student.name,
+      email: `${student.rollNumber.toLowerCase()}@psgtech.ac.in`, // default or fetch if available in aggregated? 
+      // Note: aggregated doesn't store email currently, let's assume standard format or we might need to fetch one registration to get it. 
+      // Actually StudentAggregated doesn't have email in the interface def but the registrations do. 
+      // Let's add email to StudentAggregated in loadAllParticipants first.
+      mobile: student.mobile,
+      department: student.department,
+      year: student.year
+    });
+    setShowEditModal(true);
+  };
+
+  const handleUpdateUser = async () => {
+    if (!editingUser) return;
+
+    setUpdatingUser(true);
+    const success = await updateUserDetails(editingUser.rollNumber, {
+      name: editUserForm.name,
+      email: editUserForm.email,
+      mobile: editUserForm.mobile,
+      department: editUserForm.department,
+      year: editUserForm.year
+    });
+
+    if (success) {
+      toast.success('User details updated successfully');
+      // Update local state
+      setAllParticipants(prev => ({
+        ...prev,
+        [editingUser.rollNumber]: {
+          ...prev[editingUser.rollNumber],
+          name: editUserForm.name,
+          mobile: editUserForm.mobile,
+          department: editUserForm.department,
+          year: editUserForm.year
+        }
+      }));
+      setShowEditModal(false);
+      setEditingUser(null);
+    } else {
+      toast.error('Failed to update user details');
+    }
+    setUpdatingUser(false);
   };
 
   const attendedCount = registrations.filter(r => r.attended).length;
@@ -806,6 +886,22 @@ export default function AdminPanel() {
                   </p>
                 </div>
                 <div className="flex gap-2">
+                  <div className="flex bg-white/5 rounded-lg p-1 gap-1 mr-2">
+                    <button
+                      onClick={() => setViewMode('grid')}
+                      className={`p-1.5 rounded-md transition-all ${viewMode === 'grid' ? 'bg-cosmic-purple text-white shadow-lg' : 'text-muted-foreground hover:text-white'}`}
+                      title="Grid View"
+                    >
+                      <LayoutGrid className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => setViewMode('table')}
+                      className={`p-1.5 rounded-md transition-all ${viewMode === 'table' ? 'bg-cosmic-purple text-white shadow-lg' : 'text-muted-foreground hover:text-white'}`}
+                      title="Spreadsheet View"
+                    >
+                      <Table className="w-4 h-4" />
+                    </button>
+                  </div>
                   <motion.button
                     onClick={loadAllParticipants}
                     className="glass rounded-lg px-3 py-2 text-xs flex items-center gap-1.5 hover:bg-white/10 transition-colors"
@@ -872,12 +968,12 @@ export default function AdminPanel() {
               )}
             </div>
 
-            {/* Participant Cards Grid */}
+            {/* Participant Cards Grid or Table */}
             {filteredParticipants.length === 0 ? (
               <div className="text-center text-muted-foreground py-12 glass-strong rounded-2xl">
                 No participants found
               </div>
-            ) : (
+            ) : viewMode === 'grid' ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filteredParticipants.map((student, index) => (
                   <motion.div
@@ -920,15 +1016,102 @@ export default function AdminPanel() {
                       </div>
                     </div>
 
-                    {/* Mobile */}
-                    {student.mobile && (
-                      <div className="mt-3 pt-3 border-t border-white/5 flex items-center gap-2 text-xs text-muted-foreground">
-                        <Phone className="w-3 h-3" />
-                        <span className="font-mono">{student.mobile}</span>
-                      </div>
-                    )}
+                    {/* Mobile & Actions */}
+                    <div className="mt-3 pt-3 border-t border-white/5 flex items-center justify-between gap-2">
+                      {student.mobile ? (
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <Phone className="w-3 h-3" />
+                          <span className="font-mono">{student.mobile}</span>
+                        </div>
+                      ) : <div></div>}
+
+                      {userIsAdmin && (
+                        <div className="flex items-center gap-2">
+                          <motion.button
+                            onClick={(e) => { e.stopPropagation(); openEditModal(student); }}
+                            className="p-1.5 hover:bg-white/10 rounded-lg text-cosmic-cyan transition-colors"
+                            title="Edit User"
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                          >
+                            <Edit className="w-3.5 h-3.5" />
+                          </motion.button>
+                          <motion.button
+                            onClick={(e) => { e.stopPropagation(); handleDeleteUser(student); }}
+                            className="p-1.5 hover:bg-white/10 rounded-lg text-red-400 transition-colors"
+                            title="Delete User"
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </motion.button>
+                        </div>
+                      )}
+                    </div>
                   </motion.div>
                 ))}
+              </div>
+            ) : (
+              <div className="overflow-x-auto glass-strong rounded-2xl border border-white/5">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-white/5 border-b border-white/10">
+                      <th className="p-4 text-xs font-bold text-muted-foreground uppercase tracking-wider">Roll Number</th>
+                      <th className="p-4 text-xs font-bold text-muted-foreground uppercase tracking-wider">Name</th>
+                      <th className="p-4 text-xs font-bold text-muted-foreground uppercase tracking-wider">Department</th>
+                      <th className="p-4 text-xs font-bold text-muted-foreground uppercase tracking-wider">Year</th>
+                      <th className="p-4 text-xs font-bold text-muted-foreground uppercase tracking-wider">Mobile</th>
+                      <th className="p-4 text-xs font-bold text-muted-foreground uppercase tracking-wider">Email</th>
+                      <th className="p-4 text-xs font-bold text-muted-foreground uppercase tracking-wider text-center">Events</th>
+                      {userIsAdmin && <th className="p-4 text-xs font-bold text-muted-foreground uppercase tracking-wider text-right">Actions</th>}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5">
+                    {filteredParticipants.map((student, index) => (
+                      <motion.tr
+                        key={student.rollNumber}
+                        initial={{ opacity: 0, y: 5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.01 }}
+                        className="hover:bg-white/5 transition-colors group"
+                      >
+                        <td className="p-4 text-sm font-mono text-cosmic-cyan">{student.rollNumber}</td>
+                        <td className="p-4 text-sm font-medium text-white">{student.name}</td>
+                        <td className="p-4 text-sm text-gray-300">{student.department}</td>
+                        <td className="p-4 text-sm text-gray-300">{student.year}</td>
+                        <td className="p-4 text-sm font-mono text-gray-400">{student.mobile || '-'}</td>
+                        <td className="p-4 text-sm text-gray-400 lowercase">{student.email || '-'}</td>
+                        <td className="p-4 text-center">
+                          <span className={`px-2 py-0.5 rounded text-xs font-bold ${student.eventCount >= 3 ? 'bg-green-500/20 text-green-400' :
+                            student.eventCount >= 1 ? 'bg-cosmic-purple/20 text-cosmic-purple' : 'bg-white/5 text-gray-500'
+                            }`}>
+                            {student.eventCount}
+                          </span>
+                        </td>
+                        {userIsAdmin && (
+                          <td className="p-4 text-right">
+                            <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <button
+                                onClick={() => openEditModal(student)}
+                                className="p-1.5 hover:bg-white/10 rounded text-cosmic-cyan transition-colors"
+                                title="Edit"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteUser(student)}
+                                className="p-1.5 hover:bg-white/10 rounded text-red-400 transition-colors"
+                                title="Delete"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </td>
+                        )}
+                      </motion.tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             )}
 
@@ -1130,12 +1313,121 @@ export default function AdminPanel() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.5, y: 20 }}
             onClick={scrollToTop}
-            className="fixed bottom-8 right-8 z-50 p-4 glass-strong rounded-full hover:bg-white/20 transition-colors group"
+            className="fixed bottom-8 right-8 z-50 p-4 glass-strong rounded-full hover:bg-white/20 transition-colors group text-white"
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
           >
             <ArrowUp className="w-5 h-5 group-hover:-translate-y-1 transition-transform" />
           </motion.button>
+        )}
+      </AnimatePresence>
+
+      {/* Edit User Modal */}
+      <AnimatePresence>
+        {showEditModal && editingUser && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="w-full max-w-lg glass-strong rounded-2xl border border-white/10 shadow-2xl overflow-hidden"
+            >
+              <div className="p-6 border-b border-white/10 flex items-center justify-between">
+                <h3 className="text-xl font-bold flex items-center gap-2">
+                  <UserCog className="w-5 h-5 text-cosmic-purple" />
+                  Edit User Details
+                </h3>
+                <button
+                  onClick={() => setShowEditModal(false)}
+                  className="p-1 hover:bg-white/10 rounded-lg transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="p-6 space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-semibold text-muted-foreground mb-1.5 block">Roll Number</label>
+                    <input
+                      disabled
+                      value={editingUser.rollNumber}
+                      className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-gray-400 cursor-not-allowed"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-muted-foreground mb-1.5 block">Department</label>
+                    <input
+                      value={editUserForm.department}
+                      onChange={e => setEditUserForm(prev => ({ ...prev, department: e.target.value.toUpperCase() }))}
+                      className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-white focus:border-cosmic-purple/50 focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold text-muted-foreground mb-1.5 block">Full Name</label>
+                  <input
+                    value={editUserForm.name}
+                    onChange={e => setEditUserForm(prev => ({ ...prev, name: e.target.value }))}
+                    className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-white focus:border-cosmic-purple/50 focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold text-muted-foreground mb-1.5 block">Email Address</label>
+                  <input
+                    value={editUserForm.email}
+                    onChange={e => setEditUserForm(prev => ({ ...prev, email: e.target.value }))}
+                    className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-white focus:border-cosmic-purple/50 focus:outline-none"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-semibold text-muted-foreground mb-1.5 block">Mobile Number</label>
+                    <input
+                      value={editUserForm.mobile}
+                      onChange={e => setEditUserForm(prev => ({ ...prev, mobile: e.target.value }))}
+                      maxLength={10}
+                      className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-white focus:border-cosmic-purple/50 focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-muted-foreground mb-1.5 block">Year</label>
+                    <select
+                      value={editUserForm.year}
+                      onChange={e => setEditUserForm(prev => ({ ...prev, year: parseInt(e.target.value) }))}
+                      className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-white focus:border-cosmic-purple/50 focus:outline-none [&>option]:bg-gray-900"
+                    >
+                      {[1, 2, 3, 4, 5].map(y => <option key={y} value={y}>{y}</option>)}
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-6 pt-0 flex justify-end gap-3">
+                <button
+                  onClick={() => setShowEditModal(false)}
+                  className="px-4 py-2 text-sm font-medium hover:bg-white/5 rounded-lg transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleUpdateUser}
+                  disabled={updatingUser}
+                  className="px-4 py-2 text-sm font-bold bg-cosmic-purple hover:bg-cosmic-purple/80 text-white rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50"
+                >
+                  {updatingUser ? 'Saving...' : (
+                    <>
+                      <Save className="w-4 h-4" />
+                      Save Changes
+                    </>
+                  )}
+                </button>
+              </div>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
     </div>

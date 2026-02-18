@@ -299,7 +299,7 @@ export default function Navbar() {
                   </AnimatePresence>
                 </div>
               ) : (
-                <MagneticButton onClick={() => { document.getElementById('events')?.scrollIntoView({ behavior: 'smooth' }); }} className="btn-cosmic text-white">
+                <MagneticButton onClick={signInWithGoogle} className="btn-cosmic text-white">
                   Register Now
                 </MagneticButton>
               )}
@@ -499,7 +499,7 @@ export default function Navbar() {
                         </button>
                       </>
                     ) : (
-                      <MagneticButton onClick={() => { document.getElementById('events')?.scrollIntoView({ behavior: 'smooth' }); setIsMobileMenuOpen(false); }} className="btn-cosmic text-white w-full text-sm md:text-base py-2.5 md:py-3">
+                      <MagneticButton onClick={() => { signInWithGoogle(); setIsMobileMenuOpen(false); }} className="btn-cosmic text-white w-full text-sm md:text-base py-2.5 md:py-3">
                         Register Now
                       </MagneticButton>
                     )}

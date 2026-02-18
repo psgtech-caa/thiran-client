@@ -187,3 +187,55 @@ export async function adminAddRegistration(
     return false;
   }
 }
+
+export async function deleteUserByRoll(rollNumber: string): Promise<boolean> {
+  try {
+    const q = query(collection(db, 'registrations'), where('userRoll', '==', rollNumber));
+    const snapshot = await getDocs(q);
+
+    if (snapshot.empty) return false;
+
+    const deletePromises = snapshot.docs.map(doc => deleteDoc(doc.ref));
+    await Promise.all(deletePromises);
+
+    return true;
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    return false;
+  }
+}
+
+export async function updateUserDetails(
+  rollNumber: string,
+  updates: {
+    name?: string;
+    email?: string;
+    mobile?: string;
+    department?: string;
+    year?: number
+  }
+): Promise<boolean> {
+  try {
+    const q = query(collection(db, 'registrations'), where('userRoll', '==', rollNumber));
+    const snapshot = await getDocs(q);
+
+    if (snapshot.empty) return false;
+
+    const updatePromises = snapshot.docs.map(doc => {
+      const data: any = {};
+      if (updates.name) data.userName = updates.name;
+      if (updates.email) data.userEmail = updates.email;
+      if (updates.mobile) data.userMobile = updates.mobile;
+      if (updates.department) data.department = updates.department;
+      if (updates.year) data.year = updates.year;
+
+      return updateDoc(doc.ref, data);
+    });
+
+    await Promise.all(updatePromises);
+    return true;
+  } catch (error) {
+    console.error('Error updating user details:', error);
+    return false;
+  }
+}
