@@ -9,14 +9,14 @@ export interface TeamMember {
 
 export const teamMembers: TeamMember[] = [
   {
-    name: 'Barath Vikraman',
+    name: 'BarathVikraman',
     role: 'Joint Secretary',
-    phone: '+91 98765 43210',
+    phone: '+91 81482 51567',
   },
   {
-    name: 'Swarna',
+    name: 'Swarna Rathna',
     role: 'Joint Treasurer',
-    phone: '+91 98765 43210',
+    phone: '+91 99528 73426',
   },
 ];
 
@@ -24,8 +24,8 @@ export const contactInfo = [
   {
     icon: Mail,
     label: 'Email',
-    value: 'thiran2k26@gmail.com',
-    href: 'mailto:thiran2k26@gmail.com',
+    value: 'login@psgtech.ac.in',
+    href: 'mailto:login@psgtech.ac.in',
   },
   {
     icon: MapPin,
@@ -36,8 +36,8 @@ export const contactInfo = [
 ];
 
 export const socialLinks = [
-  { icon: Instagram, href: '#', label: 'Instagram', color: 'cosmic-pink' },
-  { icon: Youtube, href: '#', label: 'YouTube', color: 'cosmic-pink' },
+  { icon: Instagram, href: 'https://www.instagram.com/thiran_psgtech', label: 'Instagram', color: 'cosmic-pink' },
+  { icon: Youtube, href: 'https://www.youtube.com/@thiran_psgtech', label: 'YouTube', color: 'cosmic-pink' },
 ];
 
 export const footerLinks = {
@@ -51,7 +51,7 @@ export const footerLinks = {
     { name: 'Non-Technical', href: '#events' },
   ],
   'Support': [
-    { name: 'FAQs', href: '#' },
+    { name: 'FAQs', href: '#faq' },
     { name: 'Contact', href: '#contact' },
   ],
 };

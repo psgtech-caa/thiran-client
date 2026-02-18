@@ -16,7 +16,7 @@ const features = [
     icon: Lightbulb,
     title: 'Innovation Hub',
     description: 'A platform to ideate, innovate, and transform your ideas into reality with cutting-edge challenges.',
-    backContent: 'Compete in technical and non-technical events, showcase your skills, and win exciting prizes worth ₹15,000+.',
+    backContent: 'Compete in technical and non-technical events, showcase your skills, and win exciting prizes worth ₹15,000.',
     color: 'purple' as const,
   },
   {
@@ -30,7 +30,7 @@ const features = [
     icon: Trophy,
     title: 'Prizes & Recognition',
     description: 'Win exciting prizes, certificates, and get recognized for your exceptional talents.',
-    backContent: 'Cash prizes worth ₹15,000+, participation certificates for all, winner certificates, and special recognition.',
+    backContent: 'Cash prizes worth ₹15,000, participation certificates for all, winner certificates, and special recognition.',
     color: 'cyan' as const,
   },
 ];
@@ -357,15 +357,14 @@ export default function WhyThiran() {
           Why <span className="gradient-text-animated">Thiran</span>?
         </h2>
         <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-          Immerse yourself in the future of technology. Experience AR/VR like never before.
-          Hover over each card to explore what awaits you.
+          Discover what makes Thiran special. Hover over each card to explore what awaits you.
         </p>
       </motion.div>
 
       {/* Auto-scrolling gallery showing last year's pictures */}
       <motion.div initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }} className="mb-10 relative z-10">
         <div className="glass rounded-2xl p-4">
-          <h4 className="text-sm font-mono text-glossy-blue mb-3">[ 2025 THIRAN MOMENTOS ]</h4>
+          <h4 className="text-sm font-mono text-glossy-blue mb-3">[ THIRAN 2025 MOMENTS ]</h4>
           <AutoScrollGallery images={lastYearImages} height={140} speed={60} />
         </div>
       </motion.div>

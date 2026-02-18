@@ -76,7 +76,7 @@ export default function Navbar() {
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.6, ease: 'easeOut' }}
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${isScrolled ? 'glass-strong py-2 shadow-2xl' : 'bg-transparent py-4'
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${isScrolled ? 'glass-strong py-3 shadow-2xl' : 'bg-transparent py-5'
           }`}
       >
         <div className="mx-auto px-4 md:px-8">
@@ -98,43 +98,50 @@ export default function Navbar() {
                 <img
                   src="/gallery/ASSETS/1-psgtech_logo.png"
                   alt="PSGTech Logo"
-                  className="h-6 md:h-8 w-auto object-contain"
+                  className="h-8 md:h-11 w-auto object-contain"
                 />
-                <div className="w-px h-5 md:h-6 bg-gray-300" />
+                <div className="w-px h-6 md:h-8 bg-gray-300" />
                 <img
                   src="/gallery/ASSETS/2-caa_logo.png"
                   alt="CAA Logo"
-                  className="h-6 md:h-8 w-auto object-contain"
+                  className="h-8 md:h-11 w-auto object-contain"
                 />
               </div>
-              {/* Thiran 2k26 Text */}
-              <div className="hidden sm:flex items-center gap-1.5">
-                <motion.span
-                  className="text-lg md:text-xl font-bold tracking-tight"
-                  style={{
-                    background: 'linear-gradient(135deg, hsl(var(--silver)), hsl(var(--glossy-blue)))',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    backgroundClip: 'text',
-                  }}
-                  whileHover={{ scale: 1.05 }}
-                  transition={{ duration: 0.3 }}
+              {/* College Name & Thiran 2k26 Text */}
+              <div className="hidden sm:flex flex-col items-start gap-0.5">
+                <span
+                  className="text-[10px] md:text-xs font-semibold tracking-wide text-white/80 uppercase"
                 >
-                  Thiran
-                </motion.span>
-                <motion.span
-                  className="text-xs md:text-sm font-bold px-1.5 py-0.5 rounded-md border border-cosmic-cyan/50 text-cosmic-cyan"
-                  animate={{
-                    boxShadow: [
-                      '0 0 5px hsl(187 94% 55% / 0.3)',
-                      '0 0 15px hsl(187 94% 55% / 0.5)',
-                      '0 0 5px hsl(187 94% 55% / 0.3)',
-                    ],
-                  }}
-                  transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-                >
-                  2k26
-                </motion.span>
+                  PSG College of Technology
+                </span>
+                <div className="flex items-center gap-1.5">
+                  <motion.span
+                    className="text-lg md:text-xl font-bold tracking-tight"
+                    style={{
+                      background: 'linear-gradient(135deg, hsl(var(--silver)), hsl(var(--glossy-blue)))',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                      backgroundClip: 'text',
+                    }}
+                    whileHover={{ scale: 1.05 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    Thiran
+                  </motion.span>
+                  <motion.span
+                    className="text-xs md:text-sm font-bold px-1.5 py-0.5 rounded-md border border-cosmic-cyan/50 text-cosmic-cyan"
+                    animate={{
+                      boxShadow: [
+                        '0 0 5px hsl(187 94% 55% / 0.3)',
+                        '0 0 15px hsl(187 94% 55% / 0.5)',
+                        '0 0 5px hsl(187 94% 55% / 0.3)',
+                      ],
+                    }}
+                    transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                  >
+                    2k26
+                  </motion.span>
+                </div>
               </div>
             </a>
 
@@ -185,12 +192,20 @@ export default function Navbar() {
 
             {/* CTA Button / User Menu */}
             <div className="hidden md:flex items-center gap-3">
-              {/* PSGTech 75 Years Logo */}
-              <img
-                src="/gallery/ASSETS/3-psgtech_75 years.png"
-                alt="PSGTech 75 Years"
-                className="h-8 md:h-10 w-auto object-contain"
-              />
+              {/* Anniversary Logos */}
+              <div className="bg-white/95 backdrop-blur-sm rounded-xl px-2 py-1.5 flex items-center gap-2 shadow-lg shadow-white/10">
+                <img
+                  src="/gallery/ASSETS/3-psgtech_75 years.png"
+                  alt="PSGTech 75 Years"
+                  className="h-9 md:h-11 w-auto object-contain"
+                />
+                <div className="w-px h-7 md:h-9 bg-gray-300" />
+                <img
+                  src="/gallery/ASSETS/4-psg_100years.jpeg"
+                  alt="PSG 100 Years"
+                  className="h-9 md:h-11 w-auto object-contain"
+                />
+              </div>
               {user ? (
                 <div className="relative" ref={userMenuRef}>
                   <motion.button
@@ -290,13 +305,21 @@ export default function Navbar() {
               )}
             </div>
 
-            {/* Mobile Right Side - 75 years logo + Menu Button */}
+            {/* Mobile Right Side - Anniversary logos + Menu Button */}
             <div className="md:hidden flex items-center gap-2">
-              <img
-                src="/gallery/ASSETS/3-psgtech_75 years.png"
-                alt="PSGTech 75 Years"
-                className="h-7 w-auto object-contain"
-              />
+              <div className="bg-white/95 backdrop-blur-sm rounded-lg px-1.5 py-1 flex items-center gap-1.5 shadow-md">
+                <img
+                  src="/gallery/ASSETS/3-psgtech_75 years.png"
+                  alt="PSGTech 75 Years"
+                  className="h-8 w-auto object-contain"
+                />
+                <div className="w-px h-6 bg-gray-300" />
+                <img
+                  src="/gallery/ASSETS/4-psg_100years.jpeg"
+                  alt="PSG 100 Years"
+                  className="h-8 w-auto object-contain"
+                />
+              </div>
               <motion.button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className="p-2 text-foreground hover:text-primary transition-colors"

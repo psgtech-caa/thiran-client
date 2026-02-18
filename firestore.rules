@@ -18,10 +18,13 @@ service cloud.firestore {
     match /registrations/{registrationId} {
       allow read: if isAuthenticated() && isPSGEmail();
       
+      // Self-registration: userId must match auth UID
+      // Admin-added registration: userId starts with 'manual_'
       allow create: if isAuthenticated() 
-                      && request.auth.uid == request.resource.data.userId 
                       && isPSGEmail()
-                      && request.resource.data.keys().hasAll(['userId', 'eventId', 'eventName', 'userName', 'userEmail', 'userRoll', 'userMobile', 'department', 'year', 'registeredAt']);
+                      && request.resource.data.keys().hasAll(['userId', 'eventId', 'eventName', 'userName', 'userEmail', 'userRoll', 'userMobile', 'department', 'year', 'registeredAt'])
+                      && (request.auth.uid == request.resource.data.userId 
+                          || request.resource.data.userId.matches('^manual_.*'));
       
       // Allow updates for authenticated PSG users (coordinators manage attendance)
       allow update: if isAuthenticated() && isPSGEmail();

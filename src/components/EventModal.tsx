@@ -270,7 +270,7 @@ export default function EventModal({ event, isOpen, showRegistration = false, on
                   <div className="modal-item flex items-center gap-3 mb-8 glass rounded-xl p-4">
                     <Users className="w-5 h-5 text-muted-foreground" />
                     <span className="text-muted-foreground">Team Size:</span>
-                    <span className="font-semibold">{event.teamSize} {event.isRegistrationOpen !== false && 'members'}</span>
+                    <span className="font-semibold">{event.teamSize} {event.isRegistrationOpen !== false && (event.teamSize === 'Individual' || event.teamSize === 'Individual (1 member)' ? '' : 'members')}</span>
                   </div>
 
                   {/* Special Note for Flagship Events */}

@@ -35,17 +35,35 @@ export default function AdminPanel() {
   const [searchQuery, setSearchQuery] = useState('');
   const [departmentFilter, setDepartmentFilter] = useState('all');
 
-  // Add User form state
+  // Add User form state — single student, multi-event checkboxes
   const [addUserForm, setAddUserForm] = useState({
-    rollNumber: '',
-    name: '',
-    mobile: '',
-    department: '',
-    year: 1,
-    email: '',
-    eventId: events[0]?.id || 1,
+    rollNumber: '', name: '', mobile: '', department: '', year: 1, email: '',
   });
+  const [selectedEventIds, setSelectedEventIds] = useState<Set<number>>(new Set());
   const [addingUser, setAddingUser] = useState(false);
+
+  const handleRollChange = (val: string) => {
+    val = val.toUpperCase();
+    const updates: any = { rollNumber: val };
+    const match = val.match(/^(\d{2})([A-Z]+)(\d+)$/);
+    if (match) {
+      const yearPrefix = parseInt(match[1]);
+      const currentYear = new Date().getFullYear() % 100;
+      updates.department = match[2];
+      updates.year = currentYear - yearPrefix;
+      updates.email = `${val.toLowerCase()}@psgtech.ac.in`;
+    }
+    setAddUserForm(prev => ({ ...prev, ...updates }));
+  };
+
+  const toggleEvent = (eventId: number) => {
+    setSelectedEventIds(prev => {
+      const next = new Set(prev);
+      if (next.has(eventId)) next.delete(eventId);
+      else next.add(eventId);
+      return next;
+    });
+  };
 
   useEffect(() => {
     if (!authLoading && (!user || !userIsCoordinator)) {
@@ -420,13 +438,32 @@ export default function AdminPanel() {
             )}
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {[
-                { label: 'Total Registrations', value: totalRegistrations, icon: Users, color: 'text-cosmic-purple' },
-                { label: 'Unique Participants', value: uniqueParticipants, icon: GraduationCap, color: 'text-cosmic-cyan' },
-                { label: 'Total Attended', value: totalAttended, icon: CheckCircle, color: 'text-green-400' },
-                { label: 'Attendance Rate', value: totalRegistrations > 0 ? `${Math.round((totalAttended / totalRegistrations) * 100)}%` : '0%', icon: BarChart3, color: 'text-yellow-400' },
-              ].map((stat, index) => (
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {(() => {
+                // Calculate today's registrations
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const todayTimestamp = today.getTime() / 1000;
+                const todayRegistrations = dashboardFiltered.filter(r => {
+                  const regTime = r.registeredAt?.seconds || 0;
+                  return regTime >= todayTimestamp;
+                }).length;
+                const todayUniqueParticipants = new Set(
+                  dashboardFiltered.filter(r => {
+                    const regTime = r.registeredAt?.seconds || 0;
+                    return regTime >= todayTimestamp;
+                  }).map(r => r.userRoll)
+                ).size;
+
+                return [
+                  { label: 'Total Registrations', value: totalRegistrations, icon: Users, color: 'text-cosmic-purple' },
+                  { label: 'Unique Participants', value: uniqueParticipants, icon: GraduationCap, color: 'text-cosmic-cyan' },
+                  { label: 'Total Attended', value: totalAttended, icon: CheckCircle, color: 'text-green-400' },
+                  { label: 'Attendance Rate', value: totalRegistrations > 0 ? `${Math.round((totalAttended / totalRegistrations) * 100)}%` : '0%', icon: BarChart3, color: 'text-yellow-400' },
+                  { label: "Today's Registrations", value: todayRegistrations, icon: UserPlus, color: 'text-orange-400' },
+                  { label: "Today's Unique Students", value: todayUniqueParticipants, icon: GraduationCap, color: 'text-pink-400' },
+                ];
+              })().map((stat, index) => (
                 <motion.div
                   key={stat.label}
                   initial={{ opacity: 0, y: 20, scale: 0.95 }}
@@ -748,96 +785,159 @@ export default function AdminPanel() {
           </>
         )}
 
+
         {/* Participants Tab */}
         {activeTab === 'participants' && !loading && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="glass-strong rounded-2xl p-6 border border-white/5"
+            className="space-y-6"
           >
-            <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
-              <h2 className="text-2xl font-bold flex items-center gap-2">
-                <Users className="w-6 h-6 text-cosmic-purple" />
-                All Participants ({Object.keys(allParticipants).length})
-              </h2>
+            {/* Header & Actions */}
+            <div className="glass-strong rounded-2xl p-6 border border-white/5">
+              <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
+                <div>
+                  <h2 className="text-2xl font-bold flex items-center gap-2 mb-1">
+                    <Users className="w-6 h-6 text-cosmic-purple" />
+                    All Participants
+                  </h2>
+                  <p className="text-sm text-muted-foreground">
+                    {Object.keys(allParticipants).length} unique students registered across all events
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <motion.button
+                    onClick={loadAllParticipants}
+                    className="glass rounded-lg px-3 py-2 text-xs flex items-center gap-1.5 hover:bg-white/10 transition-colors"
+                    whileHover={{ scale: 1.05 }}
+                  >
+                    <RefreshCw className="w-3.5 h-3.5" />
+                    Refresh
+                  </motion.button>
+                  {Object.keys(allParticipants).length > 0 && (
+                    <motion.button
+                      onClick={exportAllToCSV}
+                      className="btn-cosmic text-white flex items-center gap-2 text-sm"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <Download className="w-4 h-4" />
+                      Export CSV
+                    </motion.button>
+                  )}
+                </div>
+              </div>
+
+              {/* Quick Stats */}
+              <div className="grid grid-cols-3 gap-3 mb-6">
+                {[
+                  { label: 'Total Students', value: Object.keys(allParticipants).length, color: 'text-cosmic-purple' },
+                  { label: 'Multi-Event', value: Object.values(allParticipants).filter(p => p.eventCount > 1).length, color: 'text-cosmic-cyan' },
+                  { label: 'Single Event', value: Object.values(allParticipants).filter(p => p.eventCount === 1).length, color: 'text-yellow-400' },
+                ].map(s => (
+                  <div key={s.label} className="glass rounded-xl p-3 text-center">
+                    <p className={`text-xl font-bold ${s.color}`}>{s.value}</p>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{s.label}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Search & Filter */}
               {Object.keys(allParticipants).length > 0 && (
-                <motion.button
-                  onClick={exportAllToCSV}
-                  className="btn-cosmic text-white flex items-center gap-2 text-sm"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Download className="w-4 h-4" />
-                  Export All
-                </motion.button>
+                <div className="flex gap-3 flex-wrap">
+                  <div className="relative flex-1 min-w-[200px]">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Search by name, roll number..."
+                      className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-cosmic-purple/50 transition-colors"
+                    />
+                  </div>
+                  <div className="relative">
+                    <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <select
+                      value={departmentFilter}
+                      onChange={(e) => setDepartmentFilter(e.target.value)}
+                      className="pl-10 pr-8 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-cosmic-purple/50 transition-colors appearance-none cursor-pointer"
+                    >
+                      <option value="all" className="bg-background">All Departments</option>
+                      {allDepartments.map(dept => (
+                        <option key={dept} value={dept} className="bg-background">{dept}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
               )}
             </div>
 
-            {/* Search & Filter */}
-            {Object.keys(allParticipants).length > 0 && (
-              <div className="flex gap-3 mb-4 flex-wrap">
-                <div className="relative flex-1 min-w-[200px]">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search by name, roll number..."
-                    className="w-full pl-10 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-cosmic-purple/50 transition-colors"
-                  />
-                </div>
-                <div className="relative">
-                  <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <select
-                    value={departmentFilter}
-                    onChange={(e) => setDepartmentFilter(e.target.value)}
-                    className="pl-10 pr-8 py-2.5 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-cosmic-purple/50 transition-colors appearance-none cursor-pointer"
+            {/* Participant Cards Grid */}
+            {filteredParticipants.length === 0 ? (
+              <div className="text-center text-muted-foreground py-12 glass-strong rounded-2xl">
+                No participants found
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredParticipants.map((student, index) => (
+                  <motion.div
+                    key={student.rollNumber}
+                    initial={{ opacity: 0, y: 15, scale: 0.97 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    transition={{ delay: Math.min(index * 0.02, 0.5) }}
+                    className="glass-strong rounded-2xl p-5 border border-white/5 hover:border-white/15 transition-all group hover:-translate-y-0.5"
                   >
-                    <option value="all" className="bg-background">All Departments</option>
-                    {allDepartments.map(dept => (
-                      <option key={dept} value={dept} className="bg-background">{dept}</option>
-                    ))}
-                  </select>
-                </div>
+                    <div className="flex items-start gap-4">
+                      {/* Avatar */}
+                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cosmic-purple/30 to-cosmic-pink/30 border border-white/10 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
+                        <span className="text-sm font-bold text-cosmic-cyan">
+                          {student.name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase()}
+                        </span>
+                      </div>
+
+                      {/* Info */}
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-white truncate group-hover:text-cosmic-cyan transition-colors">{student.name}</p>
+                        <p className="text-xs text-muted-foreground font-mono">{student.rollNumber}</p>
+                        <div className="flex items-center gap-2 mt-2 flex-wrap">
+                          <span className="px-2 py-0.5 rounded-md bg-cosmic-purple/15 text-cosmic-purple text-[10px] font-bold border border-cosmic-purple/20">
+                            {student.department}
+                          </span>
+                          <span className="text-[10px] text-muted-foreground">Year {student.year}</span>
+                        </div>
+                      </div>
+
+                      {/* Event Count Badge */}
+                      <div className={`px-2.5 py-1 rounded-lg text-center flex-shrink-0 ${student.eventCount >= 3 ? 'bg-green-500/15 border border-green-500/20' :
+                        student.eventCount >= 2 ? 'bg-cosmic-cyan/15 border border-cosmic-cyan/20' :
+                          'bg-white/5 border border-white/10'
+                        }`}>
+                        <p className={`text-lg font-bold ${student.eventCount >= 3 ? 'text-green-400' :
+                          student.eventCount >= 2 ? 'text-cosmic-cyan' :
+                            'text-white'
+                          }`}>{student.eventCount}</p>
+                        <p className="text-[9px] text-muted-foreground uppercase">events</p>
+                      </div>
+                    </div>
+
+                    {/* Mobile */}
+                    {student.mobile && (
+                      <div className="mt-3 pt-3 border-t border-white/5 flex items-center gap-2 text-xs text-muted-foreground">
+                        <Phone className="w-3 h-3" />
+                        <span className="font-mono">{student.mobile}</span>
+                      </div>
+                    )}
+                  </motion.div>
+                ))}
               </div>
             )}
 
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-white/10">
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">Roll Number</th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">Name</th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">Department</th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">Year</th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-muted-foreground">Mobile</th>
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-muted-foreground text-center">Events Registered</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredParticipants.map((student, index) => (
-                    <motion.tr
-                      key={student.rollNumber}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.03 }}
-                      className="border-b border-white/5 hover:bg-white/5 transition-colors"
-                    >
-                      <td className="py-3 px-4 text-sm">{student.rollNumber}</td>
-                      <td className="py-3 px-4 text-sm font-medium">{student.name}</td>
-                      <td className="py-3 px-4 text-sm">{student.department}</td>
-                      <td className="py-3 px-4 text-sm">{student.year}</td>
-                      <td className="py-3 px-4 text-sm">{student.mobile}</td>
-                      <td className="py-3 px-4 text-sm text-center">
-                        <span className="bg-cosmic-purple/20 text-cosmic-purple px-2 py-1 rounded-full text-xs font-bold">
-                          {student.eventCount}
-                        </span>
-                      </td>
-                    </motion.tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            {/* Results count */}
+            {searchQuery || departmentFilter !== 'all' ? (
+              <p className="text-xs text-muted-foreground text-center">
+                Showing {filteredParticipants.length} of {Object.keys(allParticipants).length} participants
+              </p>
+            ) : null}
           </motion.div>
         )}
 
@@ -848,12 +948,12 @@ export default function AdminPanel() {
             animate={{ opacity: 1, y: 0 }}
             className="glass-strong rounded-2xl p-6 border border-white/5 max-w-2xl"
           >
-            <div className="flex items-center gap-3 mb-6">
+            <div className="flex items-center gap-3 mb-2">
               <UserPlus className="w-6 h-6 text-cosmic-purple" />
-              <h2 className="text-2xl font-bold">Add User to Event</h2>
+              <h2 className="text-2xl font-bold">Add User to Events</h2>
             </div>
             <p className="text-sm text-muted-foreground mb-6">
-              Manually register a participant for an event. Enter their roll number and the rest will auto-fill.
+              Register a student to one or more events at once. Roll number auto-fills department, year &amp; email.
             </p>
 
             <div className="space-y-5">
@@ -866,21 +966,8 @@ export default function AdminPanel() {
                 <input
                   type="text"
                   value={addUserForm.rollNumber}
-                  onChange={(e) => {
-                    const val = e.target.value.toUpperCase();
-                    const updates: any = { rollNumber: val };
-                    // Auto-detect department, year, and email from roll number
-                    const match = val.match(/^(\d{2})([A-Z]+)(\d+)$/);
-                    if (match) {
-                      const yearPrefix = parseInt(match[1]);
-                      const currentYear = new Date().getFullYear() % 100;
-                      updates.department = match[2];
-                      updates.year = currentYear - yearPrefix;
-                      updates.email = `${val.toLowerCase()}@psgtech.ac.in`;
-                    }
-                    setAddUserForm(prev => ({ ...prev, ...updates }));
-                  }}
-                  placeholder="e.g. 25ECE312"
+                  onChange={(e) => handleRollChange(e.target.value)}
+                  placeholder="e.g. 25MCA312"
                   className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-gray-600 focus:outline-none focus:border-cosmic-purple/50 focus:ring-1 focus:ring-cosmic-purple/30 transition-all"
                 />
                 {addUserForm.department && (
@@ -922,31 +1009,44 @@ export default function AdminPanel() {
                 </div>
               </div>
 
-              {/* Event Selection */}
+              {/* Event Selection (Checkboxes) */}
               <div>
-                <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
+                <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-3">
                   <BookOpen className="w-4 h-4 text-cosmic-purple" />
-                  Select Event
+                  Select Events
+                  {selectedEventIds.size > 0 && (
+                    <span className="text-xs text-cosmic-cyan ml-1">({selectedEventIds.size} selected)</span>
+                  )}
                 </label>
-                <select
-                  value={addUserForm.eventId}
-                  onChange={(e) => setAddUserForm(prev => ({ ...prev, eventId: parseInt(e.target.value) }))}
-                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white focus:outline-none focus:border-cosmic-purple/50 transition-all appearance-none cursor-pointer"
-                >
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {events.map(event => (
-                    <option key={event.id} value={event.id} className="bg-background">
-                      {event.name} ({event.category})
-                    </option>
+                    <label
+                      key={event.id}
+                      className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all border ${selectedEventIds.has(event.id)
+                        ? 'bg-cosmic-purple/15 border-cosmic-purple/40'
+                        : 'bg-white/3 border-white/5 hover:border-white/15 hover:bg-white/5'
+                        }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedEventIds.has(event.id)}
+                        onChange={() => toggleEvent(event.id)}
+                        className="w-4 h-4 accent-cosmic-purple rounded"
+                      />
+                      <div>
+                        <p className="text-sm font-medium">{event.name}</p>
+                        <p className="text-[10px] text-muted-foreground">{event.category}</p>
+                      </div>
+                    </label>
                   ))}
-                </select>
+                </div>
               </div>
 
               {/* Submit */}
               <motion.button
                 onClick={async () => {
-                  // Validation
                   if (!addUserForm.rollNumber.match(/^\d{2}[A-Z]+\d+$/)) {
-                    toast.error('Enter a valid roll number (e.g. 25ECE312)');
+                    toast.error('Enter a valid roll number (e.g. 25MCA312)');
                     return;
                   }
                   if (!addUserForm.name.trim()) {
@@ -957,35 +1057,32 @@ export default function AdminPanel() {
                     toast.error('Enter a valid 10-digit mobile number');
                     return;
                   }
-
-                  setAddingUser(true);
-                  const selectedEvent = events.find(e => e.id === addUserForm.eventId);
-                  if (!selectedEvent) {
-                    toast.error('Invalid event selected');
-                    setAddingUser(false);
+                  if (selectedEventIds.size === 0) {
+                    toast.error('Select at least one event');
                     return;
                   }
 
-                  const success = await adminAddRegistration(selectedEvent, {
-                    rollNumber: addUserForm.rollNumber,
-                    name: addUserForm.name.trim(),
-                    email: addUserForm.email,
-                    mobile: addUserForm.mobile,
-                    department: addUserForm.department,
-                    year: addUserForm.year,
-                  });
-
-                  if (success) {
-                    // Reset form but keep event selection
-                    setAddUserForm(prev => ({
-                      rollNumber: '',
-                      name: '',
-                      mobile: '',
-                      department: '',
-                      year: 1,
-                      email: '',
-                      eventId: prev.eventId,
-                    }));
+                  setAddingUser(true);
+                  let successCount = 0;
+                  let failCount = 0;
+                  for (const eventId of Array.from(selectedEventIds)) {
+                    const selectedEvent = events.find(e => e.id === eventId);
+                    if (!selectedEvent) continue;
+                    const success = await adminAddRegistration(selectedEvent, {
+                      rollNumber: addUserForm.rollNumber,
+                      name: addUserForm.name.trim(),
+                      email: addUserForm.email,
+                      mobile: addUserForm.mobile,
+                      department: addUserForm.department,
+                      year: addUserForm.year,
+                    });
+                    if (success) successCount++;
+                    else failCount++;
+                  }
+                  if (successCount > 0) {
+                    toast.success(`Added to ${successCount} event(s)${failCount > 0 ? `, ${failCount} failed/duplicate` : ''}`);
+                    setAddUserForm({ rollNumber: '', name: '', mobile: '', department: '', year: 1, email: '' });
+                    setSelectedEventIds(new Set());
                   }
                   setAddingUser(false);
                 }}
@@ -1003,7 +1100,7 @@ export default function AdminPanel() {
                 ) : (
                   <>
                     <UserPlus className="w-5 h-5" />
-                    Add User to Event
+                    Add User to {selectedEventIds.size > 0 ? `${selectedEventIds.size} Event${selectedEventIds.size > 1 ? 's' : ''}` : 'Events'}
                   </>
                 )}
               </motion.button>
@@ -1044,3 +1141,4 @@ export default function AdminPanel() {
     </div>
   );
 }
+

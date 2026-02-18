@@ -35,8 +35,8 @@ export default function Events() {
             <span className="gradient-text">Explore Events</span>
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-            From intense hackathons to creative design challenges, discover events
-            that challenge your skills and push your boundaries.
+            From intense coding battles to creative design challenges, discover events
+            that challenge your skills and push your boundaries at our intra-college function.
           </p>
         </motion.div>
 

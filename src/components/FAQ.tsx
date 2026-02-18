@@ -5,20 +5,23 @@ import { Plus, Minus, HelpCircle } from 'lucide-react';
 const faqs = [
     {
         question: "How do I register for events?",
-        answer: "You can register for events by clicking the 'Register Now' button on the navigation bar. You'll need to sign in with your Google account and fill in your details.",
+        answer: "You can register for events by clicking the 'Register Now' button on the navigation bar. You'll need to sign in with your Official college mail ID and fill in your details.",
     },
     {
         question: "Is there a registration fee?",
-        answer: "Registration fee details vary per event. Most flagship events have a nominal fee, while workshops and other contests might be free. Check individual event cards for details.",
+        answer: "No, there are no registration fees. All events are completely free to participate in.",
     },
     {
         question: "Can I participate in multiple events?",
         answer: "Yes! You can participate in as many events as you like, provided their schedules don't clash. Please check the Timeline page to plan your day.",
     },
-
+    {
+        question: "Who can participate in Thiran 2026?",
+        answer: "Thiran is an intra-college function. Only students of our college can participate in the events.",
+    },
     {
         question: "What is the team size for Hack-The-Box?",
-        answer: "For Hack-The-Box, you can form a team of 2-4 members. Inter-college teams are allowed and encouraged!",
+        answer: "For Hack-The-Box, you need a team of exactly 2 members.",
     },
 ];
 

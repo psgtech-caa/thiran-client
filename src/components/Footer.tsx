@@ -40,41 +40,48 @@ export default function Footer() {
                   <img
                     src="/gallery/ASSETS/1-psgtech_logo.png"
                     alt="PSGTech Logo"
-                    className="h-6 md:h-8 w-auto object-contain"
+                    className="h-8 md:h-10 w-auto object-contain"
                   />
-                  <div className="w-px h-5 md:h-6 bg-gray-300" />
+                  <div className="w-px h-6 md:h-8 bg-gray-300" />
                   <img
                     src="/gallery/ASSETS/2-caa_logo.png"
                     alt="CAA Logo"
-                    className="h-6 md:h-8 w-auto object-contain"
+                    className="h-8 md:h-10 w-auto object-contain"
                   />
                 </div>
-                {/* Thiran 2k26 Text */}
-                <div className="flex items-center gap-1.5">
+                {/* College Name & Thiran 2k26 Text */}
+                <div className="flex flex-col items-start gap-0.5">
                   <span
-                    className="text-xl md:text-2xl font-bold tracking-tight"
-                    style={{
-                      background: 'linear-gradient(135deg, hsl(var(--silver)), hsl(var(--glossy-blue)))',
-                      WebkitBackgroundClip: 'text',
-                      WebkitTextFillColor: 'transparent',
-                      backgroundClip: 'text',
-                    }}
+                    className="text-xs md:text-sm font-semibold tracking-wide text-white/80 uppercase"
                   >
-                    Thiran
+                    PSG College of Technology
                   </span>
-                  <motion.span
-                    className="text-sm md:text-base font-bold px-2 py-0.5 rounded-md border border-cosmic-cyan/50 text-cosmic-cyan"
-                    animate={{
-                      boxShadow: [
-                        '0 0 5px hsl(187 94% 55% / 0.3)',
-                        '0 0 15px hsl(187 94% 55% / 0.5)',
-                        '0 0 5px hsl(187 94% 55% / 0.3)',
-                      ],
-                    }}
-                    transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-                  >
-                    2k26
-                  </motion.span>
+                  <div className="flex items-center gap-1.5">
+                    <span
+                      className="text-xl md:text-2xl font-bold tracking-tight"
+                      style={{
+                        background: 'linear-gradient(135deg, hsl(var(--silver)), hsl(var(--glossy-blue)))',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        backgroundClip: 'text',
+                      }}
+                    >
+                      Thiran
+                    </span>
+                    <motion.span
+                      className="text-sm md:text-base font-bold px-2 py-0.5 rounded-md border border-cosmic-cyan/50 text-cosmic-cyan"
+                      animate={{
+                        boxShadow: [
+                          '0 0 5px hsl(187 94% 55% / 0.3)',
+                          '0 0 15px hsl(187 94% 55% / 0.5)',
+                          '0 0 5px hsl(187 94% 55% / 0.3)',
+                        ],
+                      }}
+                      transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                    >
+                      2k26
+                    </motion.span>
+                  </div>
                 </div>
               </motion.a>
               <p className="text-xs md:text-sm text-muted-foreground mb-4 md:mb-6 max-w-sm leading-relaxed">
@@ -91,6 +98,8 @@ export default function Footer() {
                     <motion.a
                       key={social.label}
                       href={social.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="w-9 h-9 md:w-10 md:h-10 glass rounded-xl flex items-center justify-center hover:bg-white/10 transition-all duration-300"
                       aria-label={social.label}
                       whileHover={{ scale: 1.1, y: -3 }}
@@ -170,7 +179,7 @@ export default function Footer() {
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
           >
-            Department of Computer Applications MCA © 2026
+            Department of Computer Applications MCA, PSGCT © 2026
           </motion.p>
         </div>
       </div>
