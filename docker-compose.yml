@@ -1,0 +1,38 @@
+services:
+
+  # ─── Nginx Proxy Manager (Handles ports 80 & 443, SSL, proxy routing) ───
+  nginx-proxy-manager:
+    image: jc21/nginx-proxy-manager:latest
+    container_name: nginx-proxy-manager
+    ports:
+      - "80:80"       # HTTP
+      - "443:443"     # HTTPS
+      - "81:81"       # Admin Panel
+    volumes:
+      - npm_data:/data
+      - npm_letsencrypt:/etc/letsencrypt
+    restart: unless-stopped
+    networks:
+      - proxy-network
+
+  # ─── Thiran Web Application ───
+  thiran-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: thiran-client:latest
+    container_name: thiran-web
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+    networks:
+      - proxy-network
+    # No "ports" exposed to host — only accessible via proxy-network
+
+volumes:
+  npm_data:
+  npm_letsencrypt:
+
+networks:
+  proxy-network:
+    driver: bridge

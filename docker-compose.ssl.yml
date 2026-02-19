@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  thiran-web:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    image: thiran-client:latest
+    container_name: thiran-web
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+    networks:
+      - thiran-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  thiran-network:
+    driver: bridge
